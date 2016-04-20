@@ -52,6 +52,20 @@
 	    require('./polyfill');
 	}
 
+	function isElement(obj) {
+
+	    if (window.HTMLElement || window.Element) {
+	        //Using W3 DOM2 (works for FF, Opera and Chrome
+	        var ElementClass = window.HTMLElement ? window.HTMLElement : window.Element;
+	        return obj instanceof ElementClass;
+	    } else {
+	        //Browsers not supporting W3 DOM2 don't have HTMLElement and
+	        //an exception is thrown and we end up here. Testing some
+	        //properties that all elements have. (works on IE7)
+	        return (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === "object" && obj.nodeType === 1 && _typeof(obj.style) === "object" && _typeof(obj.ownerDocument) === "object";
+	    }
+	}
+
 	var html2Escape = function html2Escape(sHtml) {
 	    return sHtml.replace(/[<>&"]/g, function (c) {
 	        return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c];
@@ -360,11 +374,11 @@
 	        throw new TypeError('Render function should return element!');
 	    }
 
-	    if (!dom instanceof $ && !dom instanceof HTMLElement) {
+	    if (!dom instanceof window.jQuery && !isElement(dom)) {
 	        throw new TypeError('Render function should receive a DOM!');
 	    }
 
-	    if (dom instanceof HTMLElement) {
+	    if (isElement(dom)) {
 	        dom = $(dom);
 	    }
 
