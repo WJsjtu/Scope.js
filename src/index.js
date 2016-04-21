@@ -36,10 +36,12 @@ const List = Scope.createClass({
             <div>
                 <a onClick={me.generate}>{me.props.label || 'try'}</a>
                 <div>
-                    <ul ref="ul1" style="display:inline-block;list-style:none;" onClick={me.onActive}>
+                    <ul ref="ul1" style="display:inline-block;list-style:none;*zoom:1;*display:inline;"
+                        onClick={me.onActive}>
                         {me.getList()}
                     </ul>
-                    <ul ref="ul2" style="display:inline-block;list-style:none;" onClick={me.onActive}>
+                    <ul ref="ul2" style="display:inline-block;list-style:none;*zoom:1;*display:inline;"
+                        onClick={me.onActive}>
                         {me.getList}
                     </ul>
                 </div>

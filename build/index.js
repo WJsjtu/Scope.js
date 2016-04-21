@@ -97,12 +97,14 @@
 	                null,
 	                Scope.createElement(
 	                    'ul',
-	                    { ref: 'ul1', style: 'display:inline-block;list-style:none;', onClick: me.onActive },
+	                    { ref: 'ul1', style: 'display:inline-block;list-style:none;*zoom:1;*display:inline;',
+	                        onClick: me.onActive },
 	                    me.getList()
 	                ),
 	                Scope.createElement(
 	                    'ul',
-	                    { ref: 'ul2', style: 'display:inline-block;list-style:none;', onClick: me.onActive },
+	                    { ref: 'ul2', style: 'display:inline-block;list-style:none;*zoom:1;*display:inline;',
+	                        onClick: me.onActive },
 	                    me.getList
 	                )
 	            )
