@@ -97,6 +97,16 @@
 	}
 
 	ScopeTree.prototype.createChild = function (_rootID, _context) {
+
+	    var childLength = this.children.length;
+	    for (var i = 0; i < childLength;) {
+	        if (this.children[i].rootID == _rootID) {
+	            this.children.splice(i, 1);
+	            childLength--;
+	            continue;
+	        }
+	        i++;
+	    }
 	    var result = new ScopeTree(_rootID, _context);
 	    this.children.push(result);
 	    return result;
@@ -129,7 +139,7 @@
 	            if (_key == 'ref') {
 	                ref = '' + value;
 	            } else if (_key.startsWith('on')) {
-	                if (typeof value == 'function' || (typeof value === 'undefined' ? 'undefined' : _typeof(value)) == 'object') {
+	                if (value && (typeof value == 'function' || (typeof value === 'undefined' ? 'undefined' : _typeof(value)) == 'object')) {
 	                    events[_key.replace(/^on/, '').toLowerCase()] = value;
 	                }
 	            } else {
@@ -236,9 +246,8 @@
 
 	            var tagContext = data.tagName.context;
 
-	            tagContext = $.extend({}, tagContext, {
-	                props: data.props || {}
-	            });
+	            tagContext = $.extend({}, tagContext);
+	            tagContext.props = data.props || {};
 
 	            var rootData = tagContext.render();
 
@@ -246,7 +255,12 @@
 	                throw new TypeError('Render function should return element!');
 	            }
 
-	            return renderHTML(rootData, currentId, isRoot ? scopeTree : scopeTree.createChild(currentId, tagContext));
+	            if (isRoot) {
+	                scopeTree.context = tagContext;
+	                return renderHTML(rootData, currentId, scopeTree);
+	            } else {
+	                return renderHTML(rootData, currentId, scopeTree.createChild(currentId, tagContext));
+	            }
 	        } else {
 	            console.log('An unknown type of element!');
 	            return null;
@@ -264,17 +278,17 @@
 	    };
 	}
 
-	var getUpdateFunc = function getUpdateFunc(data, currentId, scopeTree, $element) {
+	var getUpdateFunc = function getUpdateFunc(data, currentId, scopeTree, $element, refRecord) {
 
 	    return function (propsUpdate) {
-
+	        var _scopeTree = new ScopeTree(scopeTree.rootID, scopeTree.context);
 	        if (selfCloseTags.indexOf(data.tagName) == -1) {
 	            (function () {
 
 	                var resultArray = [];
 
 	                data.children.forEach(function (dataItem, index) {
-	                    var resultRenderedData = renderHTML(dataItem, currentId + '.' + index, scopeTree);
+	                    var resultRenderedData = renderHTML(dataItem, currentId + '.' + index, _scopeTree);
 
 	                    if (resultRenderedData != null) {
 	                        resultArray.push(resultRenderedData);
@@ -284,7 +298,34 @@
 	                var childHtml = resultArray.join('');
 	                $element.html(childHtml);
 
-	                registerScope(scopeTree, $element);
+	                var newRef = registerScope(_scopeTree, $element);
+	                Object.keys(refRecord).forEach(function (refName) {
+	                    if (newRef[refName]) {
+	                        refRecord[refName] = newRef[refName];
+	                    } else {
+	                        newRef[refName] = refRecord[refName];
+	                    }
+	                });
+	                Object.keys(_scopeTree.refs).forEach(function (key) {
+	                    scopeTree.refs[key] = _scopeTree.refs[key];
+	                });
+	                Object.keys(_scopeTree.events).forEach(function (key) {
+	                    scopeTree.events[key] = _scopeTree.events[key];
+	                });
+
+	                var newChildren = {};
+	                _scopeTree.children.forEach(function (child) {
+	                    newChildren[child.rootID] = child;
+	                });
+
+	                var childrenLength = scopeTree.children.length;
+	                for (var i = 0; i < childrenLength;) {
+	                    if (newChildren[scopeTree.children[i].rootID]) {
+	                        scopeTree.children[i] = newChildren[scopeTree.children[i].rootID];
+	                    } else {
+	                        _scopeTree.children.push(scopeTree.children[i]);
+	                    }
+	                }
 	            })();
 	        }
 	        if (propsUpdate) {
@@ -299,7 +340,7 @@
 	        var data = scopeTree.refs[id],
 	            $element = $wrapper.find('[' + attrString + '="' + id + '"]');
 
-	        var updateFunc = getUpdateFunc(data, id, scopeTree, $element);
+	        var updateFunc = getUpdateFunc(data, id, scopeTree, $element, refRecord);
 
 	        refRecord[data.ref] = new ElementReference(id, $element, updateFunc, refRecord);
 	    });
@@ -309,7 +350,7 @@
 	            context = scopeTree.context,
 	            $element = $wrapper.find('[' + attrString + '="' + id + '"]');
 
-	        var updateFunc = getUpdateFunc(data, id, scopeTree, $element);
+	        var updateFunc = getUpdateFunc(data, id, scopeTree, $element, refRecord);
 
 	        var elementRef = new ElementReference(id, $element, updateFunc, refRecord);
 
@@ -389,8 +430,11 @@
 	    if (innerHTML != null) {
 	        dom.html(innerHTML);
 	        var $this = dom.children();
+
+	        window.a = scopeTree;
+
 	        var refRecord = registerScope(scopeTree, $this);
-	        return new ElementReference('0', $this, getUpdateFunc(rootData, '0', scopeTree, $this), refRecord);
+	        return new ElementReference('0', $this, getUpdateFunc(rootData, '0', scopeTree, $this, refRecord), refRecord);
 	    } else {
 	        return null;
 	    }
