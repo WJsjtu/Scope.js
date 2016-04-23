@@ -8,17 +8,17 @@ const List = Scope.createClass({
             this.data.push(Math.random());
         }
     },
-    generate: function ($handler, event) {
+    updateRightColumn: function ($handler, event) {
         $handler.stopPropagation(event);
         this.getRandom();
-        const $ul2DataElement = $handler.refs.ul2.update();
+        $handler.refs.ul2.update();
     },
     onActive: {
         'li': function ($handler, event) {
             $handler.stopPropagation(event);
             console.log($handler);
-            $handler.ownerRef.$ele.find('li.active').removeClass('active');
-            $handler.$this.addClass('active');
+            $handler.owner.$ele.find('li.active').removeClass('active');
+            $handler.$ele.addClass('active');
         }
     },
     getList: function () {
@@ -30,17 +30,16 @@ const List = Scope.createClass({
     },
     render: function () {
         const me = this;
-        console.log(me);
         me.getRandom();
         return (
             <div>
-                <a onClick={me.generate}>{me.props.label || 'try'}</a>
+                <a onClick={me.updateRightColumn}>{me.props.label || 'updateRightColumn'}</a>
                 <div>
-                    <ul ref="ul1" style="display:inline-block;list-style:none;*zoom:1;*display:inline;"
+                    <ul ref="ul1" style="display:inline-block;list-style:none;*zoom:1;*display:inline;margin:0;"
                         onClick={me.onActive}>
                         {me.getList()}
                     </ul>
-                    <ul ref="ul2" style="display:inline-block;list-style:none;*zoom:1;*display:inline;"
+                    <ul ref="ul2" style="display:inline-block;list-style:none;*zoom:1;*display:inline;margin:0;"
                         onClick={me.onActive}>
                         {me.getList}
                     </ul>
@@ -51,14 +50,21 @@ const List = Scope.createClass({
 });
 
 const Wrapper = Scope.createClass({
-    tryout: function ($handler) {
-        console.log($handler)
+    update: function ($handler) {
+        console.log($handler);
+        $handler.refs.List.update();
+    },
+    reRender: function ($handler) {
+        console.log($handler);
+        $handler.refs.List.render();
     },
     render: function () {
         const me = this;
         return (
             <div>
-                <a onClick={me.tryout}>tryout</a>
+                <a onClick={me.update}>update</a>
+                <span>&nbsp;|&nbsp;</span>
+                <a onClick={me.reRender}>reRender</a>
                 <List ref="List"/>
             </div>
         );
@@ -67,16 +73,16 @@ const Wrapper = Scope.createClass({
 
 $(function () {
     window.List = List;
-    const a = Scope.render(
+    const mixedDom = Scope.render(
         <div class="hehe">
             <Wrapper ref="fds"/>
             <List label='label'/>
         </div>,
         document.getElementById('test1')
     );
-    const b = Scope.render(
+    const compRoot = Scope.render(
         <Wrapper ref="fds"/>,
         document.getElementById('test2')
     );
-    console.log(List, a, b);
+    console.log(mixedDom, compRoot);
 });
