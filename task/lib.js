@@ -15,11 +15,11 @@ module.exports = function (libName, mode, externals) {
     var srcFile = path.join(srcDir, libName, 'index.js');
     var distFile = path.join(distDir, libName + '.js');
 
+    taskLogger.start();
     if (!fs.existsSync(path.join(srcDir, libName, 'index.js'))) {
         taskLogger.error('Lib:' + libName + ' not found!');
         return false;
     }
-    taskLogger.start();
 
     if (mode == 'webpack') {
         webpackTask(srcFile, distFile, true, externals).then(function () {

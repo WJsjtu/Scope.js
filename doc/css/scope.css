@@ -1,0 +1,234 @@
+.cm-s-scope-light {
+    background-color: #f8f5ec;
+    color: #637c84
+}
+
+.cm-s-scope-light .emphasis {
+    font-weight: bold
+}
+
+.cm-s-scope-light .dotted {
+    border-bottom: 1px dotted #cb4b16
+}
+
+.cm-s-scope-light .CodeMirror-gutter {
+    background-color: #eee8d5;
+    border-right: 3px solid #eee8d5
+}
+
+.cm-s-scope-light .CodeMirror-gutter .CodeMirror-gutter-text {
+    color: #93a1a1
+}
+
+.cm-s-scope-light .CodeMirror-cursor {
+    border-left-color: #002b36 !important
+}
+
+.cm-s-scope-light .CodeMirror-matchingbracket {
+    color: #002b36;
+    background-color: #eee8d5;
+    box-shadow: 0 0 10px #eee8d5;
+    font-weight: bold
+}
+
+.cm-s-scope-light .CodeMirror-nonmatchingbracket {
+    color: #002b36;
+    background-color: #eee8d5;
+    box-shadow: 0 0 10px #eee8d5;
+    font-weight: bold;
+    color: #dc322f;
+    border-bottom: 1px dotted #cb4b16
+}
+
+.cm-s-scope-light span.cm-keyword {
+    color: #268bd2
+}
+
+.cm-s-scope-light span.cm-atom {
+    color: #2aa198
+}
+
+.cm-s-scope-light span.cm-number {
+    color: #586e75
+}
+
+.cm-s-scope-light span.cm-def {
+    color: #637c84
+}
+
+.cm-s-scope-light span.cm-variable {
+    color: #637c84
+}
+
+.cm-s-scope-light span.cm-variable-2 {
+    color: #b58900
+}
+
+.cm-s-scope-light span.cm-variable-3 {
+    color: #cb4b16
+}
+
+.cm-s-scope-light span.cm-comment {
+    color: #93a1a1
+}
+
+.cm-s-scope-light span.cm-property {
+    color: #637c84
+}
+
+.cm-s-scope-light span.cm-operator {
+    color: #657b83
+}
+
+.cm-s-scope-light span.cm-string {
+    color: #36958e
+}
+
+.cm-s-scope-light span.cm-error {
+    font-weight: bold;
+    border-bottom: 1px dotted #cb4b16
+}
+
+.cm-s-scope-light span.cm-bracket {
+    color: #cb4b16
+}
+
+.cm-s-scope-light span.cm-tag {
+    color: #657b83
+}
+
+.cm-s-scope-light span.cm-attribute {
+    color: #586e75;
+    font-weight: bold
+}
+
+.cm-s-scope-light span.cm-meta {
+    color: #268bd2
+}
+
+.cm-s-scope-dark {
+    background-color: #002b36;
+    color: #839496
+}
+
+.cm-s-scope-dark .emphasis {
+    font-weight: bold
+}
+
+.cm-s-scope-dark .dotted {
+    border-bottom: 1px dotted #cb4b16
+}
+
+.cm-s-scope-dark .CodeMirror-gutter {
+    background-color: #073642;
+    border-right: 3px solid #073642
+}
+
+.cm-s-scope-dark .CodeMirror-gutter .CodeMirror-gutter-text {
+    color: #586e75
+}
+
+.cm-s-scope-dark .CodeMirror-cursor {
+    border-left-color: #fdf6e3 !important
+}
+
+.cm-s-scope-dark .CodeMirror-matchingbracket {
+    color: #fdf6e3;
+    background-color: #073642;
+    box-shadow: 0 0 10px #073642;
+    font-weight: bold
+}
+
+.cm-s-scope-dark .CodeMirror-nonmatchingbracket {
+    color: #fdf6e3;
+    background-color: #073642;
+    box-shadow: 0 0 10px #073642;
+    font-weight: bold;
+    color: #dc322f;
+    border-bottom: 1px dotted #cb4b16
+}
+
+.cm-s-scope-dark span.cm-keyword {
+    color: #839496;
+    font-weight: bold
+}
+
+.cm-s-scope-dark span.cm-atom {
+    color: #2aa198
+}
+
+.cm-s-scope-dark span.cm-number {
+    color: #93a1a1
+}
+
+.cm-s-scope-dark span.cm-def {
+    color: #268bd2
+}
+
+.cm-s-scope-dark span.cm-variable {
+    color: #cb4b16
+}
+
+.cm-s-scope-dark span.cm-variable-2 {
+    color: #cb4b16
+}
+
+.cm-s-scope-dark span.cm-variable-3 {
+    color: #cb4b16
+}
+
+.cm-s-scope-dark span.cm-comment {
+    color: #586e75
+}
+
+.cm-s-scope-dark span.cm-property {
+    color: #b58900
+}
+
+.cm-s-scope-dark span.cm-operator {
+    color: #839496
+}
+
+.cm-s-scope-dark span.cm-string {
+    color: #6c71c4
+}
+
+.cm-s-scope-dark span.cm-error {
+    font-weight: bold;
+    border-bottom: 1px dotted #cb4b16
+}
+
+.cm-s-scope-dark span.cm-bracket {
+    color: #cb4b16
+}
+
+.cm-s-scope-dark span.cm-tag {
+    color: #839496
+}
+
+.cm-s-scope-dark span.cm-attribute {
+    color: #93a1a1;
+    font-weight: bold
+}
+
+.cm-s-scope-dark span.cm-meta {
+    color: #268bd2
+}
+
+div.CodeMirror pre, div.CodeMirror-linenumber, code {
+    font-family: 'source-code-pro', Menlo, Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.5
+}
+
+div.CodeMirror-linenumber {
+    text-align: right
+}
+
+.CodeMirror, div.CodeMirror-gutters, div.highlight {
+    border: none
+}
+
+.CodeMirror-gutter {
+    padding-top: 30px !important;
+}

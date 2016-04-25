@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Scope</title>
+    <meta name="viewport" content="width=device-width">
+    <meta property="og:title" content="Scope">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://wjsjtu.github.io/scope/docs/index.html">
+    <meta property="og:image" content="https://facebook.github.io/scope/img/logo_og.png">
+    <meta property="og:description" content="A JavaScript library for building user interfaces">
+
+    <link rel="shortcut icon" href="">
+
+    <link rel="stylesheet" href="css/normalize.css"/>
+    <link rel="stylesheet" href="css/syntax.css">
+    <link rel="stylesheet" href="css/codemirror.css">
+    <link rel="stylesheet" href="css/scope.css">
+
+
+    <!--[if lte IE 8]>
+    <script src="js/es5/es5-shim.min.js"></script>
+    <script src="js/es5/es5-sham.min.js"></script>
+    <![endif]-->
+    <script src="js/codemirror.js"></script>
+    <script src="js/javascript.js"></script>
+    <script src="js/babel.min.js"></script>
+    <script src="js/jquery-1.12.3.min.js"></script>
+    <script src="js/scope.js"></script>
+    <style>
+        body > div {
+            margin: 10px;
+        }
+
+        #ListDemo li.active {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div id="HelloDemo">
+    <div class="highlight" style="width: 50%;float: left;">
+        <pre class="editor"></pre>
+    </div>
+    <div style="width: 50%;float: left;" class="mountNode"></div>
+    <div style="clear: both;"></div>
+    <script type="text/scope" class="sourceCode">var HelloMessage = Scope.createClass({
+    render: function() {
+        return <div>Hello {this.props.name}</div>;
+    }
+});
+Scope.render(<HelloMessage name="John" />, mountNode);
+
+    </script>
+</div>
+
+<div id="ListDemo">
+    <div class="highlight" style="width: 50%;float: left;">
+        <pre class="editor"></pre>
+    </div>
+    <div style="width: 50%;float: left;" class="mountNode"></div>
+    <div style="clear: both;"></div>
+    <script type="text/scope" class="sourceCode">const List = Scope.createClass({
+    data: [],
+    getRandom: function () {
+        this.data = [];
+        for (let i = 0; i < 20; i++) {
+            this.data.push(Math.random());
+        }
+    },
+    generate: function ($handler, event) {
+        $handler.stopPropagation(event);
+        this.getRandom();
+        $handler.refs.ul2.update();
+    },
+    onActive: {
+        'li': function ($handler, event) {
+            $handler.stopPropagation(event);
+            $handler.owner.$ele.find('li.active').removeClass('active');
+            $handler.$ele.addClass('active');
+        }
+    },
+    getList: function () {
+        return this.data.map(function (ele) {
+            return <li onClick={function(){
+                console.log(ele);
+            }}>{ele}</li>;
+        });
+    },
+    render: function () {
+        const me = this;
+        me.getRandom();
+        return (
+            <div>
+                <a onClick={me.generate}>{me.props.label || 'update right list'}</a>
+                <div>
+                    <ul ref="ul1" style="display:inline-block;list-style:none;*zoom:1;*display:inline;"
+                        onClick={me.onActive}>
+                        {me.getList()}
+                    </ul>
+                    <ul ref="ul2" style="display:inline-block;list-style:none;*zoom:1;*display:inline;"
+                        onClick={me.onActive}>
+                        {me.getList}
+                    </ul>
+                </div>
+            </div>
+        );
+    }
+});
+
+Scope.render(<List />, mountNode);
+
+    </script>
+</div>
+
+<script>
+
+    var compileJSX = function (input) {
+        return Babel.transform(input, {
+            presets: ["es2015"],
+            plugins: [
+                "transform-es5-property-mutators",
+                "transform-react-jsx",
+                "transform-es3-member-expression-literals",
+                "transform-es3-property-literals"
+            ]
+        }).code.replace(/([^0-9a-zA-Z])(React)(\.createElement\s*\()/g, '$1Scope$3');
+    };
+
+    var setDemo = function (id) {
+        var $wrapper = $("#" + id);
+        var mountNode = $wrapper.find('.mountNode')[0];
+        var sourceCode = $wrapper.find('.sourceCode').text();
+        var editor = $wrapper.find('.editor')[0];
+        var codeMirror = CodeMirror(editor, {
+            value: sourceCode,
+            mode: "javascript",
+            lineNumbers: true,
+            //readOnly: 'nocursor',
+            lineWrapping: false,
+            smartIndent: false, // javascript mode does bad things with jsx indents
+            //matchBrackets: true,
+            //showCursorWhenSelecting: false,
+            theme: 'scope-light'
+        });
+
+        var mount = function (code) {
+            var html = false;
+            try {
+                html = compileJSX(code);
+                $(mountNode).empty();
+                eval(html);
+            } catch (e) {
+                $(mountNode).text(e);
+                console.log(e);
+            }
+        };
+
+        codeMirror.on("change", function () {
+            mount(codeMirror.doc.getValue());
+        });
+
+        mount(codeMirror.doc.getValue());
+    };
+
+    setDemo('HelloDemo');
+    setDemo('ListDemo');
+</script>
+</body>
+</html>
