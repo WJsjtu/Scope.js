@@ -5,7 +5,7 @@
  npm start lib polyfill
  */
 
-const DayPicker = require('./../../../src/component/daypicker/index');
+const DayPicker = require('./../../../src/component/calender/index');
 
 $(function () {
     const activeDay = {

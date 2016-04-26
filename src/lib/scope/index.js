@@ -25,11 +25,12 @@
 
     const selfCloseTags = 'br hr img map area base input'.split(' ');
 
-    function SComponent(context) {
+    function SComponent(context, callback) {
         if (typeof context.render != 'function') {
             throw new TypeError('Render function not defined!');
         }
         this.context = context;
+        this.callback = callback;
     }
 
     function SElement(tagName, props, children, events, ref) {
@@ -94,11 +95,13 @@
                     props: element.props
                 });
                 const _element = _context.render.bind(_context)();
-                const tempRefs = {};
+                const tempRefs = {}, tempCallbacks = {
+                    list: []
+                };
 
                 elementBindEvents(_element, $ele, _context, tempRefs);
 
-                const $children = renderChildren(_element.children, _context, tempRefs);
+                const $children = renderChildren(_element.children, _context, tempRefs, tempCallbacks);
 
                 me.refs = tempRefs;
                 $component.refs = tempRefs;
@@ -113,6 +116,10 @@
                         $ele.append($child);
                     }
                 });
+
+                for (let i = tempCallbacks.list.length - 1; i >= 0; i--) {
+                    tempCallbacks.list[i]();
+                }
             };
         }
     }
@@ -159,7 +166,7 @@
     };
 
 
-    const renderChildren = function (children, context, refs) {
+    const renderChildren = function (children, context, refs, callbacks) {
         const result = [];
 
         children.forEach(function (childElement) {
@@ -174,7 +181,7 @@
 
             //如果数据源是一个元素数组,那么递归渲染
             if (Array.isArray(childElement)) {
-                Array.prototype.push.apply(result, renderChildren(childElement, context, refs));
+                Array.prototype.push.apply(result, renderChildren(childElement, context, refs, callbacks));
                 return true;
             }
 
@@ -204,7 +211,7 @@
                 }
 
                 if (selfCloseTags.indexOf(childElement.tagName) == -1) {
-                    const $childChildren = renderChildren(childElement.children, context, refs);
+                    const $childChildren = renderChildren(childElement.children, context, refs, callbacks);
 
                     $childChildren.forEach(function ($childChild) {
                         if (typeof $childChild == 'string') {
@@ -219,7 +226,7 @@
 
             }//处理组件嵌套
             else if (childElement.tagName instanceof SComponent) {
-                const $component = renderComponent(childElement.tagName, childElement.props);
+                const $component = renderComponent(childElement.tagName, childElement.props, callbacks);
                 if (childElement.ref) {
                     refs[childElement.ref] = new SReference($component.$ele, childElement, context, refs, $component);
                 }
@@ -233,7 +240,7 @@
         return result;
     };
 
-    const renderComponent = function (component, props) {
+    const renderComponent = function (component, props, callbacks) {
         const context = $.extend({}, component.context, {
             props: props
         });
@@ -254,7 +261,7 @@
 
         elementBindEvents(element, $this, context, refs);
 
-        const $children = renderChildren(element.children, context, refs);
+        const $children = renderChildren(element.children, context, refs, callbacks);
 
         $children.forEach(function ($child) {
             if (typeof $child == 'string') {
@@ -264,21 +271,25 @@
             }
         });
 
-        return {
+        const result = {
             $ele: $this,
             refs: refs,
             element: element,
-            context: context
+            context: context,
+            callbacks: callbacks
         };
+
+        if (typeof component.callback == 'function' && callbacks && Array.isArray(callbacks.list)) {
+            callbacks.list.push(component.callback.bind(context, result));
+        }
+
+        return result;
 
     };
 
     const Scope = {
-        createClass: function (context) {
-            if (typeof context.render != 'function') {
-                throw new TypeError('Render function not defined!');
-            }
-            return new SComponent(context);
+        createClass: function (context, callback) {
+            return new SComponent(context, callback);
         },
         createElement: function () {
             const args = Array.prototype.slice.call(arguments, 0);
@@ -333,27 +344,43 @@
             }
 
             if (rootElement.tagName instanceof SComponent) {
-                const $component = renderComponent(rootElement.tagName, rootElement.props);
+                const callbacks = {
+                    list: []
+                };
+                const $component = renderComponent(rootElement.tagName, rootElement.props, callbacks);
                 dom.empty().append($component.$ele);
-                return new SReference($component.$ele, rootElement, $component.refs);
+                for (let i = callbacks.list.length - 1; i >= 0; i--) {
+                    callbacks.list[i]();
+                }
+                return new SReference($component.$ele, rootElement, context, $component.refs, $component);
             } else {
                 let tempComponent;
+                let _context = {};
                 if (typeof context == 'object') {
                     tempComponent = Scope.createClass({
                         render: (function () {
                             return rootElement;
                         }).bind(context)
                     });
+                    _context = context;
                 } else {
-                    tempComponent = Scope.createClass({
+                    _context = {
                         render: function () {
                             return rootElement;
                         }
-                    });
+                    };
+                    tempComponent = Scope.createClass(_context);
                 }
-                const $component = renderComponent(tempComponent, rootElement.props);
+                const callbacks = {
+                    list: []
+                };
+
+                const $component = renderComponent(tempComponent, rootElement.props, callbacks);
                 dom.empty().append($component.$ele);
-                return new SReference($component.$ele, rootElement, $component.refs);
+                for (let i = callbacks.list.length - 1; i >= 0; i--) {
+                    callbacks.list[i]();
+                }
+                return new SReference($component.$ele, rootElement, _context, $component.refs, $component);
             }
         }
     };

@@ -1,5 +1,9 @@
-.highlight pre code {
+.highlight div code {
     color: #637c84;
+}
+
+.highlight div {
+    margin: 0;
 }
 
 .highlight {

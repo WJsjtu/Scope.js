@@ -32,6 +32,8 @@ var defaultOptions = {
             loader: 'babel'
         }, {
             test: /\.(less|css)$/, loader: 'style-loader!css-loader!less-loader'
+        }, {
+            test: /\.(tmpl|txt)$/, loader: 'raw-loader'
         }]
     }
 };

@@ -1,14 +1,13 @@
 var argsFiles = process.argv.splice(2);
 
 var componentMode = {
-    daypicker: 'webpack'
+    calender: 'webpack',
+    docs: 'webpack'
 };
 
 var libMode = {
     scope: 'babel',
-    polyfill: 'babel',
-    history: 'babel',
-    json: 'babel'
+    polyfill: 'babel'
 };
 
 

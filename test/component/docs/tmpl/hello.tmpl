@@ -1,0 +1,6 @@
+var HelloMessage = Scope.createClass({
+    render: function() {
+        return <div>Hello {this.props.name}</div>;
+    }
+});
+Scope.render(<HelloMessage name="John" />, mountNode);
