@@ -69,15 +69,8 @@ const DatePicker = Scope.createClass({
         me.updateView($handler.refs);
     },
     updateView: function (refs) {
-        const duration = 300;
-        refs.title.$ele.fadeOut(duration, function () {
-            refs.title.update();
-            refs.title.$ele.fadeIn(duration);
-        });
-        refs.body.$ele.fadeOut(duration, function () {
-            refs.body.update();
-            refs.body.$ele.fadeIn(duration);
-        });
+        refs.title.update();
+        refs.body.update();
     },
     switchPrev: function ($handler, event) {
         $handler.stopPropagation(event);
@@ -320,53 +313,56 @@ const DatePicker = Scope.createClass({
         const me = this;
         const width = me.props.width || 315;
         return (
-            <table
-                style={`width:${width}px;line-height:${Math.floor(width / 10.5)}px;font-size:${Math.floor(width * 2 / 45)}px;`}>
-                <thead ref="title">
-                <tr class="title">
-                    <th onClick={me.switchPrev}>
-                        <span>&lt;&nbsp;</span>
-                    </th>
-                    <th colspan="5" onClick={me.switchTitle}>
-                        <div>
-                            {function () {
-                                if (me.panel == 1) {
-                                    return (<span>{me.panelDate.year}&nbsp;年&nbsp;{me.panelDate.month}&nbsp;月</span>);
-                                } else if (me.panel == 2) {
-                                    return (<span>{me.panelDate.year}&nbsp;年</span>);
-                                } else if (me.panel == 3) {
-                                    const startYear = parseInt(me.panelDate.year / 10) * 10 - 1;
-                                    return (<span>{startYear}&nbsp;年&nbsp;-&nbsp;{startYear + 12}&nbsp;年</span>);
-                                }
-                            }}
-                        </div>
-                    </th>
-                    <th onClick={me.switchNext}>
-                        <span>&nbsp;&gt;</span>
-                    </th>
-                </tr>
-                {function () {
-                    if (me.panel == 1) {
-                        return (
-                            <tr class="week">{weekDays.map(function (day) {
-                                return (<th>周{day}</th>);
-                            })}</tr>
-                        );
-                    } else {
-                        return null;
-                    }
-                }}
-                </thead>
-                <tbody ref="body">{function () {
-                    if (me.panel == 2) {
-                        return me.renderMonths();
-                    } else if (me.panel == 3) {
-                        return me.renderYears();
-                    } else {
-                        return me.renderDays();
-                    }
-                }}</tbody>
-            </table>
+            <div class="datepicker" style={`width:${width}px;`}>
+                <table
+                    style={`width:${width}px;line-height:${Math.floor(width / 10.5)}px;font-size:${Math.floor(width * 2 / 45)}px;`}>
+                    <thead ref="title">
+                    <tr class="title">
+                        <th onClick={me.switchPrev}>
+                            <span>&lt;&nbsp;</span>
+                        </th>
+                        <th colspan="5" onClick={me.switchTitle}>
+                            <div>
+                                {function () {
+                                    if (me.panel == 1) {
+                                        return (
+                                            <span>{me.panelDate.year}&nbsp;年&nbsp;{me.panelDate.month}&nbsp;月</span>);
+                                    } else if (me.panel == 2) {
+                                        return (<span>{me.panelDate.year}&nbsp;年</span>);
+                                    } else if (me.panel == 3) {
+                                        const startYear = parseInt(me.panelDate.year / 10) * 10 - 1;
+                                        return (<span>{startYear}&nbsp;年&nbsp;-&nbsp;{startYear + 12}&nbsp;年</span>);
+                                    }
+                                }}
+                            </div>
+                        </th>
+                        <th onClick={me.switchNext}>
+                            <span>&nbsp;&gt;</span>
+                        </th>
+                    </tr>
+                    {function () {
+                        if (me.panel == 1) {
+                            return (
+                                <tr class="week">{weekDays.map(function (day) {
+                                    return (<th>周{day}</th>);
+                                })}</tr>
+                            );
+                        } else {
+                            return null;
+                        }
+                    }}
+                    </thead>
+                    <tbody ref="body">{function () {
+                        if (me.panel == 2) {
+                            return me.renderMonths();
+                        } else if (me.panel == 3) {
+                            return me.renderYears();
+                        } else {
+                            return me.renderDays();
+                        }
+                    }}</tbody>
+                </table>
+            </div>
         );
     }
 });

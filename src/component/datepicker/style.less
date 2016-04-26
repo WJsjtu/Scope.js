@@ -13,99 +13,112 @@
   white-space: nowrap;
 }
 
-table {
+div.datepicker {
   box-sizing: content-box;
-  background-color: @backColor;
-  color: @titleColor;
-  border-collapse: collapse;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  border-spacing: 0;
-  border-radius: 0;
-  border: 1px rgba(0, 0, 0, 0.175) solid;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.175);
+  border: 1px #D4D4D4 solid;
+  box-shadow: 0 3px 6px #D4D4D4;
+  -moz-box-shadow: 0 3px 6px #D4D4D4;
+  -webkit-box-shadow: 0 3px 6px #D4D4D4;
+  -webkit-background-clip: padding-box;
   background-clip: padding-box;
 
-  tr {
-    margin: 0;
-    padding: 0;
+  background-color: rgb(0, 0, 0);
+  filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=3, MakeShadow=true, ShadowOpacity=0.10);
+  -ms-filter: "progid:DXImageTransform.Microsoft.Blur(PixelRadius=3,MakeShadow=true,ShadowOpacity=0.10)";
+  zoom: 1;
+
+  table {
+    position: relative;
+    box-sizing: content-box;
+    background-color: @backColor;
+    color: @titleColor;
+    border-collapse: collapse;
+    border-spacing: 0;
     border-radius: 0;
-    border: none;
-    td, th {
+
+    tr {
       margin: 0;
       padding: 0;
-      text-align: center;
       border-radius: 0;
       border: none;
+      td, th {
+        margin: 0;
+        padding: 0;
+        text-align: center;
+        border-radius: 0;
+        border: none;
+      }
     }
-  }
-  thead {
-    margin: 0;
-    padding: 0;
-    tr.title {
-      border-bottom: 1px @darkColor solid;
-      color: @titleColor;
-      th {
-        .ellipsis();
-        cursor: pointer;
-        &:hover {
-          background-color: lighten(@darkColor, 20%);
+    thead {
+      margin: 0;
+      padding: 0;
+      tr.title {
+        border-bottom: 1px @darkColor solid;
+        color: @titleColor;
+        th {
+          .ellipsis();
+          cursor: pointer;
+          &:hover {
+            background-color: lighten(@darkColor, 20%);
+          }
         }
       }
     }
-  }
 
-  tbody {
-    margin: 0;
-    padding: 0;
-    tr {
-      td {
-        &.item, div.item {
+    tbody {
+      margin: 0;
+      padding: 0;
+      tr {
+        td {
+          &.item, div.item {
 
-          transition: all @transitionTime;
-          transition-timing-function: linear;
-          /* Firefox 4 */
-          -moz-transition: all @transitionTime;
-          -moz-transition-timing-function: linear;
-          /* Safari and Chrome */
-          -webkit-transition: all @transitionTime;
-          -webkit-transition-timing-function: linear;
-          /* Opera */
-          -o-transition: all @transitionTime;
-          -o-transition-timing-function: linear;
+            transition: all @transitionTime;
+            transition-timing-function: linear;
+            /* Firefox 4 */
+            -moz-transition: all @transitionTime;
+            -moz-transition-timing-function: linear;
+            /* Safari and Chrome */
+            -webkit-transition: all @transitionTime;
+            -webkit-transition-timing-function: linear;
+            /* Opera */
+            -o-transition: all @transitionTime;
+            -o-transition-timing-function: linear;
 
-          cursor: pointer;
-          &.old, &.new {
-            color: @darkColor;
-          }
-          &:hover {
-            background-color: darken(@darkColor, 20%);
-            color: @backColor;
-          }
-          &.current {
-            background-color: @currentColor;
-            color: darken(@darkColor, 20%);
-            &:hover {
-              background-color: darken(@currentColor, 20%);
+            cursor: pointer;
+            &.old, &.new {
               color: @darkColor;
             }
-          }
-          &.active {
-            background-color: @activeColor;
-            color: @backColor;
-          }
-
-          &.disabled {
-            cursor: not-allowed;
-            background-color: lighten(@darkColor, 10%);
-            color: @backColor;
             &:hover {
+              background-color: darken(@darkColor, 20%);
+              color: @backColor;
+            }
+            &.current {
+              background-color: @currentColor;
+              color: darken(@darkColor, 20%);
+              &:hover {
+                background-color: darken(@currentColor, 20%);
+                color: @darkColor;
+              }
+            }
+            &.active {
+              background-color: @activeColor;
+              color: @backColor;
+            }
+
+            &.disabled {
+              cursor: not-allowed;
               background-color: lighten(@darkColor, 10%);
               color: @backColor;
+              &:hover {
+                background-color: lighten(@darkColor, 10%);
+                color: @backColor;
+              }
             }
           }
         }
