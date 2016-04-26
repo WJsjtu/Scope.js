@@ -25,12 +25,11 @@
 
     const selfCloseTags = 'br hr img map area base input'.split(' ');
 
-    function SComponent(context, callback) {
+    function SComponent(context) {
         if (typeof context.render != 'function') {
             throw new TypeError('Render function not defined!');
         }
         this.context = context;
-        this.callback = callback;
     }
 
     function SElement(tagName, props, children, events, ref) {
@@ -193,7 +192,7 @@
 
             //如果一个数据源是非法的提出错误
             if (!(childElement instanceof SElement)) {
-                console.log('A function element returns non-element object!');
+                //console.log('A function element returns non-element object!');
                 return false;
             }
 
@@ -232,7 +231,7 @@
                 }
                 result.push($component.$ele);
             } else {
-                console.log('An unknown element type!');
+                //console.log('An unknown element type!');
                 return false;
             }
         });
@@ -244,13 +243,19 @@
         const context = $.extend({}, component.context, {
             props: props
         });
+
+
+        if (typeof context.beforeMount == 'function') {
+            context.beforeMount.bind(context)();
+        }
+
         const element = context.render.bind(context)();
 
         if (element == null) {
             return null;
         }
         if (!(element instanceof SElement)) {
-            console.log('The render function should return a single element!');
+            //console.log('The render function should return a single element!');
             return null;
         }
 
@@ -279,8 +284,8 @@
             callbacks: callbacks
         };
 
-        if (typeof component.callback == 'function' && callbacks && Array.isArray(callbacks.list)) {
-            callbacks.list.push(component.callback.bind(context, result));
+        if (typeof context.afterMount == 'function' && callbacks && Array.isArray(callbacks.list)) {
+            callbacks.list.push(context.afterMount.bind(context, result));
         }
 
         return result;
@@ -288,8 +293,8 @@
     };
 
     const Scope = {
-        createClass: function (context, callback) {
-            return new SComponent(context, callback);
+        createClass: function (context) {
+            return new SComponent(context);
         },
         createElement: function () {
             const args = Array.prototype.slice.call(arguments, 0);

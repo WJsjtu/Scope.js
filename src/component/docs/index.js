@@ -16,56 +16,55 @@ const compileJSX = function (input) {
 
 const tabStyle = 'border-bottom: none !important;border-radius: 3px 3px 0 0;padding: 6px 8px;font-size: 12px;font-weight: bold;color: #c2c0bc;background-color: #f1ede4;display: inline-block;cursor: pointer;';
 
-const editorCallback = function (component) {
-    const codeMirror = window.CodeMirror(component.refs.editor.$ele[0], {
-        value: this.props.sourceCode || '',
-        mode: "javascript",
-        lineNumbers: true,
-        lineWrapping: false,
-        smartIndent: false, // javascript mode does bad things with jsx indents
-        matchBrackets: true,
-        showCursorWhenSelecting: false,
-        theme: 'scope-light'
-    });
-    const codeMirrorCompile = window.CodeMirror(component.refs.compile.$ele[0], {
-        value: '',
-        mode: "javascript",
-        lineNumbers: true,
-        readOnly: 'nocursor',
-        lineWrapping: false,
-        smartIndent: false, // javascript mode does bad things with jsx indents
-        matchBrackets: true,
-        showCursorWhenSelecting: false,
-        theme: 'scope-light'
-    });
-
-    var compileEditor = function () {
-        const _sourceCode = codeMirror.doc.getValue();
-        const mountNode = component.refs.mountNode.$ele[0];
-        try {
-            let compiledCode = compileJSX(_sourceCode);
-            $(mountNode).empty();
-            codeMirrorCompile.doc.setValue(compiledCode);
-
-            const wrapperCode = '(function (mountNode) {' + compiledCode + '})';
-
-            const mountFunc = eval(wrapperCode);
-
-            mountFunc(mountNode);
-        } catch (e) {
-            $(mountNode).text(e);
-            console.log(e);
-        }
-    };
-
-    codeMirror.on("change", function () {
-        compileEditor();
-    });
-
-    compileEditor();
-};
-
 const Editor = Scope.createClass({
+    afterMount: function (component) {
+        const codeMirror = window.CodeMirror(component.refs.editor.$ele[0], {
+            value: this.props.sourceCode || '',
+            mode: "javascript",
+            lineNumbers: true,
+            lineWrapping: false,
+            smartIndent: false, // javascript mode does bad things with jsx indents
+            matchBrackets: true,
+            showCursorWhenSelecting: false,
+            theme: 'scope-light'
+        });
+        const codeMirrorCompile = window.CodeMirror(component.refs.compile.$ele[0], {
+            value: '',
+            mode: "javascript",
+            lineNumbers: true,
+            readOnly: 'nocursor',
+            lineWrapping: false,
+            smartIndent: false, // javascript mode does bad things with jsx indents
+            matchBrackets: true,
+            showCursorWhenSelecting: false,
+            theme: 'scope-light'
+        });
+
+        var compileEditor = function () {
+            const _sourceCode = codeMirror.doc.getValue();
+            const mountNode = component.refs.mountNode.$ele[0];
+            try {
+                let compiledCode = compileJSX(_sourceCode);
+                $(mountNode).empty();
+                codeMirrorCompile.doc.setValue(compiledCode);
+
+                const wrapperCode = '(function (mountNode) {' + compiledCode + '})';
+
+                const mountFunc = eval(wrapperCode);
+
+                mountFunc(mountNode);
+            } catch (e) {
+                $(mountNode).text(e);
+                console.log(e);
+            }
+        };
+
+        codeMirror.on("change", function () {
+            compileEditor();
+        });
+
+        compileEditor();
+    },
     code: function ($handler, event) {
         $handler.stopPropagation(event);
         $handler.refs.tabView.$ele.css({
@@ -107,6 +106,6 @@ const Editor = Scope.createClass({
             </div>
         );
     }
-}, editorCallback);
+});
 
 module.exports = Editor;
