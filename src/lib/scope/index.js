@@ -1,5 +1,5 @@
 (function ($, window) {
-    const eventNamespace = '.scope';
+    const eventNamespace = ".scope";
 
     function isElement(obj) {
 
@@ -8,7 +8,7 @@
             const ElementClass = window.HTMLElement ? window.HTMLElement : window.Element;
             return obj instanceof ElementClass;
         } else {
-            //Browsers not supporting W3 DOM2 don't have HTMLElement and
+            //Browsers not supporting W3 DOM2 don"t have HTMLElement and
             //an exception is thrown and we end up here. Testing some
             //properties that all elements have. (works on IE7)
             return (typeof obj === "object") &&
@@ -19,15 +19,15 @@
 
     const escapeHtml = function (html) {
         return html.replace(/[<>&"]/g, function (c) {
-            return {'<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;'}[c];
+            return {"<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;"}[c];
         });
     };
 
-    const selfCloseTags = 'br hr img map area base input'.split(' ');
+    const selfCloseTags = "br hr img map area base input".split(" ");
 
     function SComponent(context) {
-        if (typeof context.render != 'function') {
-            throw new TypeError('Render function not defined!');
+        if (typeof context.render != "function") {
+            throw new TypeError("Render function not defined!");
         }
         this.context = context;
     }
@@ -41,10 +41,10 @@
         me.ref = ref;
     }
 
-    function SReference($ele, element, context, refs, $component) {
+    function SReference($ele, element, context, refs, $component, hideRef) {
         const me = this;
         me.$ele = $ele;
-        if ($component) {
+        if ($component && !hideRef) {
             me.refs = $component.refs;
         }
 
@@ -54,14 +54,18 @@
 
         me.update = function () {
 
+            const callbacks = {
+                list: []
+            };
+
             const _update = function (_element, _refs, _context) {
+
                 if (selfCloseTags.indexOf(_element.tagName) == -1) {
                     const tempRefs = {};
-                    const $children = renderChildren(_element.children, _context, tempRefs);
-
+                    const $children = renderChildren(_element.children, _context, tempRefs, callbacks, true);
                     $ele.empty();
                     $children.forEach(function ($child) {
-                        if (typeof $child == 'string') {
+                        if (typeof $child == "string") {
                             $ele.text($ele.text() + $child);
                         } else {
                             $ele.append($child);
@@ -79,48 +83,21 @@
             };
 
 
-            if (typeof element.tagName == 'string') {
+            if (typeof element.tagName == "string") {
                 _update(element, refs, context);
-            } else if (element.tagName instanceof SComponent && $component) {
+                for (let i = callbacks.list.length - 1; i >= 0; i--) {
+                    callbacks.list[i]();
+                }
+            } else if (element.tagName instanceof SComponent) {
                 _update($component.element, $component.refs, $component.context);
+                for (let i = callbacks.list.length - 1; i >= 0; i--) {
+                    callbacks.list[i]();
+                }
+                if (typeof $component.context.afterUpdate == "function") {
+                    $component.context.afterUpdate.bind($component.context)($component);
+                }
             }
         };
-
-        if (element.tagName instanceof SComponent && $component) {
-            me.render = function () {
-
-
-                const _context = $.extend({}, $component.context, {
-                    props: element.props
-                });
-                const _element = _context.render.bind(_context)();
-                const tempRefs = {}, tempCallbacks = {
-                    list: []
-                };
-
-                elementBindEvents(_element, $ele, _context, tempRefs);
-
-                const $children = renderChildren(_element.children, _context, tempRefs, tempCallbacks);
-
-                me.refs = tempRefs;
-                $component.refs = tempRefs;
-                $component.element = _element;
-                $component.context = _context;
-
-                $ele.empty();
-                $children.forEach(function ($child) {
-                    if (typeof $child == 'string') {
-                        $ele.text($ele.text() + $child);
-                    } else {
-                        $ele.append($child);
-                    }
-                });
-
-                for (let i = tempCallbacks.list.length - 1; i >= 0; i--) {
-                    tempCallbacks.list[i]();
-                }
-            };
-        }
     }
 
     function SEvent(refs, owner, $ele) {
@@ -149,12 +126,12 @@
         Object.keys(element.events).forEach(function (eventName) {
             const eventHandler = element.events[eventName];
             const owner = new SReference($this, element, context, refs);
-            if (typeof eventHandler == 'function') {
+            if (typeof eventHandler == "function") {
                 $this.on(eventName + eventNamespace, function (event) {
                     eventHandler.bind(context)(new SEvent(refs, owner, $this), event);
                 });
             }
-            else if (typeof eventHandler == 'object') {
+            else if (typeof eventHandler == "object") {
                 Object.keys(eventHandler).forEach(function (selector) {
                     $this.on(eventName + eventNamespace, selector, function (event) {
                         eventHandler[selector].bind(context)(new SEvent(refs, owner, $(this)), event);
@@ -165,7 +142,7 @@
     };
 
 
-    const renderChildren = function (children, context, refs, callbacks) {
+    const renderChildren = function (children, context, refs, callbacks, isUpdate) {
         const result = [];
 
         children.forEach(function (childElement) {
@@ -174,31 +151,31 @@
                 return false;
             }
             //当数据源是函数时,在指定的环境中动态生成元素节点
-            if (typeof childElement == 'function') {
+            if (typeof childElement == "function") {
                 childElement = childElement.bind(context)();
             }
 
             //如果数据源是一个元素数组,那么递归渲染
             if (Array.isArray(childElement)) {
-                Array.prototype.push.apply(result, renderChildren(childElement, context, refs, callbacks));
+                Array.prototype.push.apply(result, renderChildren(childElement, context, refs, callbacks, isUpdate));
                 return true;
             }
 
             //这在内容为纯文本的节点是可能的
-            if (typeof childElement != 'object') {
-                result.push('' + childElement);
+            if (typeof childElement != "object") {
+                result.push("" + childElement);
                 return true;
             }
 
             //如果一个数据源是非法的提出错误
             if (!(childElement instanceof SElement)) {
-                //console.log('A function element returns non-element object!');
+                //console.log("A function element returns non-element object!");
                 return false;
             }
 
 
             //基础HTML元素
-            if (typeof childElement.tagName == 'string') {
+            if (typeof childElement.tagName == "string") {
 
                 const $child = $(document.createElement(childElement.tagName));
                 childElement.props && $child.attr(childElement.props);
@@ -210,10 +187,10 @@
                 }
 
                 if (selfCloseTags.indexOf(childElement.tagName) == -1) {
-                    const $childChildren = renderChildren(childElement.children, context, refs, callbacks);
+                    const $childChildren = renderChildren(childElement.children, context, refs, callbacks, isUpdate);
 
                     $childChildren.forEach(function ($childChild) {
-                        if (typeof $childChild == 'string') {
+                        if (typeof $childChild == "string") {
                             $child.text($child.text() + $childChild);
                         } else {
                             $child.append($childChild);
@@ -225,13 +202,13 @@
 
             }//处理组件嵌套
             else if (childElement.tagName instanceof SComponent) {
-                const $component = renderComponent(childElement.tagName, childElement.props, callbacks);
+                const $component = renderComponent(childElement.tagName, childElement.props, callbacks, context, childElement, isUpdate);
                 if (childElement.ref) {
                     refs[childElement.ref] = new SReference($component.$ele, childElement, context, refs, $component);
                 }
                 result.push($component.$ele);
             } else {
-                //console.log('An unknown element type!');
+                //console.log("An unknown element type!");
                 return false;
             }
         });
@@ -239,13 +216,20 @@
         return result;
     };
 
-    const renderComponent = function (component, props, callbacks) {
+    const renderComponent = function (component, props, callbacks, parentContext, parentElement, isUpdate) {
         const context = $.extend({}, component.context, {
-            props: props
+            props: $.extend({}, props)
+        });
+
+        //function props should be automatically bind with the context
+        Object.keys(context.props).forEach(function (key) {
+            if (typeof context.props[key] == "function") {
+                context.props[key] = context.props[key].bind(parentContext);
+            }
         });
 
 
-        if (typeof context.beforeMount == 'function') {
+        if (typeof context.beforeMount == "function") {
             context.beforeMount.bind(context)();
         }
 
@@ -255,7 +239,7 @@
             return null;
         }
         if (!(element instanceof SElement)) {
-            //console.log('The render function should return a single element!');
+            //console.log("The render function should return a single element!");
             return null;
         }
 
@@ -269,12 +253,13 @@
         const $children = renderChildren(element.children, context, refs, callbacks);
 
         $children.forEach(function ($child) {
-            if (typeof $child == 'string') {
+            if (typeof $child == "string") {
                 $this.text($this.text() + $child);
             } else {
                 $this.append($child);
             }
         });
+
 
         const result = {
             $ele: $this,
@@ -284,8 +269,18 @@
             callbacks: callbacks
         };
 
-        if (typeof context.afterMount == 'function' && callbacks && Array.isArray(callbacks.list)) {
-            callbacks.list.push(context.afterMount.bind(context, result));
+        if (!isUpdate) {
+            if (typeof context.afterMount == "function" && callbacks && Array.isArray(callbacks.list)) {
+                callbacks.list.push(context.afterMount.bind(context, result));
+            }
+        } else {
+            if (typeof context.afterUpdate == "function" && callbacks && Array.isArray(callbacks.list)) {
+                callbacks.list.push(context.afterUpdate.bind(context, result));
+            }
+        }
+
+        if (element.ref) {
+            result.refs[element.ref] = new SReference(result.$ele, parentElement, parentContext, result.refs, result, true);
         }
 
         return result;
@@ -308,13 +303,13 @@
             if (propObject) {
                 if (typeof tagName == "string") {
                     Object.keys(propObject).forEach(function (key) {
-                        const _key = '' + key;
+                        const _key = "" + key;
                         const value = propObject[key];
-                        if (_key == 'ref') {
-                            ref = escapeHtml('' + value);
-                        } else if (_key.startsWith('on')) {
-                            if (value && (typeof value == 'function' || typeof value == 'object')) {
-                                events[_key.replace(/^on/, '').toLowerCase()] = value;
+                        if (_key == "ref") {
+                            ref = escapeHtml("" + value);
+                        } else if (_key.startsWith("on")) {
+                            if (value && (typeof value == "function" || typeof value == "object")) {
+                                events[_key.replace(/^on/, "").toLowerCase()] = value;
                             }
                         } else {
                             props[_key] = value;
@@ -322,10 +317,10 @@
                     });
                 } else if (tagName instanceof SComponent) {
                     Object.keys(propObject).forEach(function (key) {
-                        const _key = '' + key;
+                        const _key = "" + key;
                         const value = propObject[key];
-                        if (_key == 'ref') {
-                            ref = escapeHtml('' + value);
+                        if (_key == "ref") {
+                            ref = escapeHtml("" + value);
                         } else {
                             props[_key] = value;
                         }
@@ -337,11 +332,11 @@
         },
         render: function (rootElement, dom, context) {
             if (!(rootElement instanceof SElement)) {
-                throw new TypeError('Render function should return element!');
+                throw new TypeError("Render function should return element!");
             }
 
             if (!dom instanceof window.jQuery && !isElement(dom)) {
-                throw new TypeError('Render function should receive a DOM!');
+                throw new TypeError("Render function should receive a DOM!");
             }
 
             if (isElement(dom)) {
@@ -352,7 +347,8 @@
                 const callbacks = {
                     list: []
                 };
-                const $component = renderComponent(rootElement.tagName, rootElement.props, callbacks);
+                const $component = renderComponent(rootElement.tagName, rootElement.props, callbacks, context, rootElement);
+
                 dom.empty().append($component.$ele);
                 for (let i = callbacks.list.length - 1; i >= 0; i--) {
                     callbacks.list[i]();
@@ -361,7 +357,7 @@
             } else {
                 let tempComponent;
                 let _context = {};
-                if (typeof context == 'object') {
+                if (typeof context == "object") {
                     tempComponent = Scope.createClass({
                         render: (function () {
                             return rootElement;
@@ -380,7 +376,8 @@
                     list: []
                 };
 
-                const $component = renderComponent(tempComponent, rootElement.props, callbacks);
+                const $component = renderComponent(tempComponent, rootElement.props, callbacks, context, rootElement);
+
                 dom.empty().append($component.$ele);
                 for (let i = callbacks.list.length - 1; i >= 0; i--) {
                     callbacks.list[i]();
