@@ -44,7 +44,7 @@ module.exports = Scope.createClass({
     afterMount: function (component) {
         const me = this;
         me.props.width && me.updateSize(me.props.width);
-        component.$ele.css({
+        component.refs.table.$ele.css({
             width: me.width,
             "line-height": me.lineHeight + "px",
             "font-size": me.fontSize + "px"
@@ -229,7 +229,7 @@ module.exports = Scope.createClass({
         let monthsArray = [];
 
         const getMonthElement = function (year, month, defaultClass) {
-            const classArray = ["item"].concat(defaultClass);
+            const classArray = ["item", "large"].concat(defaultClass);
             if (year == currentYear && month == currentMonth) {
                 classArray.push("current");
             }
@@ -239,10 +239,8 @@ module.exports = Scope.createClass({
             }
 
             return (
-                <div
-                    style={"width: 25%;float: left;"}
-                    class={classArray.join(" ")}
-                    onClick={me.onMonthSelect.bind(me, month)}>
+                <div class={classArray.join(" ")}
+                     onClick={me.onMonthSelect.bind(me, month)}>
                     <span style={"line-height: " + (lineHeight * 7 / 3) + "px;"}>{month}</span>
                 </div>
             );
@@ -259,13 +257,18 @@ module.exports = Scope.createClass({
 
         monthsArray.push(<div style={"clear: both;"}></div>);
 
-        return (
-            <tr>
-                <td colspan="7">
-                    {monthsArray}
-                </td>
-            </tr>
-        );
+        const tableRows = [];
+        for (let i = 0; i < 3; i++) {
+            const oneRow = [];
+            for (let j = 0; j < 4; j++) {
+                oneRow.push(monthsArray[4 * i + j]);
+            }
+            oneRow.push(<div style={"clear: both;"}></div>);
+            tableRows.push(<tr>
+                <td colspan="7">{oneRow}</td>
+            </tr>);
+        }
+        return tableRows;
     },
     renderYears: function () {
         const me = this;
@@ -278,7 +281,7 @@ module.exports = Scope.createClass({
         let yearsArray = [];
 
         const getYearElement = function (year, defaultClass) {
-            const classArray = ["item"].concat(defaultClass);
+            const classArray = ["item", "large"].concat(defaultClass);
             if (year == currentYear) {
                 classArray.push("current");
             }
@@ -288,10 +291,8 @@ module.exports = Scope.createClass({
             }
 
             return (
-                <div
-                    style={"width: 25%;float: left;"}
-                    class={classArray.join(" ")}
-                    onClick={me.onYearSelect.bind(me, year)}>
+                <div class={classArray.join(" ")}
+                     onClick={me.onYearSelect.bind(me, year)}>
                     <span style={"line-height: " + (lineHeight * 7 / 3) + "px;"}>{year}</span>
                 </div>
             );
@@ -306,59 +307,66 @@ module.exports = Scope.createClass({
             ));
         }
 
-        yearsArray.push(<div style={"clear: both;"}></div>);
-
-        return (
-            <tr>
-                <td colspan="7">
-                    {yearsArray}
-                </td>
-            </tr>
-        );
+        const tableRows = [];
+        for (let i = 0; i < 3; i++) {
+            const oneRow = [];
+            for (let j = 0; j < 4; j++) {
+                oneRow.push(yearsArray[4 * i + j]);
+            }
+            oneRow.push(<div style={"clear: both;"}></div>);
+            tableRows.push(<tr>
+                <td colspan="7">{oneRow}</td>
+            </tr>);
+        }
+        return tableRows;
     },
     render: function () {
         const me = this;
         return (
             <div class="picker">
-                <table style="width:100%;">
-                    <thead>
-                    <tr class="title" ref="title">
-                        <th onClick={me.switchStep.bind(me, -1)}>
-                            <span>&lt;&nbsp;</span>
-                        </th>
-                        <th colspan="5" onClick={me.switchTitle}>
-                            <div>
-                                {function () {
-                                    if (me.panel == 1) {
-                                        return (
-                                            <span>{me.panelDate.year}&nbsp;年&nbsp;{me.panelDate.month}&nbsp;月</span>);
-                                    } else if (me.panel == 2) {
-                                        return (<span>{me.panelDate.year}&nbsp;年</span>);
-                                    } else if (me.panel == 3) {
-                                        const startYear = parseInt(me.panelDate.year / 10) * 10 - 1;
-                                        return (<span>{startYear}&nbsp;年&nbsp;-&nbsp;{startYear + 12}&nbsp;年</span>);
-                                    }
-                                }}
-                            </div>
-                        </th>
-                        <th onClick={me.switchStep.bind(me, 1)}>
-                            <span>&nbsp;&gt;</span>
-                        </th>
-                    </tr>
-                    <tr ref="week">{"日一二三四五六".split("").map(function (day) {
-                        return (<th>周{day}</th>);
-                    })}</tr>
-                    </thead>
-                    <tbody ref="body">{function () {
-                        if (me.panel == 2) {
-                            return me.renderMonths();
-                        } else if (me.panel == 3) {
-                            return me.renderYears();
-                        } else {
-                            return me.renderDays();
-                        }
-                    }}</tbody>
-                </table>
+                <div class="content">
+                    <table ref="table">
+                        <thead>
+                        <tr class="title" ref="title">
+                            <th onClick={me.switchStep.bind(me, -1)}>
+                                <span>&lt;&nbsp;</span>
+                            </th>
+                            <th colspan="5" onClick={me.switchTitle}>
+                                <div>
+                                    {function () {
+                                        if (me.panel == 1) {
+                                            return (
+                                                <span>{me.panelDate.year}&nbsp;年&nbsp;{me.panelDate.month}&nbsp;
+                                                    月</span>);
+                                        } else if (me.panel == 2) {
+                                            return (<span>{me.panelDate.year}&nbsp;年</span>);
+                                        } else if (me.panel == 3) {
+                                            const startYear = parseInt(me.panelDate.year / 10) * 10 - 1;
+                                            return (
+                                                <span>{startYear}&nbsp;年&nbsp;-&nbsp;{startYear + 12}&nbsp;年</span>);
+                                        }
+                                    }}
+                                </div>
+                            </th>
+                            <th onClick={me.switchStep.bind(me, 1)}>
+                                <span>&nbsp;&gt;</span>
+                            </th>
+                        </tr>
+                        <tr ref="week">{"日一二三四五六".split("").map(function (day) {
+                            return (<th>周{day}</th>);
+                        })}</tr>
+                        </thead>
+                        <tbody ref="body">{function () {
+                            if (me.panel == 2) {
+                                return me.renderMonths();
+                            } else if (me.panel == 3) {
+                                return me.renderYears();
+                            } else {
+                                return me.renderDays();
+                            }
+                        }}</tbody>
+                    </table>
+                </div>
             </div>
         );
     }
