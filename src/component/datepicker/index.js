@@ -2,8 +2,6 @@ const Scope = require("Scope");
 
 require('./style.less');
 
-const weekDays = "日一二三四五六".split('');
-
 const getPrevMonth = function (year, month) {
     return month == 1 ? [year - 1, 12] : [year, month - 1];
 };
@@ -21,11 +19,19 @@ const DatePicker = Scope.createClass({
     activeDate: {},
     panelDate: {},
     panel: 1,
+    width: 315,
+    lineHeight: 30,
+    fontSize: 14,
+
+    updateSize: function (width) {
+        const me = this;
+        me.width = width;
+        me.lineHeight = Math.floor(width / 10.5);
+        me.fontSize = Math.floor(width * 2 / 45);
+    },
     beforeMount: function () {
 
-        const current = new Date();
-        const me = this;
-
+        const me = this, current = new Date();
         const currentDate = me.props.date || {
                 year: current.getFullYear(),
                 month: current.getMonth() + 1,
@@ -36,6 +42,18 @@ const DatePicker = Scope.createClass({
         me.activeDate = currentDate;
         me.panelDate = $.extend({}, currentDate)
     },
+
+    afterMount: function (component) {
+        const me = this;
+        me.props.width && me.updateSize(me.props.width);
+        component.$ele.css({
+            width: me.width,
+            'line-height': me.lineHeight + 'px',
+            'font-size': me.fontSize + "px"
+        });
+    },
+
+
     onDaySelect: function (year, month, day, needUpdate, $handler, event) {
         $handler.stopPropagation(event);
         const me = this;
@@ -69,6 +87,7 @@ const DatePicker = Scope.createClass({
         me.updateView($handler.refs);
     },
     updateView: function (refs) {
+        refs.week.$ele[this.panel == 1 ? 'show' : 'hide']();
         refs.title.update();
         refs.body.update();
     },
@@ -261,8 +280,7 @@ const DatePicker = Scope.createClass({
     },
     renderYears: function () {
         const me = this;
-        const width = me.props.width || 315;
-        const lineHeight = Math.floor(width / 10.5);
+        const lineHeight = Math.floor(me.width / 10.5);
         const activeYear = me.activeDate.year;
         const dateObject = new Date();
 
@@ -311,13 +329,11 @@ const DatePicker = Scope.createClass({
     },
     render: function () {
         const me = this;
-        const width = me.props.width || 315;
         return (
-            <div class="datepicker" style={`width:${width}px;`}>
-                <table
-                    style={`width:${width}px;line-height:${Math.floor(width / 10.5)}px;font-size:${Math.floor(width * 2 / 45)}px;`}>
-                    <thead ref="title">
-                    <tr class="title">
+            <div class="datepicker">
+                <table style='width:100%;'>
+                    <thead>
+                    <tr class="title" ref="title">
                         <th onClick={me.switchPrev}>
                             <span>&lt;&nbsp;</span>
                         </th>
@@ -340,17 +356,9 @@ const DatePicker = Scope.createClass({
                             <span>&nbsp;&gt;</span>
                         </th>
                     </tr>
-                    {function () {
-                        if (me.panel == 1) {
-                            return (
-                                <tr class="week">{weekDays.map(function (day) {
-                                    return (<th>周{day}</th>);
-                                })}</tr>
-                            );
-                        } else {
-                            return null;
-                        }
-                    }}
+                    <tr ref="week">{"日一二三四五六".split('').map(function (day) {
+                        return (<th>周{day}</th>);
+                    })}</tr>
                     </thead>
                     <tbody ref="body">{function () {
                         if (me.panel == 2) {

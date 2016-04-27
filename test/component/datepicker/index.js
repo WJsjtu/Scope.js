@@ -16,8 +16,7 @@ $(function () {
     };
 
     const instance = Scope.render(
-        <DatePicker width={300}
-                    date={date}
+        <DatePicker date={date}
                     dayRule={function(year, month, day){
                         if(day == 13){
                             return false;
