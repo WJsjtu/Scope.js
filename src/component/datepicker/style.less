@@ -100,56 +100,54 @@ div.datepicker {
               word-wrap: normal;
               text-overflow: clip;
               white-space: nowrap;
-              .item {
+            }
+            .item {
+              &.large {
+                display: inline-block;
+                *zoom: 1;
+                *display: inline;
+                width: 25%;
+              }
+              transition: all @transitionTime;
+              transition-timing-function: linear;
+              /* Firefox 4 */
+              -moz-transition: all @transitionTime;
+              -moz-transition-timing-function: linear;
+              /* Safari and Chrome */
+              -webkit-transition: all @transitionTime;
+              -webkit-transition-timing-function: linear;
+              /* Opera */
+              -o-transition: all @transitionTime;
+              -o-transition-timing-function: linear;
 
-                &.large {
-                  display: inline-block;
-                  *zoom: 1;
-                  *display: inline;
-                  width: 25%;
-                }
-
-                transition: all @transitionTime;
-                transition-timing-function: linear;
-                /* Firefox 4 */
-                -moz-transition: all @transitionTime;
-                -moz-transition-timing-function: linear;
-                /* Safari and Chrome */
-                -webkit-transition: all @transitionTime;
-                -webkit-transition-timing-function: linear;
-                /* Opera */
-                -o-transition: all @transitionTime;
-                -o-transition-timing-function: linear;
-
-                cursor: pointer;
-                &.old, &.new {
+              cursor: pointer;
+              &.old, &.new {
+                color: @darkColor;
+              }
+              &:hover {
+                background-color: darken(@darkColor, 20%);
+                color: @backColor;
+              }
+              &.current {
+                background-color: @currentColor;
+                color: darken(@darkColor, 20%);
+                &:hover {
+                  background-color: darken(@currentColor, 20%);
                   color: @darkColor;
                 }
-                &:hover {
-                  background-color: darken(@darkColor, 20%);
-                  color: @backColor;
-                }
-                &.current {
-                  background-color: @currentColor;
-                  color: darken(@darkColor, 20%);
-                  &:hover {
-                    background-color: darken(@currentColor, 20%);
-                    color: @darkColor;
-                  }
-                }
-                &.active {
-                  background-color: @activeColor;
-                  color: @backColor;
-                }
+              }
+              &.active {
+                background-color: @activeColor;
+                color: @backColor;
+              }
 
-                &.disabled {
-                  cursor: not-allowed;
+              &.disabled {
+                cursor: not-allowed;
+                background-color: lighten(@darkColor, 10%);
+                color: @backColor;
+                &:hover {
                   background-color: lighten(@darkColor, 10%);
                   color: @backColor;
-                  &:hover {
-                    background-color: lighten(@darkColor, 10%);
-                    color: @backColor;
-                  }
                 }
               }
             }
