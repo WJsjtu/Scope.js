@@ -17,16 +17,7 @@ module.exports = Scope.createClass({
     activeDate: {},
     panelDate: {},
     panel: 1,
-    width: 315,
-    lineHeight: 30,
-    fontSize: 14,
 
-    updateSize: function (width) {
-        const me = this;
-        me.width = width;
-        me.lineHeight = Math.floor(width / 10.5);
-        me.fontSize = Math.floor(width * 2 / 45);
-    },
     beforeMount: function () {
 
         const me = this, current = new Date();
@@ -40,21 +31,6 @@ module.exports = Scope.createClass({
         me.activeDate = currentDate;
         me.panelDate = $.extend({}, currentDate)
     },
-
-    afterMount: function (component) {
-        const me = this;
-        me.props.width && me.updateSize(me.props.width);
-        component.refs.table.$ele.css({
-            width: me.width,
-            "line-height": me.lineHeight + "px",
-            "font-size": me.fontSize + "px"
-        });
-    },
-
-    afterUpdate: function (component) {
-        this.afterMount(component);
-    },
-
 
     onDaySelect: function (year, month, day, needUpdate, $handler, event) {
         $handler.stopPropagation(event);
@@ -217,8 +193,7 @@ module.exports = Scope.createClass({
     },
     renderMonths: function () {
         const me = this;
-        const width = me.props.width || 315;
-        const lineHeight = Math.floor(width / 10.5);
+        const lineHeight = me.props.lineHeight;
         const activeDate = me.activeDate;
         const activeYear = activeDate.year, activeMonth = activeDate.month;
         const dateObject = new Date();
@@ -263,7 +238,6 @@ module.exports = Scope.createClass({
             for (let j = 0; j < 4; j++) {
                 oneRow.push(monthsArray[4 * i + j]);
             }
-            oneRow.push(<div style={"clear: both;"}></div>);
             tableRows.push(<tr>
                 <td colspan="7">{oneRow}</td>
             </tr>);
@@ -272,7 +246,7 @@ module.exports = Scope.createClass({
     },
     renderYears: function () {
         const me = this;
-        const lineHeight = Math.floor(me.width / 10.5);
+        const lineHeight = me.props.lineHeight;
         const activeYear = me.activeDate.year;
         const dateObject = new Date();
 
@@ -313,7 +287,6 @@ module.exports = Scope.createClass({
             for (let j = 0; j < 4; j++) {
                 oneRow.push(yearsArray[4 * i + j]);
             }
-            oneRow.push(<div style={"clear: both;"}></div>);
             tableRows.push(<tr>
                 <td colspan="7">{oneRow}</td>
             </tr>);
@@ -325,7 +298,8 @@ module.exports = Scope.createClass({
         return (
             <div class="picker">
                 <div class="content">
-                    <table ref="table">
+                    <table ref="table"
+                           style={`line-height: ${me.props.lineHeight}px;font-size: ${me.props.fontSize}px`}>
                         <thead>
                         <tr class="title" ref="title">
                             <th onClick={me.switchStep.bind(me, -1)}>

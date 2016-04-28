@@ -71,7 +71,11 @@ module.exports = Scope.createClass({
                 <div class="input" onClick={me.onFocus}>
                     <span ref="input"> </span>
                 </div>
-                <Picker date={me.props.date} width={me.props.width} dayRule={me.props.dayRule} ref="picker"
+                <Picker ref="picker"
+                        date={me.props.date}
+                        dayRule={me.props.dayRule}
+                        lineHeight={me.lineHeight}
+                        fontSize={me.fontSize}
                         onSelect={me.onSelect}/>
             </div>
         );
