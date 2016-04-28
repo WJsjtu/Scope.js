@@ -15,11 +15,11 @@ $(function () {
                         if(day == 13){ return false; }
                     }}
                     onSelect={function(year, month, day){
-                       console.log(`${year}年${month}月${day}日`);
+                       console.log(`${year}-${month}-${day}`);
                     }}
         />,
         document.getElementById("container")
     );
     console.log(instance);
-    
+
 });
