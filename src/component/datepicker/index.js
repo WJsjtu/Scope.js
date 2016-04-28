@@ -32,6 +32,8 @@ module.exports = Scope.createClass({
         if (me.props.date) {
             const {year, month, day} = me.props.date;
             me.$input.text(`${year}年${month}月${day}日`);
+        } else {
+            me.$input.text('请选择...');
         }
 
         const style = {

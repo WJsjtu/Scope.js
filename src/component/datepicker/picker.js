@@ -24,7 +24,7 @@ module.exports = Scope.createClass({
         const currentDate = me.props.date || {
                 year: current.getFullYear(),
                 month: current.getMonth() + 1,
-                day: current.getDate()
+                day: 0
             };
 
         me.panel = 1;
