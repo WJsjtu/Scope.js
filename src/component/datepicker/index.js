@@ -33,15 +33,19 @@ module.exports = Scope.createClass({
             const {year, month, day} = me.props.date;
             me.$input.text(`${year}年${month}月${day}日`);
         }
-        me.$input.css({
+
+        const style = {
             "line-height": me.lineHeight + "px",
             "font-size": me.fontSize + "px"
-        }).parent().css({
-            width: me.width
-        });
+        };
+        me.$input.css(style);
+        component.refs.picker.refs.table.$ele.css(style);
         component.refs.wrapper.$ele.css({
             width: me.width
         });
+    },
+    afterUpdate: function () {
+        this.afterMount();
     },
     onSelect: function (year, month, day) {
         const me = this;
@@ -74,8 +78,6 @@ module.exports = Scope.createClass({
                 <Picker ref="picker"
                         date={me.props.date}
                         dayRule={me.props.dayRule}
-                        lineHeight={me.lineHeight}
-                        fontSize={me.fontSize}
                         onSelect={me.onSelect}/>
             </div>
         );

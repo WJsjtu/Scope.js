@@ -193,7 +193,6 @@ module.exports = Scope.createClass({
     },
     renderMonths: function () {
         const me = this;
-        const lineHeight = me.props.lineHeight;
         const activeDate = me.activeDate;
         const activeYear = activeDate.year, activeMonth = activeDate.month;
         const dateObject = new Date();
@@ -216,7 +215,7 @@ module.exports = Scope.createClass({
             return (
                 <div class={classArray.join(" ")}
                      onClick={me.onMonthSelect.bind(me, month)}>
-                    <span style={"line-height: " + (lineHeight * 7 / 3) + "px;"}>{month}</span>
+                    <span>{month}</span>
                 </div>
             );
 
@@ -246,7 +245,6 @@ module.exports = Scope.createClass({
     },
     renderYears: function () {
         const me = this;
-        const lineHeight = me.props.lineHeight;
         const activeYear = me.activeDate.year;
         const dateObject = new Date();
 
@@ -267,7 +265,7 @@ module.exports = Scope.createClass({
             return (
                 <div class={classArray.join(" ")}
                      onClick={me.onYearSelect.bind(me, year)}>
-                    <span style={"line-height: " + (lineHeight * 7 / 3) + "px;"}>{year}</span>
+                    <span>{year}</span>
                 </div>
             );
 
@@ -298,8 +296,7 @@ module.exports = Scope.createClass({
         return (
             <div class="picker">
                 <div class="content">
-                    <table ref="table"
-                           style={`line-height: ${me.props.lineHeight}px;font-size: ${me.props.fontSize}px`}>
+                    <table ref="table">
                         <thead>
                         <tr class="title" ref="title">
                             <th onClick={me.switchStep.bind(me, -1)}>
