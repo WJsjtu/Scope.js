@@ -1,10 +1,3 @@
-if (!String.prototype.startsWith) {
-    String.prototype.startsWith = function (searchString, position) {
-        position = position || 0;
-        return this.substr(position, searchString.length) === searchString;
-    };
-}
-
 if (!Function.prototype.bind) {
     Function.prototype.bind = function (oThis) {
         if (typeof this !== 'function') {

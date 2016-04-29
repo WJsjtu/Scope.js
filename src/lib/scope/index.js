@@ -347,7 +347,7 @@
                         const value = propObject[key];
                         if (_key == "ref") {
                             ref = escapeHtml("" + value);
-                        } else if (_key.startsWith("on") && isString(tagName)) {
+                        } else if (_key.match(/^on/) && isString(tagName)) {
                             if (value && (isFunction(value) || isObject(value))) {
                                 events[_key.replace(/^on/, "").toLowerCase()] = value;
                             }
