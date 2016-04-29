@@ -3,7 +3,19 @@
 
     const SCOPE_DATA_KEY = "scopeDataKey";
 
-    function isElement(obj) {
+    const isFunction = function (obj) {
+        return (typeof obj === "function");
+    };
+
+    const isString = function (obj) {
+        return (typeof obj === "string");
+    };
+
+    const isObject = function (obj) {
+        return (typeof obj === "object");
+    };
+
+    const isElement = function (obj) {
 
         if (window.HTMLElement || window.Element) {
             //Using W3 DOM2 (works for FF, Opera and Chrome
@@ -13,11 +25,9 @@
             //Browsers not supporting W3 DOM2 don"t have HTMLElement and
             //an exception is thrown and we end up here. Testing some
             //properties that all elements have. (works on IE7)
-            return (typeof obj === "object") &&
-                (obj.nodeType === 1) && (typeof obj.style === "object") &&
-                (typeof obj.ownerDocument === "object");
+            return isObject(obj) && (obj.nodeType === 1) && isObject(obj.style) && isObject(obj.ownerDocument);
         }
-    }
+    };
 
     const escapeHtml = function (html) {
         return html.replace(/[<>&"]/g, function (c) {
@@ -28,7 +38,7 @@
     const selfCloseTags = "br hr img map area base input".split(" ");
 
     function SComponent(context) {
-        if (typeof context.render != "function") {
+        if (!isFunction(context.render)) {
             throw new TypeError("Render function not defined!");
         }
         this.context = context;
@@ -43,66 +53,6 @@
         me.ref = ref;
     }
 
-    function SReference($ele, element, context, refs, $component, hideRef) {
-        const me = this;
-        me.$ele = $ele;
-        if ($component && !hideRef) {
-            me.refs = $component.refs;
-        }
-
-        me.updateProps = function () {
-            $ele.attr(element.props);
-        };
-
-        me.update = function () {
-
-            const callbacks = {
-                list: []
-            };
-
-            const _update = function (_element, _refs, _context) {
-
-                if (selfCloseTags.indexOf(_element.tagName) == -1) {
-                    const tempRefs = {};
-                    const $children = renderChildren(_element.children, _context, tempRefs, callbacks, true);
-                    $ele.empty();
-                    $children.forEach(function ($child) {
-                        if (typeof $child == "string") {
-                            $ele.text($ele.text() + $child);
-                        } else {
-                            $ele.append($child);
-                        }
-                    });
-
-                    Object.keys(_refs).forEach(function (refName) {
-                        if (tempRefs[refName]) {
-                            _refs[refName] = tempRefs[refName];
-                        } else {
-                            tempRefs[refName] = _refs[refName];
-                        }
-                    });
-                }
-            };
-
-
-            if (typeof element.tagName == "string") {
-                _update(element, refs, context);
-                for (let i = callbacks.list.length - 1; i >= 0; i--) {
-                    callbacks.list[i]();
-                }
-            } else if (element.tagName instanceof SComponent) {
-                _update($component.element, $component.refs, $component.context);
-                for (let i = callbacks.list.length - 1; i >= 0; i--) {
-                    callbacks.list[i]();
-                }
-                if (typeof $component.context.afterUpdate == "function") {
-                    $component.context.afterUpdate.call($component.context, $component);
-                }
-            }
-        };
-    }
-
-
     const renderChildren = function (children, context, refs, callbacks, isUpdate) {
         const result = [];
 
@@ -114,7 +64,7 @@
             }
 
             //当数据源是函数时,在指定的环境中动态生成元素节点
-            if (typeof childElement == "function") {
+            if (isFunction(childElement)) {
                 childElement = childElement.call(context);
             }
 
@@ -125,7 +75,7 @@
             }
 
             //a text node could be a string or even number or boolean
-            if (typeof childElement != "object") {
+            if (!isObject(childElement)) {
                 result.push("" + childElement);
                 return true;
             }
@@ -137,7 +87,7 @@
             }
 
             //basic html element
-            if (typeof childElement.tagName == "string") {
+            if (isString(childElement.tagName)) {
 
                 const $child = $(document.createElement(childElement.tagName));
 
@@ -174,7 +124,7 @@
                         const $childChildren = renderChildren(childElement.children, context, refs, _callbacks, _isUpdate);
                         //append children to current element
                         $childChildren.forEach(function ($childChild) {
-                            if (typeof $childChild == "string") {
+                            if (isString($childChild)) {
                                 $child.text($child.text() + $childChild);
                             } else {
                                 $child.append($childChild);
@@ -220,27 +170,31 @@
 
     const bindEvents = function ($element) {
         const {element, context} = $element.data(SCOPE_DATA_KEY);
-        Object.keys(element.events).forEach(function (eventName) {
-            const eventHandler = element.events[eventName];
+        for (let eventName in element.events) {
+            if (element.events.hasOwnProperty(eventName)) {
+                const eventHandler = element.events[eventName];
 
-            //the normal way of define a event handler
-            if (typeof eventHandler == "function") {
-                $element.on(eventName + SCOPE_EVENT_NAMESPACE, function (event) {
-                    //pass $element to the handler since the context is no longer the default context set by jQuery
-                    //which means you can not get $element by $(this) anymore
-                    eventHandler.call(context, $element, event);
-                });
-            }
-
-            //IF eventHandler is an object in form of {selector(string): handler(function)}
-            else if (typeof eventHandler == "object") {
-                Object.keys(eventHandler).forEach(function (selector) {
-                    $element.on(eventName + SCOPE_EVENT_NAMESPACE, selector, function (event) {
-                        eventHandler[selector].call(context, $(this), event);
+                //the normal way of define a event handler
+                if (isFunction(eventHandler)) {
+                    $element.on(eventName + SCOPE_EVENT_NAMESPACE, function (event) {
+                        //pass $element to the handler since the context is no longer the default context set by jQuery
+                        //which means you can not get $element by $(this) anymore
+                        eventHandler.call(context, $element, event);
                     });
-                });
+                }
+
+                //IF eventHandler is an object in form of {selector(string): handler(function)}
+                else if (isObject(eventHandler)) {
+                    for (let selector in eventHandler) {
+                        if (eventHandler.hasOwnProperty(selector)) {
+                            $element.on(eventName + SCOPE_EVENT_NAMESPACE, selector, function (event) {
+                                eventHandler[selector].call(context, $(this), event);
+                            });
+                        }
+                    }
+                }
             }
-        });
+        }
     };
 
     const renderComponent = function (rootElement, rootContext, rootRefs, callbacks, isUpdate) {
@@ -251,14 +205,14 @@
         });
 
         //function props should be automatically bind with the context
-        Object.keys(context.props).forEach(function (key) {
-            if (typeof context.props[key] == "function") {
+        for (let key in context.props) {
+            if (context.props.hasOwnProperty(key) && isFunction(context.props[key])) {
                 context.props[key] = context.props[key].bind(rootContext);
             }
-        });
+        }
 
         //call beforeMount to initialize the context
-        if (typeof context.beforeMount == "function") {
+        if (isFunction(context.beforeMount)) {
             context.beforeMount.call(context);
         }
 
@@ -274,7 +228,7 @@
         const refs = {};
 
         //the root element is a basic HTML tag
-        if (typeof element.tagName == "string") {
+        if (isString(element.tagName)) {
             //create the jQuery Object for the component root
             const $this = $(document.createElement(element.tagName));
 
@@ -310,7 +264,7 @@
 
                 //append children to the root element
                 $children.forEach(function ($child) {
-                    if (typeof $child == "string") {
+                    if (isString($child)) {
                         $this.text($this.text() + $child);
                     } else {
                         $this.append($child);
@@ -334,7 +288,7 @@
 
                 //since only children components' `afterUpdate` function will be recorded in `_callbacks.list`
                 //you'll have to call the `afterUpdate` for this component
-                if (typeof context.afterUpdate == "function") {
+                if (isFunction(context.afterUpdate)) {
                     context.afterUpdate.call(context, $this);
                 }
 
@@ -347,12 +301,12 @@
             if (callbacks && Array.isArray(callbacks.list)) {
 
                 //record the `afterMount` functions in `callbacks`.`list` if not update
-                if (typeof context.afterMount == "function" && !isUpdate) {
+                if (isFunction(context.afterMount) && !isUpdate) {
                     callbacks.list.push(context.afterMount.bind(context, $this));
                 }
 
                 //record the `afterUpdate` functions in `callbacks`.`list` if update
-                if (typeof context.afterUpdate == "function" && isUpdate) {
+                if (isFunction(context.afterUpdate) && isUpdate) {
                     callbacks.list.push(context.afterUpdate.bind(context, $this));
                 }
 
@@ -386,31 +340,21 @@
 
             let props = {}, events = {}, ref = null;
 
-            if (propObject) {
-                if (typeof tagName == "string") {
-                    Object.keys(propObject).forEach(function (key) {
+            if (propObject && (isString(tagName) || (tagName instanceof SComponent))) {
+                for (let key in propObject) {
+                    if (propObject.hasOwnProperty(key)) {
                         const _key = "" + key;
                         const value = propObject[key];
                         if (_key == "ref") {
                             ref = escapeHtml("" + value);
-                        } else if (_key.startsWith("on")) {
-                            if (value && (typeof value == "function" || typeof value == "object")) {
+                        } else if (_key.startsWith("on") && isString(tagName)) {
+                            if (value && (isFunction(value) || isObject(value))) {
                                 events[_key.replace(/^on/, "").toLowerCase()] = value;
                             }
                         } else {
                             props[_key] = value;
                         }
-                    });
-                } else if (tagName instanceof SComponent) {
-                    Object.keys(propObject).forEach(function (key) {
-                        const _key = "" + key;
-                        const value = propObject[key];
-                        if (_key == "ref") {
-                            ref = escapeHtml("" + value);
-                        } else {
-                            props[_key] = value;
-                        }
-                    });
+                    }
                 }
             }
 
@@ -437,7 +381,7 @@
             const _rootElement = (rootElement.tagName instanceof SComponent) ?
                 rootElement : (function () {
                 const _component = Scope.createClass({
-                    render: (typeof context == "object") ? (function () {
+                    render: isObject(context) ? (function () {
                         return rootElement;
                     }).bind(context) : function () {
                         return rootElement;
@@ -481,7 +425,7 @@
         update: function ($element) {
             if ($element instanceof $) {
                 const data = $element.data(SCOPE_DATA_KEY);
-                if (typeof data.update == "function") {
+                if (isFunction(data.update)) {
                     data.update(true);
                 }
             }
@@ -489,7 +433,7 @@
         updateProps: function ($element) {
             if ($element instanceof $) {
                 const data = $element.data(SCOPE_DATA_KEY);
-                if (typeof data.updateProps == "function") {
+                if (isFunction(data.updateProps)) {
                     data.updateProps();
                 }
             }
@@ -501,7 +445,7 @@
             const funcName = "" + firstTwo[1];
             if (($element instanceof $) && funcName) {
                 const data = $element.data(SCOPE_DATA_KEY);
-                if ((typeof data.context == "object") && (typeof data.context[funcName] == "function")) {
+                if (isObject(data.context) && isFunction(data.context[funcName])) {
                     data.context[funcName].apply(data.context, args);
                 }
             }
@@ -510,5 +454,5 @@
     };
 
     window.Scope = Scope;
-})(window.jQuery, window);
+})(jQuery, window);
 

@@ -98,7 +98,7 @@ var AutoSizeInput = (function () {
         const fontSize = parseInt(me._mirror[0].style['fontSize']);
 
         if (!isModernBrowser && newWidth > fontSize * 6) {
-            newWidth += fontSize + 1;
+            newWidth += fontSize * 2;
         }
 
         // Update the width

@@ -32,18 +32,20 @@ module.exports = Scope.createClass({
     },
     afterMount: function ($component) {
         const me = this, refs = getRefs($component);
-        const style = {
+        me.$input = refs.input.css({
+            height: me.lineHeight + "px",
             "line-height": me.lineHeight + "px",
             "font-size": me.fontSize + "px"
-        };
-        me.$input = refs.input.css(style);
+        });
         me.$input.parent().css({
             "line-height": (me.lineHeight - 4) + "px",
             "font-size": me.fontSize + "px"
         });
         me.$wrapper = refs.wrapper.css({
-            width: me.width
-        }).css(style);
+            width: me.width,
+            "line-height": me.lineHeight + "px",
+            "font-size": me.fontSize + "px"
+        });
 
         resizeInput(me.$input, {
             space: 5,
@@ -55,6 +57,9 @@ module.exports = Scope.createClass({
 
     inputFocus: function () {
         const me = this, $input = me.$input;
+        if ($input.parent().hasClass('focused')) {
+            return;
+        }
         $input.parent().addClass('focused');
         $input.focus();
         const onBlur = function (event) {
