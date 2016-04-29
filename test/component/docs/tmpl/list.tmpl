@@ -1,21 +1,32 @@
 const List = Scope.createClass({
     data: [],
+    beforeMount: function () {
+        console.log('beforeMount');
+    },
+    afterMount: function ($component) {
+        console.log('afterMount', $component);
+    },
+    afterUpdate: function ($component) {
+        console.log('afterUpdate', $component);
+    },
     getRandom: function () {
         this.data = [];
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 10; i++) {
             this.data.push(Math.random());
         }
     },
-    generate: function ($handler, event) {
-        $handler.stopPropagation(event);
+    generate: function ($this, event) {
+        Scope.utils.stopPropagation(event);
         this.getRandom();
-        $handler.refs.ul2.update();
+        Scope.utils.update(
+            Scope.utils.getRefs($this).ul2
+        );
     },
     onActive: {
-        'li': function ($handler, event) {
-            $handler.stopPropagation(event);
-            $handler.owner.$ele.find('li.active').removeClass('active');
-            $handler.$ele.addClass('active');
+        'li': function ($this, event) {
+            Scope.utils.stopPropagation(event);
+            $this.closest('ul').find('li.active').removeClass('active');
+            $this.addClass('active');
         }
     },
     getList: function () {
@@ -46,4 +57,30 @@ const List = Scope.createClass({
     }
 });
 
-Scope.render(<List />, mountNode);
+const Wrapper = Scope.createClass({
+    updateList: function ($this, event) {
+        Scope.utils.stopPropagation(event);
+        Scope.utils.update(
+            Scope.utils.getRefs($this).list
+        );
+        Scope.utils.execute(
+            Scope.utils.getRefs($this).list,
+            'getRandom'
+        );
+        Scope.utils.update(
+            Scope.utils.getRefs(
+                Scope.utils.getRefs($this).list
+            ).ul2
+        );
+    },
+    render: function () {
+        return (
+            <div>
+                <a onClick={this.updateList}>Update List Component</a>
+                <List ref="list"/>
+            </div>
+        );
+    }
+});
+
+Scope.render(<Wrapper />, mountNode);

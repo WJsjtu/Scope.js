@@ -1,4 +1,6 @@
 const Scope = require("Scope");
+const ScopeUtils = Scope.utils;
+const {getRefs} = ScopeUtils;
 const $ = require("jquery");
 
 const compileJSX = function (input) {
@@ -17,8 +19,11 @@ const compileJSX = function (input) {
 const tabStyle = 'border-bottom: none !important;border-radius: 3px 3px 0 0;padding: 6px 8px;font-size: 12px;font-weight: bold;color: #c2c0bc;background-color: #f1ede4;display: inline-block;cursor: pointer;';
 
 const Editor = Scope.createClass({
-    afterMount: function (component) {
-        const codeMirror = window.CodeMirror(component.refs.editor.$ele[0], {
+    afterMount: function ($component) {
+
+        const refs = getRefs($component);
+
+        const codeMirror = window.CodeMirror(refs.editor[0], {
             value: this.props.sourceCode || '',
             mode: "javascript",
             lineNumbers: true,
@@ -28,7 +33,7 @@ const Editor = Scope.createClass({
             showCursorWhenSelecting: false,
             theme: 'scope-light'
         });
-        const codeMirrorCompile = window.CodeMirror(component.refs.compile.$ele[0], {
+        const codeMirrorCompile = window.CodeMirror(refs.compile[0], {
             value: '',
             mode: "javascript",
             lineNumbers: true,
@@ -42,17 +47,14 @@ const Editor = Scope.createClass({
 
         var compileEditor = function () {
             const _sourceCode = codeMirror.doc.getValue();
-            const mountNode = component.refs.mountNode.$ele[0];
+            const mountNode = refs.mountNode[0];
             try {
                 let compiledCode = compileJSX(_sourceCode);
                 $(mountNode).empty();
                 codeMirrorCompile.doc.setValue(compiledCode);
 
                 const wrapperCode = '(function (mountNode) {' + compiledCode + '})';
-
-                const mountFunc = eval(wrapperCode);
-
-                mountFunc(mountNode);
+                (eval(wrapperCode))(mountNode);
             } catch (e) {
                 $(mountNode).text(e);
                 console.log(e);
@@ -65,16 +67,16 @@ const Editor = Scope.createClass({
 
         compileEditor();
     },
-    code: function ($handler, event) {
-        $handler.stopPropagation(event);
-        $handler.refs.tabView.$ele.css({
+    code: function ($this, event) {
+        ScopeUtils.stopPropagation(event);
+        getRefs($this).tabView.css({
             'margin-left': '0'
         });
 
     },
-    compiledCode: function ($handler, event) {
-        $handler.stopPropagation(event);
-        $handler.refs.tabView.$ele.css({
+    compiledCode: function ($this, event) {
+        ScopeUtils.stopPropagation(event);
+        getRefs($this).tabView.css({
             'margin-left': '-100%'
         });
     },

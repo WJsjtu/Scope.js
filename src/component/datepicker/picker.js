@@ -1,4 +1,6 @@
 const Scope = require("Scope");
+const ScopeUtils = Scope.utils;
+const {getRefs} = ScopeUtils;
 
 const getPrevMonth = function (year, month) {
     return month == 1 ? [year - 1, 12] : [year, month - 1];
@@ -19,58 +21,56 @@ module.exports = Scope.createClass({
     panel: 1,
 
     beforeMount: function () {
-
         const me = this, current = new Date();
         const currentDate = me.props.date || {
                 year: current.getFullYear(),
                 month: current.getMonth() + 1,
                 day: 0
             };
-
         me.panel = 1;
         me.activeDate = currentDate;
         me.panelDate = $.extend({}, currentDate)
     },
 
-    onDaySelect: function (year, month, day, needUpdate, $handler, event) {
-        $handler.stopPropagation(event);
-        const me = this;
+    onDaySelect: function (year, month, day, needUpdate, $this, event) {
+        ScopeUtils.stopPropagation(event);
+        const me = this, refs = getRefs($this);
         me.activeDate.year = year;
         me.activeDate.month = month;
         me.activeDate.day = day;
         if (needUpdate) {
             me.panelDate.year = year;
             me.panelDate.month = month;
-            me.updateView($handler.refs);
+            me.updateView(refs);
         } else {
-            $handler.refs.body.$ele.find(".active").removeClass("active");
-            $handler.$ele.addClass("active");
+            refs.tbody.find(".active").removeClass("active");
+            $this.addClass("active");
         }
         if (typeof me.props.onSelect == "function") {
             me.props.onSelect(year, month, day);
         }
     },
-    onMonthSelect: function (month, $handler, event) {
-        $handler.stopPropagation(event);
+    onMonthSelect: function (month, $this, event) {
+        ScopeUtils.stopPropagation(event);
         const me = this;
         me.panelDate.month = month;
         me.panel = 1;
-        me.updateView($handler.refs);
+        me.updateView(getRefs($this));
     },
-    onYearSelect: function (year, $handler, event) {
-        $handler.stopPropagation(event);
+    onYearSelect: function (year, $this, event) {
+        ScopeUtils.stopPropagation(event);
         const me = this;
         me.panelDate.year = year;
         me.panel = 2;
-        me.updateView($handler.refs);
+        me.updateView(getRefs($this));
     },
     updateView: function (refs) {
-        refs.week.$ele[this.panel == 1 ? "show" : "hide"]();
-        refs.title.update();
-        refs.body.update();
+        refs.week[this.panel == 1 ? "show" : "hide"]();
+        ScopeUtils.update(refs.title);
+        ScopeUtils.update(refs.tbody);
     },
-    switchStep: function (step, $handler, event) {
-        $handler.stopPropagation(event);
+    switchStep: function (step, $this, event) {
+        ScopeUtils.stopPropagation(event);
         const me = this;
         if (me.panel == 1) {
             const {year, month} = me.panelDate;
@@ -88,17 +88,17 @@ module.exports = Scope.createClass({
                 year: me.panelDate.year + 12 * step
             };
         }
-        me.updateView($handler.refs);
+        me.updateView(getRefs($this));
     },
-    switchTitle: function ($handler, event) {
-        $handler.stopPropagation(event);
-        const me = this;
+    switchTitle: function ($this, event) {
+        ScopeUtils.stopPropagation(event);
+        const me = this, refs = getRefs($this);
         if (me.panel == 1) {
             me.panel = 2;
-            me.updateView($handler.refs);
+            me.updateView(refs);
         } else if (me.panel == 2) {
             me.panel = 3;
-            me.updateView($handler.refs);
+            me.updateView(refs);
         }
     },
     renderDays: function () {
@@ -327,7 +327,7 @@ module.exports = Scope.createClass({
                             return (<th>周{day}</th>);
                         })}</tr>
                         </thead>
-                        <tbody ref="body">{function () {
+                        <tbody ref="tbody">{function () {
                             if (me.panel == 2) {
                                 return me.renderMonths();
                             } else if (me.panel == 3) {

@@ -1,3 +1,6 @@
+const Scope = require("Scope");
+const ScopeUtils = Scope.utils;
+const {getRefs} = ScopeUtils;
 const Picker = require("./picker");
 
 require("./style.less");
@@ -25,15 +28,15 @@ module.exports = Scope.createClass({
         me.lineHeight = Math.floor(width / 10.5);
         me.fontSize = Math.floor(width * 2 / 45);
     },
-    afterMount: function (component) {
-        const me = this;
-        me.$input = component.refs.input.$ele;
+    afterMount: function ($component) {
+        const me = this, refs = getRefs($component);
+        me.$input = refs.input;
         me.props.width && me.updateSize(me.props.width);
         if (me.props.date) {
             const {year, month, day} = me.props.date;
             me.$input.text(`${year}年${month}月${day}日`);
         } else {
-            me.$input.text('请选择...');
+            me.$input.text("请选择...");
         }
 
         const style = {
@@ -41,8 +44,8 @@ module.exports = Scope.createClass({
             "font-size": me.fontSize + "px"
         };
         me.$input.css(style);
-        component.refs.picker.refs.table.$ele.css(style);
-        component.refs.wrapper.$ele.css({
+        getRefs(refs.picker).table.css(style);
+        refs.wrapper.css({
             width: me.width
         });
     },
@@ -56,15 +59,15 @@ module.exports = Scope.createClass({
             me.props.onSelect(year, month, day);
         }
     },
-    onFocus: function ($handler, event) {
-        $handler.stopPropagation(event);
-        const me = this;
+    onFocus: function ($this, event) {
+        ScopeUtils.stopPropagation(event);
+        const me = this, refs = getRefs($this);
         me.$input.parent().addClass('focused');
-        $handler.refs.picker.$ele.show();
+        refs.picker.show();
         const onBlur = function (_event) {
-            if (isOutside([$handler.refs.wrapper.$ele[0]], _event)) {
+            if (isOutside([refs.wrapper[0]], _event)) {
                 me.$input.parent().removeClass('focused');
-                $handler.refs.picker.$ele.hide();
+                refs.picker.hide();
                 $(document).off('click', onBlur);
             }
         };

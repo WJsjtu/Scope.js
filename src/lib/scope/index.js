@@ -1,5 +1,7 @@
 (function ($, window) {
-    const eventNamespace = ".scope";
+    const SCOPE_EVENT_NAMESPACE = ".scope";
+
+    const SCOPE_DATA_KEY = "scopeDataKey";
 
     function isElement(obj) {
 
@@ -94,197 +96,281 @@
                     callbacks.list[i]();
                 }
                 if (typeof $component.context.afterUpdate == "function") {
-                    $component.context.afterUpdate.bind($component.context)($component);
+                    $component.context.afterUpdate.call($component.context, $component);
                 }
             }
         };
     }
-
-    function SEvent(refs, owner, $ele) {
-        const me = this;
-        me.refs = refs;
-        me.owner = owner;
-        me.$ele = $ele;
-    }
-
-    const SEventPrototype = SEvent.prototype;
-    SEventPrototype.getTarget = function (event) {
-        event = event || window.event;
-        return event.target ? event.target : event.srcElement;
-    };
-    SEventPrototype.preventDefault = function (event) {
-        event = event || window.event;
-        event.preventDefault ? event.preventDefault() : event.returnValue = false;
-    };
-    SEventPrototype.stopPropagation = function (event) {
-        event = event || window.event;
-        event.stopPropagation ? event.stopPropagation() : event.cancelBubble = true;
-    };
-
-
-    const elementBindEvents = function (element, $this, context, refs) {
-        Object.keys(element.events).forEach(function (eventName) {
-            const eventHandler = element.events[eventName];
-            const owner = new SReference($this, element, context, refs);
-            if (typeof eventHandler == "function") {
-                $this.on(eventName + eventNamespace, function (event) {
-                    eventHandler.bind(context)(new SEvent(refs, owner, $this), event);
-                });
-            }
-            else if (typeof eventHandler == "object") {
-                Object.keys(eventHandler).forEach(function (selector) {
-                    $this.on(eventName + eventNamespace, selector, function (event) {
-                        eventHandler[selector].bind(context)(new SEvent(refs, owner, $(this)), event);
-                    });
-                });
-            }
-        });
-    };
 
 
     const renderChildren = function (children, context, refs, callbacks, isUpdate) {
         const result = [];
 
         children.forEach(function (childElement) {
-            //这是可能的, 当函数作为变量的时候却返回空值
+
+            //this is possible since a function element may return null
             if (!childElement) {
                 return false;
             }
+
             //当数据源是函数时,在指定的环境中动态生成元素节点
             if (typeof childElement == "function") {
-                childElement = childElement.bind(context)();
+                childElement = childElement.call(context);
             }
 
-            //如果数据源是一个元素数组,那么递归渲染
+            //If is array call the function itself recursively
             if (Array.isArray(childElement)) {
                 Array.prototype.push.apply(result, renderChildren(childElement, context, refs, callbacks, isUpdate));
                 return true;
             }
 
-            //这在内容为纯文本的节点是可能的
+            //a text node could be a string or even number or boolean
             if (typeof childElement != "object") {
                 result.push("" + childElement);
                 return true;
             }
 
-            //如果一个数据源是非法的提出错误
+            //if not instance of `SElement`
             if (!(childElement instanceof SElement)) {
                 //console.log("A function element returns non-element object!");
                 return false;
             }
 
-
-            //基础HTML元素
+            //basic html element
             if (typeof childElement.tagName == "string") {
 
                 const $child = $(document.createElement(childElement.tagName));
-                childElement.props && $child.attr(childElement.props);
 
-                elementBindEvents(childElement, $child, context, refs);
 
+                //record the related info in jQuery Object data
+                const scopeData = {
+                    element: childElement,
+                    context: context,
+                    refs: refs
+                };
+
+                //add updateProps function
+                scopeData.updateProps = function () {
+                    childElement.props && $child.attr(childElement.props);
+                };
+
+                //add props
+                scopeData.updateProps();
+
+                //store the data
+                $child.data(SCOPE_DATA_KEY, scopeData);
+
+                //bind events
+                bindEvents($child);
+
+                //add self to the refs if needed
                 if (childElement.ref) {
-                    refs[childElement.ref] = new SReference($child, childElement, context, refs);
+                    refs[childElement.ref] = $child;
                 }
 
-                if (selfCloseTags.indexOf(childElement.tagName) == -1) {
-                    const $childChildren = renderChildren(childElement.children, context, refs, callbacks, isUpdate);
+                const _renderChildren = function (_callbacks, _isUpdate) {
+                    if (selfCloseTags.indexOf(childElement.tagName) == -1) {
+                        //append children to the root element
+                        const $childChildren = renderChildren(childElement.children, context, refs, _callbacks, _isUpdate);
+                        //append children to current element
+                        $childChildren.forEach(function ($childChild) {
+                            if (typeof $childChild == "string") {
+                                $child.text($child.text() + $childChild);
+                            } else {
+                                $child.append($childChild);
+                            }
+                        });
+                    }
+                };
+                _renderChildren(callbacks, isUpdate);
 
-                    $childChildren.forEach(function ($childChild) {
-                        if (typeof $childChild == "string") {
-                            $child.text($child.text() + $childChild);
-                        } else {
-                            $child.append($childChild);
-                        }
-                    });
-                }
+                scopeData.update = function () {
+                    //TODO: unbind events and remove dataSet of unused jQuery Object
+                    $child.empty();
+                    const _callbacks = {
+                        list: []
+                    };
+                    _renderChildren(_callbacks, true);
+                    for (let i = _callbacks.list.length - 1; i >= 0; i--) {
+                        _callbacks.list[i]();
+                    }
+                    _callbacks.list = [];
+                };
 
                 result.push($child);
 
-            }//处理组件嵌套
+            }
+            //if an element is a component
             else if (childElement.tagName instanceof SComponent) {
-                const $component = renderComponent(childElement.tagName, childElement.props, callbacks, context, childElement, isUpdate);
+                const $component = renderComponent(childElement, context, refs, callbacks, isUpdate);
                 if (childElement.ref) {
-                    refs[childElement.ref] = new SReference($component.$ele, childElement, context, refs, $component);
+                    refs[childElement.ref] = $component;
                 }
-                result.push($component.$ele);
+                result.push($component);
             } else {
                 //console.log("An unknown element type!");
                 return false;
             }
         });
 
+
+        //array of jQuery Object
         return result;
     };
 
-    const renderComponent = function (component, props, callbacks, parentContext, parentElement, isUpdate) {
-        const context = $.extend({}, component.context, {
-            props: $.extend({}, props)
+    const bindEvents = function ($element) {
+        const {element, context} = $element.data(SCOPE_DATA_KEY);
+        Object.keys(element.events).forEach(function (eventName) {
+            const eventHandler = element.events[eventName];
+
+            //the normal way of define a event handler
+            if (typeof eventHandler == "function") {
+                $element.on(eventName + SCOPE_EVENT_NAMESPACE, function (event) {
+                    //pass $element to the handler since the context is no longer the default context set by jQuery
+                    //which means you can not get $element by $(this) anymore
+                    eventHandler.call(context, $element, event);
+                });
+            }
+
+            //IF eventHandler is an object in form of {selector(string): handler(function)}
+            else if (typeof eventHandler == "object") {
+                Object.keys(eventHandler).forEach(function (selector) {
+                    $element.on(eventName + SCOPE_EVENT_NAMESPACE, selector, function (event) {
+                        eventHandler[selector].call(context, $(this), event);
+                    });
+                });
+            }
+        });
+    };
+
+    const renderComponent = function (rootElement, rootContext, rootRefs, callbacks, isUpdate) {
+
+        //copy the context
+        const context = $.extend({}, rootElement.tagName.context, {
+            props: $.extend({}, rootElement.props)
         });
 
         //function props should be automatically bind with the context
         Object.keys(context.props).forEach(function (key) {
             if (typeof context.props[key] == "function") {
-                context.props[key] = context.props[key].bind(parentContext);
+                context.props[key] = context.props[key].bind(rootContext);
             }
         });
 
-
+        //call beforeMount to initialize the context
         if (typeof context.beforeMount == "function") {
-            context.beforeMount.bind(context)();
+            context.beforeMount.call(context);
         }
 
-        const element = context.render.bind(context)();
+        //build inner elements by calling render function
+        const element = context.render.call(context);
 
-        if (element == null) {
+        //the render function return unexpected result
+        if (!element || !(element instanceof SElement)) {
             return null;
         }
-        if (!(element instanceof SElement)) {
-            //console.log("The render function should return a single element!");
-            return null;
-        }
 
+        //the inner ref for the component
         const refs = {};
 
-        const $this = $(document.createElement(element.tagName));
-        element.props && $this.attr(element.props);
+        //the root element is a basic HTML tag
+        if (typeof element.tagName == "string") {
+            //create the jQuery Object for the component root
+            const $this = $(document.createElement(element.tagName));
 
-        elementBindEvents(element, $this, context, refs);
+            //record the related info in jQuery Object data
+            const scopeData = {
+                element: element,
+                context: context,
+                refs: refs,
+                component: {
+                    context: rootContext,
+                    element: rootElement,
+                    refs: rootRefs
+                }
+            };
 
-        const $children = renderChildren(element.children, context, refs, callbacks);
+            //add updateProps function
+            scopeData.updateProps = function () {
+                element.props && $this.attr(element.props);
+            };
 
-        $children.forEach(function ($child) {
-            if (typeof $child == "string") {
-                $this.text($this.text() + $child);
-            } else {
-                $this.append($child);
+            //add the props for the root element
+            scopeData.updateProps();
+
+            //---------now the root element is created ------------
+
+            //record the related info in jQuery Object data
+            $this.data(SCOPE_DATA_KEY, scopeData);
+
+
+            const _renderChildren = function (_callbacks, _isUpdate) {
+                //get children elements
+                const $children = renderChildren(element.children, context, refs, _callbacks, _isUpdate);
+
+                //append children to the root element
+                $children.forEach(function ($child) {
+                    if (typeof $child == "string") {
+                        $this.text($this.text() + $child);
+                    } else {
+                        $this.append($child);
+                    }
+                });
+            };
+
+            _renderChildren(callbacks, isUpdate);
+
+            scopeData.update = function () {
+                //TODO: unbind events and remove dataSet of unused jQuery Object
+                $this.empty();
+                const _callbacks = {
+                    list: []
+                };
+                _renderChildren(_callbacks, true);
+                for (let i = _callbacks.list.length - 1; i >= 0; i--) {
+                    _callbacks.list[i]();
+                }
+                _callbacks.list = [];
+
+                //since only children components' `afterUpdate` function will be recorded in `_callbacks.list`
+                //you'll have to call the `afterUpdate` for this component
+                if (typeof context.afterUpdate == "function") {
+                    context.afterUpdate.call(context, $this);
+                }
+
+            };
+
+            //bind the event for the root element, meanwhile children elements' events are bound in `renderChildren`
+            bindEvents($this);
+
+
+            if (callbacks && Array.isArray(callbacks.list)) {
+
+                //record the `afterMount` functions in `callbacks`.`list` if not update
+                if (typeof context.afterMount == "function" && !isUpdate) {
+                    callbacks.list.push(context.afterMount.bind(context, $this));
+                }
+
+                //record the `afterUpdate` functions in `callbacks`.`list` if update
+                if (typeof context.afterUpdate == "function" && isUpdate) {
+                    callbacks.list.push(context.afterUpdate.bind(context, $this));
+                }
+
             }
-        });
 
-
-        const result = {
-            $ele: $this,
-            refs: refs,
-            element: element,
-            context: context,
-            callbacks: callbacks
-        };
-
-        if (!isUpdate) {
-            if (typeof context.afterMount == "function" && callbacks && Array.isArray(callbacks.list)) {
-                callbacks.list.push(context.afterMount.bind(context, result));
+            //If the root element has a reference, add it to the refs.
+            if (element.ref) {
+                refs[element.ref] = $this;
             }
+
+            return $this;
+        }
+        //the root element is just a component, ╮(╯_╰)╭ but why do you write some components like this?!
+        else if (element.tagName instanceof SComponent) {
+
         } else {
-            if (typeof context.afterUpdate == "function" && callbacks && Array.isArray(callbacks.list)) {
-                callbacks.list.push(context.afterUpdate.bind(context, result));
-            }
+            return null;
         }
-
-        if (element.ref) {
-            result.refs[element.ref] = new SReference(result.$ele, parentElement, parentContext, result.refs, result, true);
-        }
-
-        return result;
-
     };
 
     const Scope = {
@@ -335,7 +421,7 @@
                 throw new TypeError("Render function should return element!");
             }
 
-            if (!dom instanceof window.jQuery && !isElement(dom)) {
+            if (!dom instanceof $ && !isElement(dom)) {
                 throw new TypeError("Render function should receive a DOM!");
             }
 
@@ -343,50 +429,86 @@
                 dom = $(dom);
             }
 
-            if (rootElement.tagName instanceof SComponent) {
-                const callbacks = {
-                    list: []
-                };
-                const $component = renderComponent(rootElement.tagName, rootElement.props, callbacks, context, rootElement);
+            //generate a container for afterMount callbacks
+            const callbacks = {
+                list: []
+            };
 
-                dom.empty().append($component.$ele);
-                for (let i = callbacks.list.length - 1; i >= 0; i--) {
-                    callbacks.list[i]();
-                }
-                return new SReference($component.$ele, rootElement, context, $component.refs, $component);
-            } else {
-                let tempComponent;
-                let _context = {};
-                if (typeof context == "object") {
-                    tempComponent = Scope.createClass({
-                        render: (function () {
-                            return rootElement;
-                        }).bind(context)
-                    });
-                    _context = context;
-                } else {
-                    _context = {
-                        render: function () {
-                            return rootElement;
-                        }
-                    };
-                    tempComponent = Scope.createClass(_context);
-                }
-                const callbacks = {
-                    list: []
-                };
+            const _rootElement = (rootElement.tagName instanceof SComponent) ?
+                rootElement : (function () {
+                const _component = Scope.createClass({
+                    render: (typeof context == "object") ? (function () {
+                        return rootElement;
+                    }).bind(context) : function () {
+                        return rootElement;
+                    }
+                });
+                return <_component />;
+            })();
 
-                const $component = renderComponent(tempComponent, rootElement.props, callbacks, context, rootElement);
-
-                dom.empty().append($component.$ele);
-                for (let i = callbacks.list.length - 1; i >= 0; i--) {
-                    callbacks.list[i]();
-                }
-                return new SReference($component.$ele, rootElement, _context, $component.refs, $component);
+            const $component = renderComponent(_rootElement, context, {}, callbacks, false);
+            dom.empty().append($component);
+            for (let i = callbacks.list.length - 1; i >= 0; i--) {
+                callbacks.list[i]();
             }
+
+            //clear list
+            callbacks.list = [];
+            return $component;
+        }
+    };
+
+    Scope.utils = {
+        getTarget: function (event) {
+            event = event || window.event;
+            return event.target ? event.target : event.srcElement;
+        },
+        preventDefault: function (event) {
+            event = event || window.event;
+            event.preventDefault ? event.preventDefault() : event.returnValue = false;
+        },
+        stopPropagation: function (event) {
+            event = event || window.event;
+            event.stopPropagation ? event.stopPropagation() : event.cancelBubble = true;
+        },
+        getRefs: function ($element) {
+            if (!($element instanceof $)) {
+                return {};
+            }
+            const data = $element.data(SCOPE_DATA_KEY);
+            return data.refs ? data.refs : {};
+        },
+        update: function ($element) {
+            if ($element instanceof $) {
+                const data = $element.data(SCOPE_DATA_KEY);
+                if (typeof data.update == "function") {
+                    data.update(true);
+                }
+            }
+        },
+        updateProps: function ($element) {
+            if ($element instanceof $) {
+                const data = $element.data(SCOPE_DATA_KEY);
+                if (typeof data.updateProps == "function") {
+                    data.updateProps();
+                }
+            }
+        },
+        execute: function () {
+            const args = Array.prototype.slice.call(arguments, 0);
+            const firstTwo = args.splice(0, 2);
+            const $element = firstTwo[0];
+            const funcName = "" + firstTwo[1];
+            if (($element instanceof $) && funcName) {
+                const data = $element.data(SCOPE_DATA_KEY);
+                if ((typeof data.context == "object") && (typeof data.context[funcName] == "function")) {
+                    data.context[funcName].apply(data.context, args);
+                }
+            }
+
         }
     };
 
     window.Scope = Scope;
-})(jQuery, window);
+})(window.jQuery, window);
 
