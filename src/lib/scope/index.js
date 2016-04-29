@@ -322,6 +322,14 @@
         //the root element is just a component, ╮(╯_╰)╭ but why do you write some components like this?!
         else if (element.tagName instanceof SComponent) {
 
+            const $this = renderComponent(element, context, refs, callbacks, isUpdate);
+
+            //If the root element has a reference, add it to the refs.
+            if (element.ref) {
+                refs[element.ref] = $this;
+            }
+
+            return $this;
         } else {
             return null;
         }
@@ -455,4 +463,3 @@
 
     window.Scope = Scope;
 })(jQuery, window);
-
