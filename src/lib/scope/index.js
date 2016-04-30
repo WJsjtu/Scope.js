@@ -370,11 +370,11 @@
         },
         render: function (rootElement, dom, context) {
             if (!(rootElement instanceof SElement)) {
-                throw new TypeError("Render function should return element!");
+                throw new TypeError("Component's render function should return a single root element (not null)!");
             }
 
             if (!dom instanceof $ && !isElement(dom)) {
-                throw new TypeError("Render function should receive a DOM!");
+                throw new TypeError("Scope.render should mount element on a DOM or a jQuery Object!");
             }
 
             if (isElement(dom)) {
