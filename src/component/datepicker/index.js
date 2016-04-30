@@ -19,42 +19,52 @@ const isOutside = function (elements, event) {
 
 module.exports = Scope.createClass({
     $input: null,
-    width: 315,
-    lineHeight: 30,
-    fontSize: 14,
+    style: {
+        width: "315px",
+        lineHeight: "30px",
+        fontSize: "14px"
+    },
+    date: null,
     updateSize: function (width) {
-        const me = this;
-        me.width = width;
-        me.lineHeight = Math.floor(width / 10.5);
-        me.fontSize = Math.floor(width * 2 / 45);
+        this.style = {
+            width: width + "px",
+            lineHeight: Math.floor(width / 10.5) + "px",
+            fontSize: Math.floor(width * 2 / 45) + "px"
+        };
+    },
+    beforeMount: function () {
+        const me = this, width = +me.props.width;
+        if (!isNaN(width) && width > 0) {
+            me.updateSize(width);
+        }
+        if (me.props.date) {
+            const {year, month, day} = me.props.date;
+            me.date = {year, month, day};
+        }
     },
     afterMount: function ($component) {
         const me = this, refs = getRefs($component);
-        me.$input = refs.input;
-        me.props.width && me.updateSize(me.props.width);
-        if (me.props.date) {
-            const {year, month, day} = me.props.date;
+
+        me.$input = refs.input.css(me.style);
+        getRefs(refs.picker).table.css(me.style);
+        refs.wrapper.css(me.style);
+
+        if (me.date) {
+            const {year, month, day} = me.date;
             me.$input.text(`${year}年${month}月${day}日`);
         } else {
             me.$input.text("请选择...");
         }
-
-        const style = {
-            "line-height": me.lineHeight + "px",
-            "font-size": me.fontSize + "px"
-        };
-        me.$input.css(style);
-        getRefs(refs.picker).table.css(style);
-        refs.wrapper.css({
-            width: me.width
-        });
     },
     afterUpdate: function () {
         this.afterMount();
     },
     onSelect: function (year, month, day) {
         const me = this;
-        me.$input && me.$input.text(`${year}年${month}月${day}日`);
+        me.date = {year, month, day};
+        if (me.$input) {
+            me.$input.text(`${year}年${month}月${day}日`);
+        }
         if (typeof me.props.onSelect == "function") {
             me.props.onSelect(year, month, day);
         }
@@ -81,7 +91,7 @@ module.exports = Scope.createClass({
                     <span ref="input"> </span>
                 </div>
                 <Picker ref="picker"
-                        date={me.props.date}
+                        date={me.date}
                         dayRule={me.props.dayRule}
                         onSelect={me.onSelect}/>
             </div>
