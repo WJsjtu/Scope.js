@@ -69,7 +69,7 @@ module.exports = Scope.createClass({
             me.props.onSelect(year, month, day);
         }
     },
-    onFocus: function ($this, event) {
+    onFocus: function (event, $this) {
         ScopeUtils.stopPropagation(event);
         const me = this, refs = getRefs($this);
         me.$input.parent().addClass('focused');

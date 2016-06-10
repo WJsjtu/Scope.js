@@ -179,7 +179,7 @@
                     $element.on(eventName + SCOPE_EVENT_NAMESPACE, function (event) {
                         //pass $element to the handler since the context is no longer the default context set by jQuery
                         //which means you can not get $element by $(this) anymore
-                        eventHandler.call(context, $element, event);
+                        eventHandler.call(context, event, $element, $element);
                     });
                 }
 
@@ -188,7 +188,7 @@
                     for (let selector in eventHandler) {
                         if (eventHandler.hasOwnProperty(selector)) {
                             $element.on(eventName + SCOPE_EVENT_NAMESPACE, selector, function (event) {
-                                eventHandler[selector].call(context, $(this), event);
+                                eventHandler[selector].call(context, event, $(this), $element);
                             });
                         }
                     }
@@ -212,8 +212,11 @@
         }
 
         //call beforeMount to initialize the context
-        if (isFunction(context.beforeMount)) {
+        if (isFunction(context.beforeMount) && !isUpdate) {
             context.beforeMount.call(context);
+        }
+        if (isFunction(context.beforeUpdate) && isUpdate) {
+            context.beforeUpdate.call(context);
         }
 
         //build inner elements by calling render function

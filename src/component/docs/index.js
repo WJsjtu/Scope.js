@@ -67,14 +67,14 @@ const Editor = Scope.createClass({
 
         compileEditor();
     },
-    code: function ($this, event) {
+    code: function (event, $this) {
         ScopeUtils.stopPropagation(event);
         getRefs($this).tabView.css({
             'margin-left': '0'
         });
 
     },
-    compiledCode: function ($this, event) {
+    compiledCode: function (event, $this) {
         ScopeUtils.stopPropagation(event);
         getRefs($this).tabView.css({
             'margin-left': '-100%'

@@ -15,7 +15,7 @@ const List = Scope.createClass({
             this.data.push(Math.random());
         }
     },
-    generate: function ($this, event) {
+    generate: function (event, $this) {
         Scope.utils.stopPropagation(event);
         this.getRandom();
         Scope.utils.update(
@@ -23,9 +23,9 @@ const List = Scope.createClass({
         );
     },
     onActive: {
-        'li': function ($this, event) {
+        'li': function (event, $this, $ul) {
             Scope.utils.stopPropagation(event);
-            $this.closest('ul').find('li.active').removeClass('active');
+            $ul.find('li.active').removeClass('active');
             $this.addClass('active');
         }
     },
@@ -58,7 +58,7 @@ const List = Scope.createClass({
 });
 
 const Wrapper = Scope.createClass({
-    updateList: function ($this, event) {
+    updateList: function (event, $this) {
         Scope.utils.stopPropagation(event);
         Scope.utils.update(
             Scope.utils.getRefs($this).list

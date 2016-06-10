@@ -32,7 +32,7 @@ module.exports = Scope.createClass({
         me.panelDate = $.extend({}, currentDate)
     },
 
-    onDaySelect: function (year, month, day, needUpdate, $this, event) {
+    onDaySelect: function (year, month, day, needUpdate, event, $this) {
         ScopeUtils.stopPropagation(event);
         const me = this, refs = getRefs($this);
         me.activeDate.year = year;
@@ -50,14 +50,14 @@ module.exports = Scope.createClass({
             me.props.onSelect(year, month, day);
         }
     },
-    onMonthSelect: function (month, $this, event) {
+    onMonthSelect: function (month, event, $this) {
         ScopeUtils.stopPropagation(event);
         const me = this;
         me.panelDate.month = month;
         me.panel = 1;
         me.updateView(getRefs($this));
     },
-    onYearSelect: function (year, $this, event) {
+    onYearSelect: function (year, event, $this) {
         ScopeUtils.stopPropagation(event);
         const me = this;
         me.panelDate.year = year;
@@ -69,7 +69,7 @@ module.exports = Scope.createClass({
         ScopeUtils.update(refs.title);
         ScopeUtils.update(refs.tbody);
     },
-    switchStep: function (step, $this, event) {
+    switchStep: function (step, event, $this) {
         ScopeUtils.stopPropagation(event);
         const me = this;
         if (me.panel == 1) {
@@ -90,7 +90,7 @@ module.exports = Scope.createClass({
         }
         me.updateView(getRefs($this));
     },
-    switchTitle: function ($this, event) {
+    switchTitle: function (event, $this) {
         ScopeUtils.stopPropagation(event);
         const me = this, refs = getRefs($this);
         if (me.panel == 1) {
