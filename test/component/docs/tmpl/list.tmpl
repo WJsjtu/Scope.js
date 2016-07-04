@@ -3,13 +3,17 @@ const List = Scope.createClass({
     beforeMount: function () {
         console.log('beforeMount');
     },
-    afterMount: function ($component) {
-        console.log('afterMount', $component);
+    afterMount: function () {
+        console.log('afterMount');
     },
-    afterUpdate: function ($component) {
-        console.log('afterUpdate', $component);
+    beforeUpdate: function () {
+        console.log('beforeUpdate');
+    },
+    afterUpdate: function () {
+        console.log('afterUpdate');
     },
     getRandom: function () {
+        console.log('getRandom');
         this.data = [];
         for (let i = 0; i < 10; i++) {
             this.data.push(Math.random());
@@ -18,14 +22,12 @@ const List = Scope.createClass({
     generate: function (event, $this) {
         Scope.utils.stopPropagation(event);
         this.getRandom();
-        Scope.utils.update(
-            Scope.utils.getRefs($this).ul2
-        );
+        Scope.utils.update(this.refs.ul2);
     },
     onActive: {
-        'li': function (event, $this, $ul) {
+        'li': function (event, $this, $owner) {
             Scope.utils.stopPropagation(event);
-            $ul.find('li.active').removeClass('active');
+            $owner.find('li.active').removeClass('active');
             $this.addClass('active');
         }
     },
@@ -60,24 +62,14 @@ const List = Scope.createClass({
 const Wrapper = Scope.createClass({
     updateList: function (event, $this) {
         Scope.utils.stopPropagation(event);
-        Scope.utils.update(
-            Scope.utils.getRefs($this).list
-        );
-        Scope.utils.execute(
-            Scope.utils.getRefs($this).list,
-            'getRandom'
-        );
-        Scope.utils.update(
-            Scope.utils.getRefs(
-                Scope.utils.getRefs($this).list
-            ).ul2
-        );
+        Scope.utils.update(this.refs.list);
     },
     render: function () {
         return (
             <div>
                 <a onClick={this.updateList}>Update List Component</a>
                 <List ref="list"/>
+                {this.props.children}
             </div>
         );
     }

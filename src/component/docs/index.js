@@ -1,6 +1,5 @@
 const Scope = require("Scope");
 const ScopeUtils = Scope.utils;
-const {getRefs} = ScopeUtils;
 const $ = require("jquery");
 
 const compileJSX = function (input) {
@@ -19,64 +18,65 @@ const compileJSX = function (input) {
 const tabStyle = 'border-bottom: none !important;border-radius: 3px 3px 0 0;padding: 6px 8px;font-size: 12px;font-weight: bold;color: #c2c0bc;background-color: #f1ede4;display: inline-block;cursor: pointer;';
 
 const Editor = Scope.createClass({
-    afterMount: function ($component) {
+    afterMount: function () {
 
-        const refs = getRefs($component);
+        setTimeout((function () {
+            const refs = this.refs;
+            const codeMirror = window.CodeMirror(refs.editor[0], {
+                value: this.props.sourceCode || '',
+                mode: "javascript",
+                lineNumbers: true,
+                lineWrapping: false,
+                smartIndent: false, // javascript mode does bad things with jsx indents
+                matchBrackets: true,
+                showCursorWhenSelecting: false,
+                theme: 'scope-light'
+            });
+            const codeMirrorCompile = window.CodeMirror(refs.compile[0], {
+                value: '',
+                mode: "javascript",
+                lineNumbers: true,
+                readOnly: 'nocursor',
+                lineWrapping: false,
+                smartIndent: false, // javascript mode does bad things with jsx indents
+                matchBrackets: true,
+                showCursorWhenSelecting: false,
+                theme: 'scope-light'
+            });
 
-        const codeMirror = window.CodeMirror(refs.editor[0], {
-            value: this.props.sourceCode || '',
-            mode: "javascript",
-            lineNumbers: true,
-            lineWrapping: false,
-            smartIndent: false, // javascript mode does bad things with jsx indents
-            matchBrackets: true,
-            showCursorWhenSelecting: false,
-            theme: 'scope-light'
-        });
-        const codeMirrorCompile = window.CodeMirror(refs.compile[0], {
-            value: '',
-            mode: "javascript",
-            lineNumbers: true,
-            readOnly: 'nocursor',
-            lineWrapping: false,
-            smartIndent: false, // javascript mode does bad things with jsx indents
-            matchBrackets: true,
-            showCursorWhenSelecting: false,
-            theme: 'scope-light'
-        });
+            var compileEditor = function () {
+                const _sourceCode = codeMirror.doc.getValue();
+                const mountNode = refs.mountNode[0];
+                try {
+                    let compiledCode = compileJSX(_sourceCode);
+                    $(mountNode).empty();
+                    codeMirrorCompile.doc.setValue(compiledCode);
 
-        var compileEditor = function () {
-            const _sourceCode = codeMirror.doc.getValue();
-            const mountNode = refs.mountNode[0];
-            try {
-                let compiledCode = compileJSX(_sourceCode);
-                $(mountNode).empty();
-                codeMirrorCompile.doc.setValue(compiledCode);
+                    const wrapperCode = '(function (mountNode) {' + compiledCode + '})';
+                    (eval(wrapperCode))(mountNode);
+                } catch (e) {
+                    $(mountNode).text(e);
+                    console.log(e);
+                }
+            };
 
-                const wrapperCode = '(function (mountNode) {' + compiledCode + '})';
-                (eval(wrapperCode))(mountNode);
-            } catch (e) {
-                $(mountNode).text(e);
-                console.log(e);
-            }
-        };
+            codeMirror.on("change", function () {
+                compileEditor();
+            });
 
-        codeMirror.on("change", function () {
             compileEditor();
-        });
-
-        compileEditor();
+        }).bind(this), 1000);
     },
     code: function (event, $this) {
         ScopeUtils.stopPropagation(event);
-        getRefs($this).tabView.css({
+        this.refs.tabView.css({
             'margin-left': '0'
         });
 
     },
     compiledCode: function (event, $this) {
         ScopeUtils.stopPropagation(event);
-        getRefs($this).tabView.css({
+        this.refs.tabView.css({
             'margin-left': '-100%'
         });
     },

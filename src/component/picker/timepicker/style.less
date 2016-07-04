@@ -1,0 +1,90 @@
+@import "./../../../project.less";
+
+@COMP_NAME: timepicker;
+@COMP_NAMESPACE: ~"@{STYLE_NAMESPACE}@{COMP_NAME}";
+
+div.@{COMP_NAMESPACE} {
+  font-size: 14px;
+  color: #666666;
+  line-height: 24px;
+  div.picker {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    div.button {
+      line-height: 1;
+      div.separator {
+        .inline-block();
+        float: left;
+        height: 5px;
+        width: 20px;
+      }
+      div.up {
+        cursor: pointer;
+        float: left;
+        width: 32px;
+        div.arrow {
+          margin-left: 12px;
+          .inline-block();
+          border-top: none;
+          height: 0;
+          width: 0;
+          border-left: 5px solid transparent;
+          border-right: 5px solid transparent;
+          border-bottom: 5px solid #444444;
+        }
+        margin-bottom: 2px;
+      }
+      div.down {
+        cursor: pointer;
+        float: left;
+        width: 32px;
+        div.arrow {
+          margin-left: 12px;
+          .inline-block();
+          border-top: none;
+          height: 0;
+          width: 0;
+          border-left: 5px solid transparent;
+          border-right: 5px solid transparent;
+          border-top: 5px solid #444444;
+        }
+        margin-top: -2px;
+      }
+    }
+    div.input {
+      div.selector {
+        float: left;
+        input {
+          width: 30px;
+          vertical-align: middle;
+          border: 1px solid #D4D4D4;
+          cursor: text;
+          background: none transparent;
+          box-shadow: none;
+          height: 24px;
+          font-family: inherit;
+          font-size: inherit;
+          text-align: center;
+          margin: 0;
+          padding: 0;
+          outline: none;
+          .inline-block();
+          -webkit-appearance: none;
+          &.focused {
+            border-color: #2DB7F5;
+          }
+        }
+      }
+
+      div.separator {
+        float: left;
+        text-align: center;
+        width: 20px;
+      }
+    }
+  }
+}

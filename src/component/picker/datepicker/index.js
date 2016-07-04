@@ -1,7 +1,8 @@
 const Scope = require("Scope");
 const ScopeUtils = Scope.utils;
-const {getRefs} = ScopeUtils;
+const {getScope} = ScopeUtils;
 const Picker = require("./picker");
+const {NAMESPACE} = require("./../../../project");
 
 require("./style.less");
 
@@ -18,7 +19,6 @@ const isOutside = function (elements, event) {
 };
 
 module.exports = Scope.createClass({
-    $input: null,
     style: {
         width: "315px",
         lineHeight: "30px",
@@ -42,18 +42,16 @@ module.exports = Scope.createClass({
             me.date = {year, month, day};
         }
     },
-    afterMount: function ($component) {
-        const me = this, refs = getRefs($component);
-
-        me.$input = refs.input.css(me.style);
-        getRefs(refs.picker).table.css(me.style);
-        refs.wrapper.css(me.style);
-
+    afterMount: function () {
+        const me = this;
+        me.refs.input.css(me.style);
+        me.refs.wrapper.css(me.style);
+        getScope(me.refs.picker).refs.table.css(me.style);
         if (me.date) {
             const {year, month, day} = me.date;
-            me.$input.text(`${year}年${month}月${day}日`);
+            me.refs.input.text(`${year}年${month}月${day}日`);
         } else {
-            me.$input.text("请选择...");
+            me.refs.input.text("请选择...");
         }
     },
     afterUpdate: function () {
@@ -62,22 +60,22 @@ module.exports = Scope.createClass({
     onSelect: function (year, month, day) {
         const me = this;
         me.date = {year, month, day};
-        if (me.$input) {
-            me.$input.text(`${year}年${month}月${day}日`);
+        if (me.refs.input) {
+            me.refs.input.text(`${year}年${month}月${day}日`);
         }
         if (typeof me.props.onSelect == "function") {
             me.props.onSelect(year, month, day);
         }
     },
-    onFocus: function (event, $this) {
+    onFocus: function (event) {
         ScopeUtils.stopPropagation(event);
-        const me = this, refs = getRefs($this);
-        me.$input.parent().addClass('focused');
-        refs.picker.show();
+        const me = this;
+        me.refs.input.parent().addClass('focused');
+        me.refs.picker.show();
         const onBlur = function (_event) {
-            if (isOutside([refs.wrapper[0]], _event)) {
-                me.$input.parent().removeClass('focused');
-                refs.picker.hide();
+            if (isOutside([me.refs.wrapper[0]], _event)) {
+                me.refs.input.parent().removeClass('focused');
+                me.refs.picker.hide();
                 $(document).off('click', onBlur);
             }
         };
@@ -86,14 +84,14 @@ module.exports = Scope.createClass({
     render: function () {
         const me = this;
         return (
-            <div class="datepicker" ref="wrapper">
+            <div class={NAMESPACE + "datepicker"} ref="wrapper">
                 <div class="input" onClick={me.onFocus}>
                     <span ref="input"> </span>
                 </div>
                 <Picker ref="picker"
                         date={me.date}
                         dayRule={me.props.dayRule}
-                        onSelect={me.onSelect}/>
+                        onSelect={me.onSelect.bind(me)}/>
             </div>
         );
     }

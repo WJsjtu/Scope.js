@@ -1,36 +1,43 @@
-@backColor: #FFFFFF;
-@darkColor: #BBBBBB;
-@currentColor: #FFFF99;
-@titleColor: #666666;
-@activeColor: #2DB7F5;
+@import "./../../../project.less";
+
+@blueColor: #2DB7F5;
+@yellowColor: #FFFF99;
+@greenColor: #8BFC85;
+@redColor: #FF7373;
+
+@disableColor: #BBBBBB;
 @shadowColor: #D4D4D4;
+@darkColor: #666666;
+@fontColor: #444444;
+@backColor: #FFFFFF;
 
 @transitionTime: 0.3s;
 
-.ellipsis() {
-  overflow: hidden;
-  word-wrap: normal;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+@COMP_NAME: datepicker;
+@COMP_NAMESPACE: ~"@{STYLE_NAMESPACE}@{COMP_NAME}";
 
-div.datepicker {
+div.@{COMP_NAMESPACE} {
   box-sizing: content-box;
+  position: relative;
   div.input {
     width: 100%;
     box-sizing: content-box;
     border: 1px @shadowColor solid;
     cursor: pointer;
     &.focused {
-      border-color: @activeColor;
+      border-color: @blueColor;
     }
     span {
       padding: 0 10px;
-      color: @titleColor;
+      color: @darkColor;
     }
   }
   div.picker {
     display: none;
+    position: absolute;
+    top: 32px;
+    left: 0;
+    z-index: 999;
     box-sizing: content-box;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -41,24 +48,16 @@ div.datepicker {
     box-shadow: 0 3px 6px @shadowColor;
     -moz-box-shadow: 0 3px 6px @shadowColor;
     -webkit-box-shadow: 0 3px 6px @shadowColor;
-    -webkit-background-clip: padding-box;
-    background-clip: padding-box;
-
-    background-color: rgb(0, 0, 0);
-    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius=3, MakeShadow=true, ShadowOpacity=0.10);
-    -ms-filter: "progid:DXImageTransform.Microsoft.Blur(PixelRadius=3,MakeShadow=true,ShadowOpacity=0.10)";
-    zoom: 1;
 
     div.content {
       box-sizing: content-box;
-      width: 100%;
       border: 1px @shadowColor solid;
       position: relative;
       table {
         width: 100%;
         box-sizing: content-box;
         background-color: @backColor;
-        color: @titleColor;
+        color: @darkColor;
         border-collapse: collapse;
         border-spacing: 0;
         border-radius: 0;
@@ -80,13 +79,13 @@ div.datepicker {
           margin: 0;
           padding: 0;
           tr.title {
-            border-bottom: 1px @darkColor solid;
-            color: @titleColor;
+            border-bottom: 1px @disableColor solid;
+            color: @darkColor;
             th {
               .ellipsis();
               cursor: pointer;
               &:hover {
-                background-color: lighten(@darkColor, 20%);
+                background-color: lighten(@disableColor, 20%);
               }
             }
           }
@@ -124,31 +123,31 @@ div.datepicker {
 
               cursor: pointer;
               &.old, &.new {
-                color: @darkColor;
+                color: @disableColor;
               }
               &:hover {
-                background-color: darken(@darkColor, 20%);
+                background-color: darken(@disableColor, 20%);
                 color: @backColor;
               }
               &.current {
-                background-color: @currentColor;
-                color: darken(@darkColor, 20%);
+                background-color: @yellowColor;
+                color: darken(@disableColor, 20%);
                 &:hover {
-                  background-color: darken(@currentColor, 20%);
-                  color: @darkColor;
+                  background-color: darken(@yellowColor, 20%);
+                  color: @disableColor;
                 }
               }
               &.active {
-                background-color: @activeColor;
+                background-color: @blueColor;
                 color: @backColor;
               }
 
               &.disabled {
                 cursor: not-allowed;
-                background-color: lighten(@darkColor, 10%);
+                background-color: lighten(@disableColor, 10%);
                 color: @backColor;
                 &:hover {
-                  background-color: lighten(@darkColor, 10%);
+                  background-color: lighten(@disableColor, 10%);
                   color: @backColor;
                 }
               }

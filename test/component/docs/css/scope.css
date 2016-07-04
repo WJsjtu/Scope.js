@@ -230,5 +230,6 @@ div.CodeMirror-linenumber {
 }
 
 .CodeMirror-gutter {
+    width: 29px;
     padding-top: 30px !important;
 }

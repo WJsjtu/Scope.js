@@ -1,6 +1,5 @@
 const Scope = require("Scope");
 const ScopeUtils = Scope.utils;
-const {getRefs} = ScopeUtils;
 
 const getPrevMonth = function (year, month) {
     return month == 1 ? [year - 1, 12] : [year, month - 1];
@@ -32,44 +31,49 @@ module.exports = Scope.createClass({
         me.panelDate = $.extend({}, currentDate)
     },
 
+    beforeUpdate: function () {
+        this.beforeMount();
+    },
+
     onDaySelect: function (year, month, day, needUpdate, event, $this) {
         ScopeUtils.stopPropagation(event);
-        const me = this, refs = getRefs($this);
+        const me = this;
         me.activeDate.year = year;
         me.activeDate.month = month;
         me.activeDate.day = day;
         if (needUpdate) {
             me.panelDate.year = year;
             me.panelDate.month = month;
-            me.updateView(refs);
+            me.updateView();
         } else {
-            refs.tbody.find(".active").removeClass("active");
+            me.refs.tbody.find(".active").removeClass("active");
             $this.addClass("active");
         }
         if (typeof me.props.onSelect == "function") {
             me.props.onSelect(year, month, day);
         }
     },
-    onMonthSelect: function (month, event, $this) {
+    onMonthSelect: function (month, event) {
         ScopeUtils.stopPropagation(event);
         const me = this;
         me.panelDate.month = month;
         me.panel = 1;
-        me.updateView(getRefs($this));
+        me.updateView();
     },
-    onYearSelect: function (year, event, $this) {
+    onYearSelect: function (year, event) {
         ScopeUtils.stopPropagation(event);
         const me = this;
         me.panelDate.year = year;
         me.panel = 2;
-        me.updateView(getRefs($this));
+        me.updateView();
     },
-    updateView: function (refs) {
-        refs.week[this.panel == 1 ? "show" : "hide"]();
-        ScopeUtils.update(refs.title);
-        ScopeUtils.update(refs.tbody);
+    updateView: function () {
+        const me = this;
+        me.refs.week[me.panel == 1 ? "show" : "hide"]();
+        ScopeUtils.update(me.refs.title);
+        ScopeUtils.update(me.refs.tbody);
     },
-    switchStep: function (step, event, $this) {
+    switchStep: function (step, event) {
         ScopeUtils.stopPropagation(event);
         const me = this;
         if (me.panel == 1) {
@@ -88,17 +92,17 @@ module.exports = Scope.createClass({
                 year: me.panelDate.year + 12 * step
             };
         }
-        me.updateView(getRefs($this));
+        me.updateView();
     },
-    switchTitle: function (event, $this) {
+    switchTitle: function (event) {
         ScopeUtils.stopPropagation(event);
-        const me = this, refs = getRefs($this);
+        const me = this;
         if (me.panel == 1) {
             me.panel = 2;
-            me.updateView(refs);
+            me.updateView();
         } else if (me.panel == 2) {
             me.panel = 3;
-            me.updateView(refs);
+            me.updateView();
         }
     },
     renderDays: function () {

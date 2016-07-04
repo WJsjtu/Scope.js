@@ -6,7 +6,7 @@ var componentMode = {
 };
 
 var libMode = {
-    scope: 'babel',
+    scope: 'webpack',
     polyfill: 'babel'
 };
 

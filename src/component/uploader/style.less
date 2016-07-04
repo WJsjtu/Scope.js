@@ -1,0 +1,160 @@
+@import "./../../project.less";
+
+@fontSize: 12px;
+
+@COMP_NAME: uploader;
+@COMP_NAMESPACE: ~"@{STYLE_NAMESPACE}@{COMP_NAME}";
+
+@controllerColor: rgb(52, 73, 94);
+
+div.@{COMP_NAMESPACE} {
+  * {
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+    font-size: @fontSize;
+  }
+  .@{COMP_NAMESPACE}-controller {
+    line-height: 2.4;
+    color: #FFFFFF;
+    border: 1px @controllerColor solid;
+    background: @controllerColor;
+    div.@{COMP_NAMESPACE}-input {
+      cursor: pointer;
+      margin-left: 15px;
+      width: 120px;
+      text-align: center;
+      float: left;
+      position: relative;
+      overflow: hidden;
+      font-size: @fontSize + 2;
+      input {
+        .block();
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 0;
+        .opacity(0);
+        font-size: 200px !important;
+        direction: ltr;
+        cursor: pointer;
+      }
+      &:hover {
+        background: darken(@controllerColor, 5%);
+      }
+    }
+    div.@{COMP_NAMESPACE}-btn {
+      font-size: @fontSize + 2;
+      cursor: pointer;
+      width: 120px;
+      text-align: center;
+      float: left;
+      &:hover {
+        background: darken(@controllerColor, 5%);
+      }
+    }
+  }
+  ul {
+    height: 400px;
+    overflow: auto;
+    font-size: 0;
+    line-height: 1;
+    list-style: none;
+    border: 1px #C7C7C7 solid;
+    padding-bottom: 5px;
+    background-color: rgb(236, 238, 241);
+    li {
+      .inline-block();
+      font-size: @fontSize;
+      line-height: 1.5;
+      width: 100%;
+      background-color: transparent;
+      div.@{COMP_NAMESPACE}-task {
+        border: 5px solid rgb(236, 238, 241);
+        border-bottom: none;
+        background-color: rgb(255, 255, 255);
+        position: relative;
+        height: 86px;
+        padding: 5px 11px;
+        .task-icon {
+          .inline-block();
+          position: absolute;
+          top: 5px;
+          left: 8px;
+          width: 54px;
+          height: 54px;
+          margin: 11px 13px;
+          overflow: hidden;
+          img {
+            border: none;
+          }
+        }
+        .task-info {
+          margin-left: 80px;
+          .task-name {
+            font-weight: 700;
+            color: rgb(51, 103, 214);
+            .ellipsis();
+            span {
+              font-size: @fontSize + 1;
+            }
+          }
+          .task-panel {
+            .task-status {
+              position: relative;
+              .task-upload {
+                .inline-block();
+                margin-left: 70px;
+                span {
+                  .ellipsis();
+                  .inline-block();
+                }
+              }
+              .task-label {
+                .inline-block();
+                font-size: @fontSize;
+                line-height: 1.5;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 70px;
+                text-align: left;
+                * {
+                  .ellipsis();
+                }
+                .task-error {
+                  color: red;
+                }
+              }
+            }
+            .task-progress {
+              margin: 5px 0 6px 0;
+              background-color: rgb(223, 222, 223);
+              height: 3px;
+              width: 100%;
+              div {
+                width: 0;
+                height: 3px;
+                background-color: rgb(54, 126, 237);
+              }
+            }
+            .task-operation {
+              a {
+                text-decoration: none;
+                color: #5a5a5a;
+                margin-right: 15px;
+                cursor: pointer;
+                &.task-start {
+                  color: rgb(51, 103, 214);
+                }
+                &.task-link {
+                  color: #969696;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
