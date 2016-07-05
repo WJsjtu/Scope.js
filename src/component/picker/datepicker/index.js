@@ -3,20 +3,9 @@ const ScopeUtils = Scope.utils;
 const {getScope} = ScopeUtils;
 const Picker = require("./picker");
 const {NAMESPACE} = require("./../../../project");
-
+const isOutside = require("./../outside");
 require("./style.less");
 
-const isOutside = function (elements, event) {
-    let eventTarget = (event.target) ? event.target : event.srcElement;
-    if (eventTarget.parentElement == null && eventTarget != document.body.parentElement) {
-        return false;
-    }
-    while (eventTarget != null) {
-        if (elements.indexOf(eventTarget) != -1) return false;
-        eventTarget = eventTarget.parentElement;
-    }
-    return true;
-};
 
 module.exports = Scope.createClass({
     style: {
@@ -53,6 +42,11 @@ module.exports = Scope.createClass({
         } else {
             me.refs.input.text("请选择...");
         }
+        if (me.props.zIndex && !isNaN(+me.props.zIndex)) {
+            me.refs.picker.css({
+                zIndex: +me.props.zIndex
+            });
+        }
     },
     afterUpdate: function () {
         this.afterMount();
@@ -63,7 +57,7 @@ module.exports = Scope.createClass({
         if (me.refs.input) {
             me.refs.input.text(`${year}年${month}月${day}日`);
         }
-        if (typeof me.props.onSelect == "function") {
+        if (ScopeUtils.isFunction(me.props.onSelect)) {
             me.props.onSelect(year, month, day);
         }
     },
@@ -88,10 +82,12 @@ module.exports = Scope.createClass({
                 <div class="input" onClick={me.onFocus}>
                     <span ref="input"> </span>
                 </div>
-                <Picker ref="picker"
-                        date={me.date}
-                        dayRule={me.props.dayRule}
-                        onSelect={me.onSelect.bind(me)}/>
+                <div class="picker-wrapper">
+                    <Picker ref="picker"
+                            date={me.date}
+                            dayRule={me.props.dayRule}
+                            onSelect={me.onSelect.bind(me)}/>
+                </div>
             </div>
         );
     }

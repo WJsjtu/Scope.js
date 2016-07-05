@@ -49,7 +49,7 @@ module.exports = Scope.createClass({
             me.refs.tbody.find(".active").removeClass("active");
             $this.addClass("active");
         }
-        if (typeof me.props.onSelect == "function") {
+        if (ScopeUtils.isFunction(me.props.onSelect)) {
             me.props.onSelect(year, month, day);
         }
     },
@@ -135,7 +135,7 @@ module.exports = Scope.createClass({
 
         const getDayElement = function (year, month, date, defaultClass, needUpdate) {
             const dayRule = me.props.dayRule;
-            const validate = (typeof dayRule != "function") || dayRule(year, month, date);
+            const validate = ScopeUtils.isFunction(dayRule) || dayRule(year, month, date);
             const handler = validate !== false ? me.onDaySelect.bind(me, year, month, date, needUpdate) : null;
 
             const classArray = ["item"].concat(defaultClass);

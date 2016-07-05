@@ -1,89 +1,104 @@
 @import "./../../../project.less";
 
+@blueColor: #2DB7F5;
+@yellowColor: #FFFF99;
+@greenColor: #8BFC85;
+@redColor: #FF7373;
+
+@disableColor: #BBBBBB;
+@shadowColor: #D4D4D4;
+@darkColor: #666666;
+@fontColor: #444444;
+@backColor: #FFFFFF;
+
+@transitionTime: 0.3s;
+
 @COMP_NAME: timepicker;
 @COMP_NAMESPACE: ~"@{STYLE_NAMESPACE}@{COMP_NAME}";
 
 div.@{COMP_NAMESPACE} {
-  font-size: 14px;
+  box-sizing: content-box;
+  position: relative;
   color: #666666;
-  line-height: 24px;
-  div.picker {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    div.button {
-      line-height: 1;
-      div.separator {
-        .inline-block();
-        float: left;
-        height: 5px;
-        width: 20px;
-      }
-      div.up {
-        cursor: pointer;
-        float: left;
-        width: 32px;
-        div.arrow {
-          margin-left: 12px;
-          .inline-block();
-          border-top: none;
-          height: 0;
-          width: 0;
-          border-left: 5px solid transparent;
-          border-right: 5px solid transparent;
-          border-bottom: 5px solid #444444;
-        }
-        margin-bottom: 2px;
-      }
-      div.down {
-        cursor: pointer;
-        float: left;
-        width: 32px;
-        div.arrow {
-          margin-left: 12px;
-          .inline-block();
-          border-top: none;
-          height: 0;
-          width: 0;
-          border-left: 5px solid transparent;
-          border-right: 5px solid transparent;
-          border-top: 5px solid #444444;
-        }
-        margin-top: -2px;
-      }
+  overflow: hidden;
+  border: 1px @shadowColor solid;
+  &.focused {
+    border-color: @blueColor;
+  }
+  div.input {
+    float: left;
+    box-sizing: content-box;
+    cursor: pointer;
+    span {
+      padding: 0 10px;
+      color: @darkColor;
     }
-    div.input {
-      div.selector {
+  }
+  div.picker {
+    float: left;
+    text-align: center;
+    div.content {
+      .inline-block();
+      div.cell {
         float: left;
-        input {
-          width: 30px;
-          vertical-align: middle;
-          border: 1px solid #D4D4D4;
-          cursor: text;
-          background: none transparent;
-          box-shadow: none;
-          height: 24px;
-          font-family: inherit;
-          font-size: inherit;
-          text-align: center;
-          margin: 0;
-          padding: 0;
-          outline: none;
-          .inline-block();
-          -webkit-appearance: none;
-          &.focused {
-            border-color: #2DB7F5;
+        div.cell-input {
+          float: left;
+          input {
+            vertical-align: middle;
+            border: 1px solid #D4D4D4;
+            cursor: text;
+            background: none transparent;
+            box-shadow: none;
+            font-family: inherit;
+            font-size: inherit;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            outline: none;
+            .inline-block();
+            -webkit-appearance: none;
+            &.focused {
+              border-color: #2DB7F5;
+            }
+          }
+        }
+
+        div.cell-arrow {
+          float: left;
+          div {
+            cursor: pointer;
+            text-align: center;
+            line-height: 0.5;
+            &.up {
+              .arrow {
+                .inline-block();
+                border-color: transparent;
+                border-style: solid;
+                border-top: none;
+                border-bottom-color: #444444;
+                &:hover {
+                  border-bottom-color: @blueColor;
+                }
+              }
+            }
+            &.down {
+              .arrow {
+                .inline-block();
+                border-color: transparent;
+                border-style: solid;
+                border-bottom: none;
+                border-top-color: #444444;
+                &:hover {
+                  border-top-color: @blueColor;
+                }
+              }
+            }
           }
         }
       }
-
       div.separator {
         float: left;
         text-align: center;
-        width: 20px;
       }
     }
   }

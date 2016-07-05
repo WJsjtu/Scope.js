@@ -32,123 +32,124 @@ div.@{COMP_NAMESPACE} {
       color: @darkColor;
     }
   }
-  div.picker {
-    display: none;
-    position: absolute;
-    top: 32px;
-    left: 0;
-    z-index: 999;
-    box-sizing: content-box;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    box-shadow: 0 3px 6px @shadowColor;
-    -moz-box-shadow: 0 3px 6px @shadowColor;
-    -webkit-box-shadow: 0 3px 6px @shadowColor;
-
-    div.content {
+  div.picker-wrapper {
+    position: relative;
+    div.picker {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
       box-sizing: content-box;
-      border: 1px @shadowColor solid;
-      position: relative;
-      table {
-        width: 100%;
-        box-sizing: content-box;
-        background-color: @backColor;
-        color: @darkColor;
-        border-collapse: collapse;
-        border-spacing: 0;
-        border-radius: 0;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      box-shadow: 0 3px 6px @shadowColor;
+      -moz-box-shadow: 0 3px 6px @shadowColor;
+      -webkit-box-shadow: 0 3px 6px @shadowColor;
 
-        tr {
-          margin: 0;
-          padding: 0;
+      div.content {
+        box-sizing: content-box;
+        border: 1px @shadowColor solid;
+        position: relative;
+        table {
+          box-sizing: content-box;
+          background-color: @backColor;
+          color: @darkColor;
+          border-collapse: collapse;
+          border-spacing: 0;
           border-radius: 0;
-          border: none;
-          td, th {
+
+          tr {
             margin: 0;
             padding: 0;
-            text-align: center;
             border-radius: 0;
             border: none;
-          }
-        }
-        thead {
-          margin: 0;
-          padding: 0;
-          tr.title {
-            border-bottom: 1px @disableColor solid;
-            color: @darkColor;
-            th {
-              .ellipsis();
-              cursor: pointer;
-              &:hover {
-                background-color: lighten(@disableColor, 20%);
-              }
+            td, th {
+              margin: 0;
+              padding: 0;
+              text-align: center;
+              border-radius: 0;
+              border: none;
             }
           }
-        }
-
-        tbody {
-          margin: 0;
-          padding: 0;
-          tr {
-            td {
-              overflow: hidden;
-              word-wrap: normal;
-              text-overflow: clip;
-              white-space: nowrap;
-            }
-            .item {
-              &.large {
-                line-height: 5;
-                display: inline-block;
-                *zoom: 1;
-                *display: inline;
-                width: 25%;
-              }
-              transition: all @transitionTime;
-              transition-timing-function: linear;
-              /* Firefox 4 */
-              -moz-transition: all @transitionTime;
-              -moz-transition-timing-function: linear;
-              /* Safari and Chrome */
-              -webkit-transition: all @transitionTime;
-              -webkit-transition-timing-function: linear;
-              /* Opera */
-              -o-transition: all @transitionTime;
-              -o-transition-timing-function: linear;
-
-              cursor: pointer;
-              &.old, &.new {
-                color: @disableColor;
-              }
-              &:hover {
-                background-color: darken(@disableColor, 20%);
-                color: @backColor;
-              }
-              &.current {
-                background-color: @yellowColor;
-                color: darken(@disableColor, 20%);
+          thead {
+            margin: 0;
+            padding: 0;
+            tr.title {
+              border-bottom: 1px @disableColor solid;
+              color: @darkColor;
+              th {
+                .ellipsis();
+                cursor: pointer;
                 &:hover {
-                  background-color: darken(@yellowColor, 20%);
-                  color: @disableColor;
+                  background-color: lighten(@disableColor, 20%);
                 }
               }
-              &.active {
-                background-color: @blueColor;
-                color: @backColor;
-              }
+            }
+          }
 
-              &.disabled {
-                cursor: not-allowed;
-                background-color: lighten(@disableColor, 10%);
-                color: @backColor;
+          tbody {
+            margin: 0;
+            padding: 0;
+            tr {
+              td {
+                overflow: hidden;
+                word-wrap: normal;
+                text-overflow: clip;
+                white-space: nowrap;
+              }
+              .item {
+                &.large {
+                  line-height: 5;
+                  display: inline-block;
+                  *zoom: 1;
+                  *display: inline;
+                  width: 25%;
+                }
+                transition: all @transitionTime;
+                transition-timing-function: linear;
+                /* Firefox 4 */
+                -moz-transition: all @transitionTime;
+                -moz-transition-timing-function: linear;
+                /* Safari and Chrome */
+                -webkit-transition: all @transitionTime;
+                -webkit-transition-timing-function: linear;
+                /* Opera */
+                -o-transition: all @transitionTime;
+                -o-transition-timing-function: linear;
+
+                cursor: pointer;
+                &.old, &.new {
+                  color: @disableColor;
+                }
                 &:hover {
+                  background-color: darken(@disableColor, 20%);
+                  color: @backColor;
+                }
+                &.current {
+                  background-color: @yellowColor;
+                  color: darken(@disableColor, 20%);
+                  &:hover {
+                    background-color: darken(@yellowColor, 20%);
+                    color: @disableColor;
+                  }
+                }
+                &.active {
+                  background-color: @blueColor;
+                  color: @backColor;
+                }
+
+                &.disabled {
+                  cursor: not-allowed;
                   background-color: lighten(@disableColor, 10%);
                   color: @backColor;
+                  &:hover {
+                    background-color: lighten(@disableColor, 10%);
+                    color: @backColor;
+                  }
                 }
               }
             }
