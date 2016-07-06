@@ -105,8 +105,7 @@ module.exports = Scope.createClass({
             me.props.onSelect(hour, minute, second);
         }
     },
-    onFocus: function (event) {
-        ScopeUtils.stopPropagation(event);
+    onFocus: function () {
         const me = this, _width = parseFloat(me.style.width);
         me.refs.wrapper.addClass('focused');
         me.refs.scroll.animate({
