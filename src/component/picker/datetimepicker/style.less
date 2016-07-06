@@ -1,0 +1,102 @@
+@import "./../../../project.less";
+@import "./../variable.less";
+
+@COMP_NAME: datetimepicker;
+@COMP_NAMESPACE: ~"@{STYLE_NAMESPACE}@{COMP_NAME}";
+
+div.@{COMP_NAMESPACE} {
+  div.picker-wrapper {
+    div.combine {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      box-sizing: content-box;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      box-shadow: 0 3px 6px @shadowColor;
+      -moz-box-shadow: 0 3px 6px @shadowColor;
+      -webkit-box-shadow: 0 3px 6px @shadowColor;
+      border: 1px @shadowColor solid;
+
+      div.date-picker {
+        box-shadow: none;
+        -moz-box-shadow: none;
+        -webkit-box-shadow: none;
+        border: none;
+      }
+      div.time-picker {
+        text-align: center;
+        div.content {
+          .inline-block();
+          div.cell {
+            float: left;
+            div.cell-input {
+              float: left;
+              input {
+                vertical-align: middle;
+                border: 1px solid #D4D4D4;
+                cursor: text;
+                background: none transparent;
+                box-shadow: none;
+                font-family: inherit;
+                font-size: inherit;
+                text-align: center;
+                margin: 0;
+                padding: 0;
+                outline: none;
+                .inline-block();
+                -webkit-appearance: none;
+                &.focused {
+                  border-color: #2DB7F5;
+                }
+              }
+            }
+
+            div.cell-arrow {
+              float: left;
+              div {
+                cursor: pointer;
+                text-align: center;
+                line-height: 0.5;
+                &.up {
+                  .arrow {
+                    .inline-block();
+                    border-color: transparent;
+                    border-style: solid;
+                    border-top: none;
+                    border-bottom-color: #444444;
+                    &:hover {
+                      border-bottom-color: @blueColor;
+                    }
+                  }
+                }
+                &.down {
+                  .arrow {
+                    .inline-block();
+                    border-color: transparent;
+                    border-style: solid;
+                    border-bottom: none;
+                    border-top-color: #444444;
+                    &:hover {
+                      border-top-color: @blueColor;
+                    }
+                  }
+                }
+              }
+            }
+          }
+          div.separator {
+            float: left;
+            text-align: center;
+          }
+        }
+      }
+    }
+  }
+
+}

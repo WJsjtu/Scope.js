@@ -5,7 +5,7 @@ const twoDashes = "--";
 const CHANGE_EVENT_STRING = "keydown keyup input propertychange change";
 const HOUR = "hour", MINUTE = "minute", SECOND = "second";
 
-const fixTwo = require("./fixTwo");
+const fixTwo = require("./../fixTwo");
 
 module.exports = Scope.createClass({
     currentTime: {},
@@ -158,7 +158,7 @@ module.exports = Scope.createClass({
     render: function () {
         const me = this;
         return (
-            <div class="picker" ref="picker">
+            <div class="time-picker">
                 <div class="content" ref="content">
                     <div class="cell">
                         <div class="cell-input">

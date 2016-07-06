@@ -1,22 +1,10 @@
 @import "./../../../project.less";
-
-@blueColor: #2DB7F5;
-@yellowColor: #FFFF99;
-@greenColor: #8BFC85;
-@redColor: #FF7373;
-
-@disableColor: #BBBBBB;
-@shadowColor: #D4D4D4;
-@darkColor: #666666;
-@fontColor: #444444;
-@backColor: #FFFFFF;
-
-@transitionTime: 0.3s;
+@import "./../variable.less";
 
 @COMP_NAME: timepicker;
 @COMP_NAMESPACE: ~"@{STYLE_NAMESPACE}@{COMP_NAME}";
 
-div.@{COMP_NAMESPACE} {
+div.@{COMP_NAMESPACE}{
   box-sizing: content-box;
   position: relative;
   color: #666666;
@@ -34,8 +22,7 @@ div.@{COMP_NAMESPACE} {
       color: @darkColor;
     }
   }
-  div.picker {
-    float: left;
+  div.time-picker {
     text-align: center;
     div.content {
       .inline-block();

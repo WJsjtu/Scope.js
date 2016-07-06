@@ -4,7 +4,7 @@ const {getScope} = ScopeUtils;
 const Picker = require("./picker");
 const {NAMESPACE} = require("./../../../project");
 const isOutside = require("./../outside");
-const fixTwo = require("./fixTwo");
+const fixTwo = require("./../fixTwo");
 require("./style.less");
 
 module.exports = Scope.createClass({
@@ -45,9 +45,10 @@ module.exports = Scope.createClass({
         });
         me.refs.input.parent().css(me.style);
 
-        getScope(me.refs.picker).refs.picker.css({
+        getScope(me.refs.picker).$ele.css({
             width: me.style.width,
-            fontSize: me.style.fontSize
+            fontSize: me.style.fontSize,
+            float: "left"
         });
 
 

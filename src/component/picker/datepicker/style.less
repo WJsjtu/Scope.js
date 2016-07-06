@@ -1,22 +1,11 @@
 @import "./../../../project.less";
+@import "./../variable.less";
 
-@blueColor: #2DB7F5;
-@yellowColor: #FFFF99;
-@greenColor: #8BFC85;
-@redColor: #FF7373;
-
-@disableColor: #BBBBBB;
-@shadowColor: #D4D4D4;
-@darkColor: #666666;
-@fontColor: #444444;
-@backColor: #FFFFFF;
-
-@transitionTime: 0.3s;
 
 @COMP_NAME: datepicker;
 @COMP_NAMESPACE: ~"@{STYLE_NAMESPACE}@{COMP_NAME}";
 
-div.@{COMP_NAMESPACE} {
+div.@{COMP_NAMESPACE}, div.@{STYLE_NAMESPACE}datetimepicker {
   box-sizing: content-box;
   position: relative;
   div.input {
@@ -34,7 +23,7 @@ div.@{COMP_NAMESPACE} {
   }
   div.picker-wrapper {
     position: relative;
-    div.picker {
+    div.date-picker {
       display: none;
       position: absolute;
       top: 0;
@@ -49,10 +38,10 @@ div.@{COMP_NAMESPACE} {
       box-shadow: 0 3px 6px @shadowColor;
       -moz-box-shadow: 0 3px 6px @shadowColor;
       -webkit-box-shadow: 0 3px 6px @shadowColor;
+      border: 1px @shadowColor solid;
 
       div.content {
         box-sizing: content-box;
-        border: 1px @shadowColor solid;
         position: relative;
         table {
           box-sizing: content-box;

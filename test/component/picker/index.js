@@ -22,4 +22,12 @@ $(function () {
         document.getElementById("time-picker-container")
     );
 
+    Scope.render(
+        <Picker.DateTimePicker zIndex={997}
+                           onSelect={function(year, month, day, hour, minute, second){
+                       console.log(`${year}-${month}-${day} ${hour}:${minute}:${second}`);
+                    }}/>,
+        document.getElementById("datetime-picker-container")
+    );
+
 });

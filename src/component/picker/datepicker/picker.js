@@ -31,10 +31,6 @@ module.exports = Scope.createClass({
         me.panelDate = $.extend({}, currentDate)
     },
 
-    beforeUpdate: function () {
-        this.beforeMount();
-    },
-
     onDaySelect: function (year, month, day, needUpdate, event, $this) {
         ScopeUtils.stopPropagation(event);
         const me = this;
@@ -135,7 +131,7 @@ module.exports = Scope.createClass({
 
         const getDayElement = function (year, month, date, defaultClass, needUpdate) {
             const dayRule = me.props.dayRule;
-            const validate = ScopeUtils.isFunction(dayRule) || dayRule(year, month, date);
+            const validate = !ScopeUtils.isFunction(dayRule) || (dayRule(year, month, date) !== false);
             const handler = validate !== false ? me.onDaySelect.bind(me, year, month, date, needUpdate) : null;
 
             const classArray = ["item"].concat(defaultClass);
@@ -298,7 +294,7 @@ module.exports = Scope.createClass({
     render: function () {
         const me = this;
         return (
-            <div class="picker">
+            <div class="date-picker">
                 <div class="content">
                     <table ref="table">
                         <thead>
