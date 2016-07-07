@@ -1,0 +1,87 @@
+@import "./../../project.less";
+
+@COMP_NAME: pagination;
+@COMP_NAMESPACE: ~"@{STYLE_NAMESPACE}@{COMP_NAME}";
+
+@pageBlue: rgb(66, 139, 202);
+
+div.@{COMP_NAMESPACE} {
+  box-sizing: border-box;
+  width: 100%;
+  div.pages {
+    color: rgb(51, 51, 51);
+    font-size: 14px;
+    line-height: 20px;
+    float: left !important;
+    background-color: rgb(255, 255, 255);
+
+    ul.pagination {
+      margin: 20px 0;
+      display: inline-block;
+      padding-left: 0;
+      border-radius: 4px;
+
+      li {
+        display: inline;
+        a {
+          cursor: pointer;
+          color: @pageBlue;
+          text-decoration: none;
+          position: relative;
+          float: left;
+          padding: 5px 10px;
+          line-height: 1.42857;
+          border: 1px solid rgb(221, 221, 221);
+          font-size: 12px;
+          margin-left: -1px;
+          &.first {
+            border-top-left-radius: 3px;
+            border-bottom-left-radius: 3px;
+            margin-left: 0;
+          }
+          &.last {
+            border-top-right-radius: 3px;
+            border-bottom-right-radius: 3px;
+          }
+          &.disabled {
+            cursor: not-allowed;
+            color: rgb(119, 119, 119);
+          }
+          &.active {
+            cursor: default;
+            background: 0 0 @pageBlue;
+            color: rgb(255, 255, 255);
+            border: 1px solid @pageBlue;
+          }
+        }
+      }
+    }
+  }
+  div.info {
+    color: rgb(51, 51, 51);
+    font-size: 14px;
+    line-height: 24px;
+    margin: 20px 0;
+    float: right !important;
+    background-color: rgb(255, 255, 255);
+    input {
+      margin: 0 5px;
+      text-align: center;
+      width: 40px;
+      vertical-align: middle;
+      border: 1px solid #D4D4D4;
+      cursor: text;
+      background: none transparent;
+      box-shadow: none;
+      font-family: inherit;
+      font-size: inherit;
+      padding: 0;
+      outline: none;
+      .inline-block();
+      -webkit-appearance: none;
+      &.focused {
+        border-color: @pageBlue;
+      }
+    }
+  }
+}
