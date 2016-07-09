@@ -1,16 +1,13 @@
 @import "./../../../project.less";
 @import "./../variable.less";
 
-
 @COMP_NAME: datepicker;
 @COMP_NAMESPACE: ~"@{STYLE_NAMESPACE}@{COMP_NAME}";
 
 div.@{COMP_NAMESPACE}, div.@{STYLE_NAMESPACE}datetimepicker {
-  box-sizing: content-box;
   position: relative;
   div.input {
     width: 100%;
-    box-sizing: content-box;
     border: 1px @shadowColor solid;
     cursor: pointer;
     &.focused {
@@ -28,7 +25,6 @@ div.@{COMP_NAMESPACE}, div.@{STYLE_NAMESPACE}datetimepicker {
       position: absolute;
       top: 0;
       left: 0;
-      box-sizing: content-box;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
       -khtml-user-select: none;
@@ -41,10 +37,8 @@ div.@{COMP_NAMESPACE}, div.@{STYLE_NAMESPACE}datetimepicker {
       border: 1px @shadowColor solid;
 
       div.content {
-        box-sizing: content-box;
         position: relative;
         table {
-          box-sizing: content-box;
           background-color: @backColor;
           color: @darkColor;
           border-collapse: collapse;

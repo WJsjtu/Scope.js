@@ -6,7 +6,7 @@
 @pageBlue: rgb(66, 139, 202);
 
 div.@{COMP_NAMESPACE} {
-  box-sizing: border-box;
+  overflow: auto;
   width: 100%;
   div.pages {
     color: rgb(51, 51, 51);
@@ -67,8 +67,10 @@ div.@{COMP_NAMESPACE} {
     input {
       margin: 0 5px;
       text-align: center;
-      width: 40px;
       vertical-align: middle;
+      width: 40px;
+      line-height: 24px;
+      height: 24px;
       border: 1px solid #D4D4D4;
       cursor: text;
       background: none transparent;
