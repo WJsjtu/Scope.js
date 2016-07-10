@@ -19,53 +19,50 @@ const tabStyle = 'border-bottom: none !important;border-radius: 3px 3px 0 0;padd
 
 const Editor = Scope.createClass({
     afterMount: function () {
+        const refs = this.refs;
+        const codeMirror = window.CodeMirror(refs.editor[0], {
+            value: this.props.sourceCode || '',
+            mode: "javascript",
+            lineNumbers: true,
+            lineWrapping: false,
+            smartIndent: false, // javascript mode does bad things with jsx indents
+            matchBrackets: true,
+            showCursorWhenSelecting: false,
+            theme: 'scope-light'
+        });
+        const codeMirrorCompile = window.CodeMirror(refs.compile[0], {
+            value: '',
+            mode: "javascript",
+            lineNumbers: true,
+            readOnly: 'nocursor',
+            lineWrapping: false,
+            smartIndent: false, // javascript mode does bad things with jsx indents
+            matchBrackets: true,
+            showCursorWhenSelecting: false,
+            theme: 'scope-light'
+        });
 
-        setTimeout((function () {
-            const refs = this.refs;
-            const codeMirror = window.CodeMirror(refs.editor[0], {
-                value: this.props.sourceCode || '',
-                mode: "javascript",
-                lineNumbers: true,
-                lineWrapping: false,
-                smartIndent: false, // javascript mode does bad things with jsx indents
-                matchBrackets: true,
-                showCursorWhenSelecting: false,
-                theme: 'scope-light'
-            });
-            const codeMirrorCompile = window.CodeMirror(refs.compile[0], {
-                value: '',
-                mode: "javascript",
-                lineNumbers: true,
-                readOnly: 'nocursor',
-                lineWrapping: false,
-                smartIndent: false, // javascript mode does bad things with jsx indents
-                matchBrackets: true,
-                showCursorWhenSelecting: false,
-                theme: 'scope-light'
-            });
+        var compileEditor = function () {
+            const _sourceCode = codeMirror.doc.getValue();
+            const mountNode = refs.mountNode[0];
+            try {
+                let compiledCode = compileJSX(_sourceCode);
+                $(mountNode).empty();
+                codeMirrorCompile.doc.setValue(compiledCode);
 
-            var compileEditor = function () {
-                const _sourceCode = codeMirror.doc.getValue();
-                const mountNode = refs.mountNode[0];
-                try {
-                    let compiledCode = compileJSX(_sourceCode);
-                    $(mountNode).empty();
-                    codeMirrorCompile.doc.setValue(compiledCode);
+                const wrapperCode = '(function (mountNode) {' + compiledCode + '})';
+                (eval(wrapperCode))(mountNode);
+            } catch (e) {
+                $(mountNode).text(e);
+                console.log(e);
+            }
+        };
 
-                    const wrapperCode = '(function (mountNode) {' + compiledCode + '})';
-                    (eval(wrapperCode))(mountNode);
-                } catch (e) {
-                    $(mountNode).text(e);
-                    console.log(e);
-                }
-            };
-
-            codeMirror.on("change", function () {
-                compileEditor();
-            });
-
+        codeMirror.on("change", function () {
             compileEditor();
-        }).bind(this), 1000);
+        });
+
+        compileEditor();
     },
     code: function (event, $this) {
         ScopeUtils.stopPropagation(event);

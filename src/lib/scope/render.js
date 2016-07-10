@@ -1,7 +1,7 @@
 const {SC, SE} = require("./class");
-const {isString, isObject, isFunction, escapeHtml, SCOPE_CLOSE_TAG, SCOPE_DATA_KEY} = require("./utils");
+const {isString, isObject, isFunction, SCOPE_CLOSE_TAG, SCOPE_DATA_KEY} = require("./utils");
 
-const renderComponent = function (sComponent, stage) {
+const renderComponent = function (sComponent) {
 
     //expose refs
     let context = sComponent.context;
@@ -10,7 +10,7 @@ const renderComponent = function (sComponent, stage) {
     const sElement = sComponent.sElement;
     const rootSElement = sComponent.sElementTree;
 
-    renderElement(rootSElement, stage);
+    renderElement(rootSElement);
 
     if (isString(sElement.class.ref) && (sComponent.parent instanceof SC)) {
         sComponent.parent.refs[sElement.class.ref] = rootSElement.$ele;
@@ -18,16 +18,9 @@ const renderComponent = function (sComponent, stage) {
 
     context.$ele = rootSElement.$ele;
 
-    const funcName = "after" + stage.replace(/(\w)/, function (v) {
-            return v.toUpperCase()
-        });
-
-    if (isFunction(context[funcName])) {
-        context[funcName].call(context);
-    }
 };
 
-const renderElement = function (sElement, stage) {
+const renderElement = function (sElement) {
     const sComponent = sElement.sComponent;
     const jElement = sElement.class;
     const context = sComponent.context;
@@ -82,10 +75,10 @@ const renderElement = function (sElement, stage) {
         if (SCOPE_CLOSE_TAG.indexOf(tagName) === -1) {
             sElement.children.forEach(function (childSElement) {
                 if (childSElement instanceof SE) {
-                    renderElement(childSElement, stage);
+                    renderElement(childSElement);
                     $ele.append(childSElement.$ele);
                 } else if (childSElement instanceof SC) {
-                    renderComponent(childSElement, stage);
+                    renderComponent(childSElement);
                     $ele.append(childSElement.sElementTree.$ele);
                 }
             });

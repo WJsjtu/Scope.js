@@ -57,32 +57,80 @@ const destroy = function (sElement, shouldRemove) {
 };
 
 const update = function (sElement) {
+
+    if (!(sElement instanceof SE)) {
+        return;
+    }
+
+    if (!(sElement.sComponent instanceof SC)) {
+        return;
+    }
+
+    const $oldEle = sElement.$ele;
+
+    if (!($oldEle instanceof $)) {
+        return;
+    }
+
+
     const extract = require("./extract"), render = require("./render");
 
+
+    destroy(sElement, false);
+
+    const beforeUpdate = function (_sComponent) {
+        if (_sComponent instanceof SC) {
+            const _context = _sComponent.context;
+            if (isObject(_context)) {
+                if (isFunction(_context.beforeUpdate)) {
+                    _context.beforeUpdate.call(_context);
+                }
+            }
+        }
+    };
+
+    const afterUpdate = function (_sComponent) {
+        if (_sComponent instanceof SC) {
+            const _context = _sComponent.context;
+            if (isObject(_context)) {
+                if (isFunction(_context.afterUpdate)) {
+                    _context.afterUpdate.call(_context);
+                }
+            }
+        }
+    };
+
     //if the node is the rootNode of a component
-    if ((sElement.sComponent instanceof SC) && (sElement.sComponent.sElementTree === sElement)) {
+    if (sElement.sComponent.sElementTree === sElement) {
+        
         const sComponent = sElement.sComponent;
+
         extract.e(sComponent.sElementTree);
 
-        if (isObject(sComponent.context) && isFunction(sComponent.context.beforeUpdate)) {
-            sComponent.context.beforeUpdate.call(isObject(sComponent.context));
-        }
+        require("./traverse")(sComponent, beforeUpdate);
 
-        render.c(sComponent, "update");
+        render.c(sComponent);
+
+        $oldEle.hide().after(sElement.$ele).remove();
+
+        require("./traverse")(sComponent, afterUpdate);
 
     } else {
         extract.e(sElement);
-        render.e(sElement, "update");
+
+        sElement.sComponent.children.forEach(function (childComponent) {
+            require("./traverse")(childComponent, beforeUpdate);
+        });
+
+        render.e(sElement);
+
+        $oldEle.hide().after(sElement.$ele).remove();
+
+        sElement.sComponent.children.forEach(function (childComponent) {
+            require("./traverse")(childComponent, afterUpdate);
+        });
     }
+
 };
 
-module.exports = function (sElement) {
-    if (sElement instanceof SE) {
-        const $oldEle = sElement.$ele;
-        destroy(sElement, false);
-        update(sElement);
-        if ($oldEle instanceof $) {
-            $oldEle.hide().after(sElement.$ele).remove();
-        }
-    }
-};
+module.exports = update;
