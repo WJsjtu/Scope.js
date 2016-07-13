@@ -1,40 +1,45 @@
 const Scope = require("Scope");
 const ScopeUtils = Scope.utils;
-const {getScope} = ScopeUtils;
 const {NAMESPACE} = require("./../../project");
 require("./style.less");
 
+const parseNumber = function (number) {
+    number = parseInt(number);
+    if (isNaN(number)) {
+        return false;
+    }
+    return number;
+};
+
+
 module.exports = Scope.createClass({
-    step: 15,
-    active: 1,
+    size: 15,
+    page: 1,
     total: 1,
     beforeMount: function () {
-        const me = this,
-            propStep = parseInt(+(me.props.step)),
-            propActive = parseInt(+(me.props.active)),
-            propTotal = parseInt(+(me.props.total));
-
-        me.step = Math.abs(propStep);
-        me.total = (isNaN(propTotal) && propTotal) ? 1 : Math.abs(propTotal);
-        me.active = (isNaN(propActive) && propActive) ? 1 : propActive;
-        if (me.active != me.total) {
-            if (me.active < 0) {
-                me.active %= me.total;
-                me.active += me.total;
+        const me = this;
+        me.size = Math.abs(parseNumber(me.props.size) || 15);
+        let total = me.total = Math.abs(parseNumber(me.props.total) || 1);
+        let page = parseNumber(me.props.page) || 1;
+        if (page != total) {
+            if (page < 0) {
+                page %= total;
+                page += total;
             }
-            if (me.active > me.total) {
-                me.active = me.total
+            if (page > total) {
+                page = total
             }
         }
+        me.page = page;
     },
     onPageSelect: function (pageIndex, event) {
         ScopeUtils.stopPropagation(event);
-        this.updateActive(pageIndex);
+        this.updatePage(pageIndex, true);
     },
     onKeyDown: function (event, $this) {
         ScopeUtils.stopPropagation(event);
         if (event.which == 13) {
-            this.updateActive($this.val());
+            this.updatePage($this.val(), true);
         }
     },
     onFocus: function (event, $this) {
@@ -43,45 +48,36 @@ module.exports = Scope.createClass({
     },
     onBlur: function (event, $this) {
         ScopeUtils.stopPropagation(event);
-        $this.val(this.active).removeClass("focused");
+        $this.val(this.page).removeClass("focused");
     },
-    updateTotal: function (total) {
-        const me = this;
-        let _total = parseInt(+(total));
-        if (!isNaN(_total)) {
-            _total = Math.abs(_total);
-            if (_total < 1) {
-                _total = 1;
-            }
-            me.total = _total;
-            me.refs.total.text(_total);
-            me.updateActive(me.active, true);
-        }
+    updateTotal: function (total, trigger) {
+        const me = this, _total = Math.abs(parseNumber(total) || 1);
+        me.total = _total;
+        me.refs.total.text(_total);
+        me.updatePage(me.page, trigger);
     },
-    updateActive: function (page, forceUpdate) {
-        const me = this;
-        let _page = parseInt(+(page));
+    updatePage: function (page, trigger) {
+        const me = this, total = me.total;
 
-        const oldActive = me.active;
-
-        me.active = (isNaN(_page) && _page) ? 1 : _page;
-        if (me.active != me.total) {
-            if (me.active < 0) {
-                me.active %= me.total;
-                me.active += me.total;
+        let tempPage = parseNumber(page) || 1;
+        if (tempPage != total) {
+            if (tempPage < 0) {
+                tempPage %= total;
+                tempPage += total;
             }
-            if (me.active > me.total) {
-                me.active = me.total
+            if (tempPage > total) {
+                tempPage = total
             }
         }
 
-        if (me.active != oldActive || forceUpdate) {
-            ScopeUtils.update(me.refs.list);
-            me.refs.input.val(me.active);
+        me.page = tempPage;
+        ScopeUtils.update(me.refs.list);
+        me.refs.input.val(tempPage);
+
+        if (trigger && ScopeUtils.isFunction(me.props.onPageSelect)) {
+            me.props.onPageSelect(tempPage);
         }
-        if (ScopeUtils.isFunction(me.props.onPageSelect)) {
-            me.props.onPageSelect(me.active);
-        }
+
     },
     render: function () {
         const me = this;
@@ -90,17 +86,17 @@ module.exports = Scope.createClass({
                 <div class="pages">
                     <ul class="pagination" ref="list">
                         {function () {
-                            const beginIndex = me.active - ((me.active - 1) % me.step);
+                            const page = me.page, beginIndex = page - ((page - 1) % me.size);
                             const commandPages = [
                                 <li>
                                     <a class="first" onClick={me.onPageSelect.bind(me, 1)}>首页</a>
                                 </li>,
                                 <li>
-                                    <a onClick={me.onPageSelect.bind(me, me.active - 1)}>上一页</a>
+                                    <a onClick={me.onPageSelect.bind(me, page - 1)}>上一页</a>
                                 </li>
                             ];
 
-                            if (me.active == 1) {
+                            if (page == 1) {
                                 return [
                                     <li>
                                         <a class="disabled first">首页</a>
@@ -124,15 +120,15 @@ module.exports = Scope.createClass({
 
                         }}
                         {function () {
-                            const list = [], beginIndex = me.active - ((me.active - 1) % me.step);
-                            for (let i = 0; i < me.step; i++) {
+                            const list = [], page = me.page, beginIndex = page - ((page - 1) % me.size);
+                            for (let i = 0; i < me.size; i++) {
                                 const pageIndex = beginIndex + i;
                                 if (beginIndex + i > me.total) {
                                     break;
                                 }
                                 list.push(
                                     <li>
-                                        <a class={pageIndex == me.active ? "active": ""}
+                                        <a class={pageIndex == page ? "active": ""}
                                            onClick={me.onPageSelect.bind(me, pageIndex)}>
                                             {pageIndex}
                                         </a>
@@ -142,18 +138,18 @@ module.exports = Scope.createClass({
                             return list;
                         }}
                         {function () {
-                            const beginIndex = me.active - ((me.active - 1) % me.step);
-                            const lastIndex = me.total - ((me.total - 1) % me.step);
+                            const page = me.page, beginIndex = page - ((page - 1) % me.size);
+                            const total = me.total, lastIndex = total - ((total - 1) % me.size);
                             const commandPages = [
                                 <li>
-                                    <a onClick={me.onPageSelect.bind(me, me.active + 1)}>下一页</a>
+                                    <a onClick={me.onPageSelect.bind(me, page + 1)}>下一页</a>
                                 </li>,
                                 <li>
-                                    <a class="last" onClick={me.onPageSelect.bind(me, me.total)}>尾页</a>
+                                    <a class="last" onClick={me.onPageSelect.bind(me, total)}>尾页</a>
                                 </li>
                             ];
 
-                            if (me.active == me.total) {
+                            if (page == total) {
                                 return [
                                     <li>
                                         <a class="disabled">下一页</a>
@@ -168,7 +164,7 @@ module.exports = Scope.createClass({
                                 } else {
                                     commandPages.unshift(
                                         <li>
-                                            <a onClick={me.onPageSelect.bind(me, beginIndex + me.step)}>...</a>
+                                            <a onClick={me.onPageSelect.bind(me, beginIndex + me.size)}>...</a>
                                         </li>
                                     );
                                     return commandPages;
@@ -179,7 +175,7 @@ module.exports = Scope.createClass({
                 </div>
                 <div class="info">
                     <span>第</span>
-                    <input ref="input" type="text" value={me.active}
+                    <input ref="input" type="text" value={me.page}
                            onFocus={me.onFocus}
                            onKeydown={me.onKeyDown}
                            onBlur={me.onBlur}/>

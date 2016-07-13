@@ -36,7 +36,7 @@ const destroy = function (sElement, shouldRemove) {
     sElement.children = [];
 
 
-    if (sElement.$ele instanceof $) {
+    if (shouldRemove && sElement.$ele instanceof $) {
 
         Array.isArray(sElement.event) && sElement.event.forEach(function (eventInfoArray) {
             const eventName = eventInfoArray[0], selector = eventInfoArray[1], eventFunc = eventInfoArray[2];
@@ -49,10 +49,8 @@ const destroy = function (sElement, shouldRemove) {
         });
 
         sElement.event = [];
-        if (shouldRemove) {
-            sElement.$ele.remove();
-            sElement.$ele = null;
-        }
+        sElement.$ele.remove();
+        sElement.$ele = null;
     }
 };
 
@@ -102,16 +100,16 @@ const update = function (sElement) {
 
     //if the node is the rootNode of a component
     if (sElement.sComponent.sElementTree === sElement) {
-        
+
         const sComponent = sElement.sComponent;
 
         extract.e(sComponent.sElementTree);
 
         require("./traverse")(sComponent, beforeUpdate);
 
-        render.c(sComponent);
+        render.c(sComponent, true);
 
-        $oldEle.hide().after(sElement.$ele).remove();
+        //$oldEle.hide().after(sElement.$ele).remove();
 
         require("./traverse")(sComponent, afterUpdate);
 
@@ -122,9 +120,9 @@ const update = function (sElement) {
             require("./traverse")(childComponent, beforeUpdate);
         });
 
-        render.e(sElement);
+        render.e(sElement, true);
 
-        $oldEle.hide().after(sElement.$ele).remove();
+        //$oldEle.hide().after(sElement.$ele).remove();
 
         sElement.sComponent.children.forEach(function (childComponent) {
             require("./traverse")(childComponent, afterUpdate);

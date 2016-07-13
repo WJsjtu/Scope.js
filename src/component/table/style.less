@@ -2,52 +2,93 @@
 
 @COMP_NAME: table;
 @COMP_NAMESPACE: ~"@{STYLE_NAMESPACE}@{COMP_NAME}";
+@blueColor: #2DB7F5;
 
 div.@{COMP_NAMESPACE} {
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  table {
-    width: 100%;
-    border-spacing: 0;
-    border-collapse: collapse;
-    margin-bottom: 0;
-    table-layout: fixed;
-    background-color: transparent;
-    overflow: auto;
-    font-size: 14px;
-    line-height: 1.42857;
-    thead {
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      -khtml-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      tr {
-        th {
-          position: relative;
-          padding: 8px;
-          vertical-align: bottom;
-          border-top-width: 0;
-          border-bottom-width: 2px;
-          border-bottom-style: solid;
-          border-bottom-color: rgb(221, 221, 221);
-          .ellipsis();
-          .separator {
-            position: absolute;
-            top: 8px;
-            right: 0;
-            color: rgb(221, 221, 221);
-            cursor: col-resize;
+
+  font-size: 14px;
+  line-height: 1.42857;
+  margin-bottom: 0;
+  background-color: transparent;
+  position: relative;
+
+  div.head {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    div.label {
+      position: relative;
+      padding: 8px 0;
+      text-align: center;
+      vertical-align: bottom;
+      border-top-width: 0;
+      border-bottom-width: 2px;
+      border-bottom-style: solid;
+      border-bottom-color: rgb(221, 221, 221);
+      .inline-block();
+      .ellipsis();
+      .text {
+        margin: 0 8px;
+      }
+      .separator {
+        position: absolute;
+        top: 8px;
+        right: 0;
+        color: rgb(221, 221, 221);
+        cursor: col-resize;
+      }
+      div.arrow {
+        display: none;
+        position: absolute;
+        top: 8px;
+        right: 15px;
+        line-height: 0;
+        div {
+          .inline-block();
+          width: 0;
+          height: 0;
+          border-width: 4px;
+          margin-top: 7px;
+          &.up {
+            border-color: transparent;
+            border-style: solid;
+            border-top: none;
+            border-bottom-width: 5px;
+            border-bottom-color: #444444;
+            &:hover {
+              border-bottom-color: @blueColor;
+            }
+          }
+          &.down {
+            border-color: transparent;
+            border-style: solid;
+            border-bottom: none;
+            border-top-width: 5px;
+            border-top-color: #444444;
+            &:hover {
+              border-top-color: @blueColor;
+            }
           }
         }
       }
     }
-    tbody {
-      overflow: auto;
-      tr {
-        td {
+  }
+
+  div.wrapper {
+    width: 100%;
+    overflow: auto;
+    div.body {
+      width: 100%;
+      div.@{STYLE_NAMESPACE}row {
+        width: 100%;
+        div.@{STYLE_NAMESPACE}cell {
+          .inline-block();
           padding: 8px;
           vertical-align: top;
           border-top-width: 1px;
@@ -58,4 +99,17 @@ div.@{COMP_NAMESPACE} {
       }
     }
   }
+}
+
+div.@{COMP_NAMESPACE}-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+  background-color: #800000;
+  border: none;
+  .inline-block();
+  width: 1px;
+  z-index: 999;
+  cursor: col-resize;
 }

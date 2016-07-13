@@ -57,7 +57,7 @@ const Scope = {
         }
     },
     utils: require("./utils"),
-    version: "4.0.2"
+    version: "4.0.3"
 };
 
 window.Scope = module.exports = Scope;

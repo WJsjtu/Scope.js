@@ -3,7 +3,7 @@ const Pagination = require("./../../../src/component/pagination/index");
 $(function () {
 
     const paginationScope = Scope.render(
-        <Pagination total={320} step={15} active={2} onPageSelect={function(page){
+        <Pagination total={320} size={15} page={2} onPageSelect={function(page){
             console.log(page);
         }}/>,
         document.getElementById("container")

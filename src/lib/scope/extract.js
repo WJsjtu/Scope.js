@@ -31,7 +31,7 @@ const extractElement = function (sElement) {
         _jElementChildren.forEach(function (childJElement) {
 
             //this is possible since a function element may return null
-            if (!childJElement) {
+            if ((typeof childJElement == "undefined") || childJElement === null) {
                 return false;
             }
 
@@ -73,6 +73,9 @@ const extractElement = function (sElement) {
             if (isFunction(_children[index])) {
                 hasFunction = true;
                 break;
+            }
+            if (!isObject(_children[index]) && !isString(_children[index])) {
+                _children[index] = "" + _children[index];
             }
         }
 

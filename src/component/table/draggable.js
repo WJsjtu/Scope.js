@@ -22,7 +22,6 @@ function Draggable($this, options) {
 
 const DraggablePrototype = Draggable.prototype;
 DraggablePrototype.onMouseDown = function (event) {
-    console.log("onMouseDown", this);
     event = event || window.event;
     event.stopPropagation ? event.stopPropagation() : event.cancelBubble = true;
     const me = this;
@@ -52,17 +51,14 @@ DraggablePrototype.onDragStart = function (event) {
     event = event || window.event;
     const me = this;
     if (typeof me.options.onDragStart == "function") {
-        setTimeout(function () {
-            me.options.onDragStart({
-                x: event.pageX,
-                y: event.pageY
-            }, $.extend({}, me.origin));
-        }, 0);
+        me.options.onDragStart({
+            x: event.pageX,
+            y: event.pageY
+        }, $.extend({}, me.origin));
     }
 };
 
 DraggablePrototype.onDragMove = function (event) {
-    console.log("onDragMove", this);
     event = event || window.event;
     const me = this;
 
@@ -82,7 +78,6 @@ DraggablePrototype.onDragMove = function (event) {
 };
 
 DraggablePrototype.onDragEnd = function (event) {
-    console.log("onDragEnd", this);
     event = event || window.event;
     const me = this;
 
@@ -99,12 +94,10 @@ DraggablePrototype.onDragEnd = function (event) {
     $document.off("mouseup", me.proxy.onDragEnd);
 
     if (typeof me.options.onDragEnd == "function") {
-        setTimeout(function () {
-            me.options.onDragEnd({
-                x: event.pageX,
-                y: event.pageY
-            }, $.extend({}, me.origin));
-        }, 0);
+        me.options.onDragEnd({
+            x: event.pageX,
+            y: event.pageY
+        }, $.extend({}, me.origin));
     }
 };
 

@@ -1,7 +1,7 @@
 const {SC, SE} = require("./class");
 const {isString, isObject, isFunction, SCOPE_CLOSE_TAG, SCOPE_DATA_KEY} = require("./utils");
 
-const renderComponent = function (sComponent) {
+const renderComponent = function (sComponent, useOldElement) {
 
     //expose refs
     let context = sComponent.context;
@@ -10,7 +10,7 @@ const renderComponent = function (sComponent) {
     const sElement = sComponent.sElement;
     const rootSElement = sComponent.sElementTree;
 
-    renderElement(rootSElement);
+    renderElement(rootSElement, useOldElement);
 
     if (isString(sElement.class.ref) && (sComponent.parent instanceof SC)) {
         sComponent.parent.refs[sElement.class.ref] = rootSElement.$ele;
@@ -20,16 +20,19 @@ const renderComponent = function (sComponent) {
 
 };
 
-const renderElement = function (sElement) {
+const renderElement = function (sElement, useOldElement) {
     const sComponent = sElement.sComponent;
     const jElement = sElement.class;
     const context = sComponent.context;
 
     if (isObject(jElement)) {
         const tagName = jElement.tagName;
-        const $ele = sElement.$ele = $(document.createElement(tagName))
-            .attr(jElement.props)
-            .data(SCOPE_DATA_KEY, sElement);
+        if (!useOldElement) {
+            sElement.$ele = $(document.createElement(tagName))
+                .attr(jElement.props)
+                .data(SCOPE_DATA_KEY, sElement);
+        }
+        const $ele = sElement.$ele;
 
         if (sComponent && isString(jElement.ref)) {
             sComponent.refs[jElement.ref] = $ele;
