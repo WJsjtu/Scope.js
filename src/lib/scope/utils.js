@@ -1,14 +1,6 @@
-const isFunction = (function () {
-    return "object" === typeof document.getElementById ? function (fn) {
-        try {
-            return /^\s*\bfunction\b/.test("" + fn);
-        } catch (x) {
-            return false
-        }
-    } : function (fn) {
-        return "[object Function]" === Object.prototype.toString.call(fn);
-    };
-})();
+const isFunction = function (fn) {
+    return "[object Function]" === Object.prototype.toString.call(fn);
+};
 
 const isString = function (obj) {
     return (typeof obj === "string");
