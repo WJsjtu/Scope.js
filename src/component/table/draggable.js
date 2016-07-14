@@ -67,12 +67,10 @@ DraggablePrototype.onDragMove = function (event) {
         me.proxy.onDragStart(event);
     } else {
         if (typeof me.options.onDragMove == "function") {
-            setTimeout(function () {
-                me.options.onDragMove({
-                    x: event.pageX,
-                    y: event.pageY
-                }, $.extend({}, me.origin));
-            }, 0);
+            me.options.onDragMove({
+                x: event.pageX,
+                y: event.pageY
+            }, $.extend({}, me.origin));
         }
     }
 };

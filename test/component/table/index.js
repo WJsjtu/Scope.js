@@ -15,6 +15,22 @@ const parseNumber = function (number) {
 
 const defaultQuerySize = 20;
 
+const parseHash = function () {
+    //?cid_{cid}=json(query)
+    const hashObject = {};
+    const matches = /(\/)?(\?|#)([^\/]+)(\/)?$/ig.exec(History.getPageUrl());
+    if (matches && matches.length >= 4) {
+        const hashString = matches[3];
+        hashString.split("&").forEach(function (pair) {
+            pair = pair.split("=");
+            if (pair.length == 2) {
+                hashObject[pair[0]] = decodeURIComponent(pair[1]);
+            }
+        });
+    }
+    return hashObject;
+};
+
 const PageTable = Scope.createClass({
     cid: "page-table",
     pagination: {
@@ -38,64 +54,70 @@ const PageTable = Scope.createClass({
         page: 1,
         size: defaultQuerySize
     },
-    parseHash: function () {
-        //?cid_{cid}=json(query)
-        const hashObject = {};
-        const matches = /(\/)?(\?|#)([^\/]+)(\/)?$/ig.exec(History.getPageUrl());
-        if (matches && matches.length >= 4) {
-            const hashString = matches[3];
-            hashString.split("&").forEach(function (pair) {
-                pair = pair.split("=");
-                if (pair.length == 2) {
-                    hashObject[pair[0]] = decodeURIComponent(pair[1]);
-                }
-            });
-        }
-        return hashObject;
+    requestState: {
+        finished: true,
+        promise: null
     },
 
     request: function (query) {
-        const me = this;
-        return function (dtd) {
+        const me = this, requestState = me.requestState;
+        me.refs.loading.show();
+
+        console.log($.extend({}, requestState));
+
+        if (!requestState.finished && requestState.promise) {
+            requestState.promise.reject("abort");
+            requestState.finished = true;
+        }
+
+        return $.Deferred(function (dtd) {
+            requestState.promise = dtd;
+            requestState.finished = false;
             if (isFunction(me.props.dataSource)) {
                 $.Deferred(me.props.dataSource(query)).then(function (data) {
                     dtd.resolve(data);
                 }, function () {
-                    dtd.reject();
+                    dtd.reject("数据加载失败!");
                 });
             } else {
-                dtd.reject();
+                dtd.reject("无效的数据源!");
             }
             return dtd.promise();
-        };
-    },
+        }).then(function (data) {
+            me.data = data;
+            me.query = query;
+            (function () {
+                const pagination = me.refs.pagination;
 
-    error: function (error) {
-        const me = this;
-        me.refs.table.hide();
-        me.refs.loading.hide();
-        me.refs.error.text(error).show();
-    },
+                if (me.pagination.total != data.total) {
+                    me.pagination.total = data.total;
+                    getScope(pagination).updateTotal(data.total);
+                }
+                if (me.pagination.page != query.page) {
+                    me.pagination.page = query.page;
+                    getScope(pagination).updatePage(query.page);
+                }
+                pagination.show();
 
-    update: function () {
-        const me = this, pagination = me.refs.pagination, query = me.query, data = me.data;
+                me.refs.input.val(query.word);
 
-        pagination.show();
-        if (me.pagination.total != data.total) {
-            me.pagination.total = data.total;
-            getScope(pagination).updateTotal(data.total);
-        }
-        if (me.pagination.page != query.page) {
-            me.pagination.page = query.page;
-            getScope(pagination).updatePage(query.page);
-        }
-
-        me.refs.input.val(query.word);
-
-        me.refs.table.show();
-        me.refs.loading.show();
-        me.refs.error.text("").hide();
-        getScope(me.refs.table).updateTable();
+                me.refs.table.show();
+                me.refs.loading.show();
+                me.refs.error.text("").hide();
+                getScope(me.refs.table).updateTable();
+            })();
+        }, function (errorMsg) {
+            (function () {
+                if (errorMsg !== "abort") {
+                    me.refs.table.hide();
+                    me.refs.loading.hide();
+                    me.refs.error.text(errorMsg).show();
+                }
+            })();
+        }).always(function () {
+            requestState.finished = true;
+            me.refs.loading.hide();
+        });
     },
 
     beforeMount: function () {
@@ -111,22 +133,13 @@ const PageTable = Scope.createClass({
     },
 
     afterMount: function () {
-        const me = this, hashObject = me.parseHash();
+        const me = this, hashObject = parseHash();
 
         const bindHistory = function () {
             History.Adapter.bind(window, 'statechange', function () {
                 const stateData = History.getState().data;
                 if (stateData.cid == me.cid) {
-                    me.refs.loading.show();
-                    $.Deferred(me.request(stateData.query || me.query)).then(function (data) {
-                        me.data = data;
-                        me.query = stateData.query || me.query;
-                        me.update();
-                    }, function () {
-                        me.error("数据加载失败!");
-                    }).always(function () {
-                        me.refs.loading.hide();
-                    });
+                    me.request(stateData.query || me.query);
                 }
             });
         };
@@ -136,21 +149,14 @@ const PageTable = Scope.createClass({
                 cid: me.cid,
                 query: _query
             }, null, null);
-            $.Deferred(me.request(_query)).then(function (data) {
-                me.data = data;
-                me.query = _query;
-                bindHistory();
-                me.update();
+            me.request(_query).then(function () {
                 me.refs.content.show();
-            }, function () {
-                me.error("数据加载失败!");
             }).always(function () {
-                me.refs.loading.hide();
+                bindHistory();
             });
         };
 
         me.refs.content.hide().css("visibility", "visible");
-        me.refs.loading.show();
 
         if (hashObject["cid_" + me.cid]) {
             try {
@@ -184,7 +190,7 @@ const PageTable = Scope.createClass({
 
     onPageSelect: function (page) {
 
-        const me = this, hashObject = me.parseHash(), query = {
+        const me = this, hashObject = parseHash(), query = {
             word: me.query.word || "",
             page: Math.abs(parseNumber(page) || 1),
             size: defaultQuerySize
@@ -206,7 +212,7 @@ const PageTable = Scope.createClass({
     onSubmit: function (event) {
         ScopeUtils.stopPropagation(event);
 
-        const me = this, hashObject = me.parseHash(), query = {
+        const me = this, hashObject = parseHash(), query = {
             word: me.refs.input.val() || "",
             page: 1,
             size: defaultQuerySize
@@ -225,21 +231,37 @@ const PageTable = Scope.createClass({
         }
     },
 
+    onFocus: function (event, $this) {
+        ScopeUtils.stopPropagation(event);
+        $this.addClass("focused");
+    },
+
+    onBlur: function (event, $this) {
+        ScopeUtils.stopPropagation(event);
+        $this.removeClass("focused");
+    },
+
     render: function () {
         const me = this;
         return (
             <div class="page-table">
                 <div ref="content" class="content">
-                    <div>
-                        <input type="text" ref="input"/>
-                        <button ref="submit" onClick={me.onSubmit}>搜索</button>
-                    </div>
                     <div class="pagination">
                         <Pagination ref="pagination"
                                     total={me.pagination.total}
                                     size={me.pagination.size}
                                     page={me.pagination.page}
                                     onPageSelect={me.onPageSelect.bind(me)}/>
+                    </div>
+                    <div class="search">
+                        <div class="input">
+                            <input type="text"
+                                   ref="input"
+                                   placeholder="输入搜索关键字"
+                                   onFocus={me.onFocus}
+                                   onBlur={me.onBlur}/>
+                        </div>
+                        <span class="submit" ref="submit" onClick={me.onSubmit}>搜&nbsp;索</span>
                     </div>
                     <div class="table">
                         <Table labels={me.table.labels}

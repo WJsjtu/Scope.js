@@ -15,6 +15,10 @@ div.@{COMP_NAMESPACE} {
   background-color: transparent;
   position: relative;
 
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: rgb(221, 221, 221);
+
   div.head {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -107,7 +111,7 @@ div.@{COMP_NAMESPACE}-line {
   top: 0;
   left: 0;
   display: none;
-  background-color: #800000;
+  background-color: @blueColor;
   border: none;
   .inline-block();
   width: 1px;

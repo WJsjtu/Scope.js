@@ -46,7 +46,7 @@ const Table = Scope.createClass({
             let width, {minWidth, maxWidth} = me.labels[index];
 
             minWidth = (minWidth && minWidth > 100) ? minWidth : 100;
-            maxWidth = (maxWidth && maxWidth > 100) ? maxWidth : 9999;
+            maxWidth = maxWidth ? Math.max(maxWidth, minWidth) : 9999;
 
             new Draggable($this, {
                 onDragStart: function (currentPoint) {
@@ -69,14 +69,12 @@ const Table = Scope.createClass({
                 onDragMove: function (currentPoint, originPoint) {
                     const _width = currentPoint.x - originPoint.x + width;
                     if (_width < minWidth) {
-                        width = minWidth;
                         $line.css({
-                            left: _width + originPoint.x - width
+                            left: minWidth + originPoint.x - width
                         });
                     } else if (_width > maxWidth) {
-                        width = maxWidth;
                         $line.css({
-                            left: _width + originPoint.x - width
+                            left: maxWidth + originPoint.x - width
                         });
                     } else {
                         $line.css({
@@ -97,7 +95,13 @@ const Table = Scope.createClass({
                         "-ms-user-select": "initial",
                         "user-select": "initial"
                     });
-                    $label.outerWidth(currentPoint.x - originPoint.x + width);
+                    let _width = currentPoint.x - originPoint.x + width;
+                    if (_width < minWidth) {
+                        _width = minWidth;
+                    } else if (_width > maxWidth) {
+                        _width = maxWidth;
+                    }
+                    $label.outerWidth(_width);
                     me.resizeTable();
                 }
             });
