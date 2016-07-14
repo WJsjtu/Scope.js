@@ -2,8 +2,8 @@ const Scope = require("Scope");
 const ScopeUtils = Scope.utils;
 const {getScope, isObject,isFunction} = ScopeUtils;
 require("./style.less");
-const Pagination = require("./../../../src/component/pagination/index");
-const {Table, Row, Cell} = require("./../../../src/component/table/index");
+
+const {Pagination, Table} = window.COMPONENTS;
 
 const parseNumber = function (number) {
     number = parseInt(number);
@@ -56,64 +56,50 @@ const PageTable = Scope.createClass({
     },
     requestState: {
         finished: true,
-        promise: null
+        xhr: null
     },
 
     request: function (query) {
         const me = this, requestState = me.requestState;
         me.refs.loading.show();
 
-        console.log($.extend({}, requestState));
-
-        if (!requestState.finished && requestState.promise) {
-            requestState.promise.reject("abort");
+        if (!requestState.finished && requestState.xhr) {
+            requestState.xhr.abort();
+            requestState.xhr = null;
             requestState.finished = true;
         }
 
-        return $.Deferred(function (dtd) {
-            requestState.promise = dtd;
-            requestState.finished = false;
-            if (isFunction(me.props.dataSource)) {
-                $.Deferred(me.props.dataSource(query)).then(function (data) {
-                    dtd.resolve(data);
-                }, function () {
-                    dtd.reject("数据加载失败!");
-                });
-            } else {
-                dtd.reject("无效的数据源!");
+        const xhr = $.ajax($.extend({}, me.props.request, {data: query}));
+        requestState.xhr = xhr;
+        requestState.finished = false;
+
+        return xhr.then(function (data) {
+            if (isFunction(me.props.filter)) {
+                data = me.props.filter(data);
             }
-            return dtd.promise();
-        }).then(function (data) {
             me.data = data;
             me.query = query;
-            (function () {
-                const pagination = me.refs.pagination;
+            const pagination = me.refs.pagination;
 
-                if (me.pagination.total != data.total) {
-                    me.pagination.total = data.total;
-                    getScope(pagination).updateTotal(data.total);
-                }
-                if (me.pagination.page != query.page) {
-                    me.pagination.page = query.page;
-                    getScope(pagination).updatePage(query.page);
-                }
-                pagination.show();
-
-                me.refs.input.val(query.word);
-
-                me.refs.table.show();
-                me.refs.loading.show();
-                me.refs.error.text("").hide();
-                getScope(me.refs.table).updateTable();
-            })();
-        }, function (errorMsg) {
-            (function () {
-                if (errorMsg !== "abort") {
-                    me.refs.table.hide();
-                    me.refs.loading.hide();
-                    me.refs.error.text(errorMsg).show();
-                }
-            })();
+            if (me.pagination.total != data.total) {
+                me.pagination.total = data.total;
+                getScope(pagination).updateTotal(data.total);
+            }
+            if (me.pagination.page != query.page) {
+                me.pagination.page = query.page;
+                getScope(pagination).updatePage(query.page);
+            }
+            pagination.show();
+            me.refs.table.show();
+            me.refs.loading.show();
+            me.refs.error.text("").hide();
+            getScope(me.refs.table).updateTable();
+        }, function (_xhr) {
+            if (_xhr.statusText != "abort") {
+                me.refs.table.hide();
+                me.refs.loading.hide();
+                me.refs.error.text("数据加载失败!").show();
+            }
         }).always(function () {
             requestState.finished = true;
             me.refs.loading.hide();
@@ -151,6 +137,7 @@ const PageTable = Scope.createClass({
             }, null, null);
             me.request(_query).then(function () {
                 me.refs.content.show();
+                me.refs.input.val(_query.word);
             }).always(function () {
                 bindHistory();
             });
@@ -264,14 +251,14 @@ const PageTable = Scope.createClass({
                         <span class="submit" ref="submit" onClick={me.onSubmit}>搜&nbsp;索</span>
                     </div>
                     <div class="table">
-                        <Table labels={me.table.labels}
-                               onSort={me.onSort.bind(me)}
-                               height={me.table.height}
-                               ref="table">
+                        <Table.Table labels={me.table.labels}
+                                     onSort={me.onSort.bind(me)}
+                                     height={me.table.height}
+                                     ref="table">
                             {function () {
                                 return isFunction(me.props.dataRender) ? me.props.dataRender(me.data) : [];
                             }}
-                        </Table>
+                        </Table.Table>
                     </div>
                 </div>
                 <div ref="loading" class="loading">Loading</div>
@@ -283,45 +270,6 @@ const PageTable = Scope.createClass({
 
 
 $(function () {
-
-    const uid = function () {
-        let s = [];
-        let hexDigits = "0123456789abcdef";
-        for (let i = 0; i < 36; i++) {
-            s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
-        }
-        s[14] = "4"; // bits 12-15 of the time_hi_and_version field to 0010
-        s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1); // bits 6-7 of the clock_seq_hi_and_reserved to 01
-        s[8] = s[13] = s[18] = s[23] = "-";
-        return s.join("");
-    };
-
-    const requestData = function (query) {
-        const {word, page, size} = query;
-        return function (dtd) {
-            const tasks = function () {
-                const response = {
-                    total: 15580,
-                    page: page,
-                    size: size,
-                    data: []
-                };
-
-                for (let i = 0; i < response.size; i++) {
-                    response.data.push({
-                        uid: uid(),
-                        timestamp: (new Date).getTime(),
-                        rand: Math.random(),
-                        text: response.page + " - " + (i + 1) + " - " + word
-                    });
-                }
-
-                dtd.resolve(response);
-            };
-            setTimeout(tasks, 1000);
-            return dtd.promise();
-        };
-    };
 
     const labels = [{
         text: "uid",
@@ -344,12 +292,12 @@ $(function () {
         }
         return data.map(function (item) {
             return (
-                <Row>
-                    <Cell>{item.uid}</Cell>
-                    <Cell>{item.timestamp}</Cell>
-                    <Cell>{item.rand}</Cell>
-                    <Cell>{item.text}</Cell>
-                </Row>
+                <Table.Row>
+                    <Table.Cell>{item.uid}</Table.Cell>
+                    <Table.Cell>{item.timestamp}</Table.Cell>
+                    <Table.Cell>{item.rand}</Table.Cell>
+                    <Table.Cell>{item.text}</Table.Cell>
+                </Table.Row>
             );
         });
 
@@ -368,10 +316,17 @@ $(function () {
         };
     };
 
-
     Scope.render(
         <PageTable cid="1"
-                   dataSource={requestData}
+                   request={{
+                        url: "http://localhost/public/mp.php/user/test",
+                        method: "post",
+                        dataType: "json",
+                        timeout : 3000
+                   }}
+                   filter={function(data){
+                        return data.data;
+                   }}
                    pagination={{page: 1, total: 1, size: 15}}
                    table={{labels: labels, height: 400, onSort: onSort}}
                    dataRender={dataRender}
@@ -379,3 +334,37 @@ $(function () {
         document.getElementById("container")
     );
 });
+
+/*
+ public function test()
+ {
+ sleep(1);
+
+ $word = isset($_POST["word"]) ? $_POST["word"] : "";
+ $page = isset($_POST["page"]) ? $_POST["page"] : 1;
+ $size = isset($_POST["size"]) ? $_POST["size"] : 20;
+
+ $response = array();
+
+ $response["total"] = 15580;
+ $response["size"] = $size;
+
+ $data = array();
+
+ for ($i = 0; $i < $size; $i++) {
+ array_push($data, array(
+ "uid" => $this->uid(),
+ "timestamp" => microtime(),
+ "rand" => rand(0, 1e9) / 1e9,
+ "text" => $page . "-" . $i . "-" . $word
+ ));
+ }
+
+ $response["data"] = $data;
+
+ die(json_encode([
+ 'errCode' => 0,
+ "data" => $response
+ ]));
+ }
+ */
