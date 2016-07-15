@@ -1,6 +1,7 @@
 const Scope = require("Scope");
 const ScopeUtils = Scope.utils;
 const {getScope, isObject,isFunction} = ScopeUtils;
+const {NAMESPACE} = require("./../../project");
 require("./style.less");
 
 module.exports = function (Pagination, Table) {
@@ -31,7 +32,7 @@ module.exports = function (Pagination, Table) {
     };
 
     return Scope.createClass({
-        cid: "page-table",
+        cid: 1,
         pagination: {
             page: 1,
             total: 1,
@@ -270,7 +271,7 @@ module.exports = function (Pagination, Table) {
         render: function () {
             const me = this;
             return (
-                <div class="page-table">
+                <div class={NAMESPACE + "page"}>
                     <div ref="content" class="content">
                         <div class="pagination">
                             <Pagination ref="pagination"
@@ -297,14 +298,14 @@ module.exports = function (Pagination, Table) {
                             <div style="clear: both;"></div>
                         </div>
                         <div class="table">
-                            <Table labels={me.table.labels}
+                            <Table.Table ref="table"
+                                   labels={me.table.labels}
                                    onSort={me.onSort.bind(me)}
-                                   height={me.table.height}
-                                   ref="table">
+                                   height={me.table.height}>
                                 {function () {
                                     return isFunction(me.props.dataRender) ? me.props.dataRender(me.data) : [];
                                 }}
-                            </Table>
+                            </Table.Table>
                         </div>
                     </div>
                     <div ref="loading" class="loading">

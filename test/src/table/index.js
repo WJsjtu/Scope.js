@@ -1,7 +1,8 @@
 const Scope = require("Scope");
+const {NAMESPACE} = require("./../../../src/project");
+const storeName = NAMESPACE.toUpperCase().replace(/-$/g, "");
 
-getComponents(["pagination", "table"], function (Pagination, Table) {
-    const PageTable = require("./page-table")(Pagination, Table.Table);
+window[storeName].getComponents(["page", "table"], function (Page, Table) {
     const {Row, Cell} = Table;
     $(function () {
 
@@ -51,19 +52,19 @@ getComponents(["pagination", "table"], function (Pagination, Table) {
         };
 
         Scope.render(
-            <PageTable cid="1"
-                       request={{
+            <Page cid="1"
+                  request={{
                         url: "http://localhost/public/mp.php/user/test",
                         method: "post",
                         dataType: "json",
                         timeout : 3000
                    }}
-                       filter={function(data){
+                  filter={function(data){
                         return data.data;
                    }}
-                       pagination={{page: 1, total: 1, size: 15}}
-                       table={{labels: labels, height: 400, onSort: onSort}}
-                       dataRender={dataRender}
+                  pagination={{page: 1, total: 1, size: 15}}
+                  table={{labels: labels, height: 400, onSort: onSort}}
+                  dataRender={dataRender}
             />,
             document.getElementById("container")
         );

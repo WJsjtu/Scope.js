@@ -1,4 +1,8 @@
-getComponents(["uploader"], function (Uploader) {
+const Scope = require("Scope");
+const {NAMESPACE} = require("./../../../src/project");
+const storeName = NAMESPACE.toUpperCase().replace(/-$/g, "");
+
+window[storeName].getComponents(["uploader"], function (Uploader) {
 
     $(function () {
 

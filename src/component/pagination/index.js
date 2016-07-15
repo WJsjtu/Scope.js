@@ -11,7 +11,6 @@ const parseNumber = function (number) {
     return number;
 };
 
-
 module.exports = Scope.createClass({
     size: 15,
     page: 1,

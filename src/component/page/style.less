@@ -1,6 +1,9 @@
-@import "./../../../src/project.less";
+@import "./../../project.less";
 
-.page-table {
+@COMP_NAME: page;
+@COMP_NAMESPACE: ~"@{STYLE_NAMESPACE}@{COMP_NAME}";
+
+div.@{COMP_NAMESPACE} {
   .content {
     visibility: hidden;
     position: relative;

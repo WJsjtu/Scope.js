@@ -16,11 +16,16 @@ module.exports = function () {
             var stats = fs.statSync(fullPath);
             if (stats.isDirectory()) {
                 var tempEntry = path.join(fullPath, "entry.js");
-                comps.push({
-                    name: file,
-                    path: tempEntry
-                });
-                fs.createReadStream(path.join(__dirname, 'tmpl', 'entry.js')).pipe(fs.createWriteStream(tempEntry));
+                var templateEntryFile = path.join(__dirname, 'tmpl', 'entry.js');
+                if (fs.existsSync(tempEntry) && fs.statSync(tempEntry).isFile()) {
+
+                } else {
+                    comps.push({
+                        name: file,
+                        path: tempEntry
+                    });
+                    fs.createReadStream(templateEntryFile).pipe(fs.createWriteStream(tempEntry));
+                }
             }
         });
 
@@ -32,27 +37,7 @@ module.exports = function () {
                     fs.unlinkSync(comp.path);
                 }
             });
-            if (fs.existsSync(indexPath)) {
-                fs.unlinkSync(indexPath);
-            }
         };
-
-
-        var indexString = 'window.getComponents = function (comps, callback) {\n' +
-            '\tvar compEntries = {};\n' +
-            comps.map(function (comp) {
-                return '\tcompEntries["' + comp.name + '"] = require(`' + comp.path + '`);'
-            }).join("\n") +
-            '\tif (Array.isArray(comps)) {\n' +
-            '\t\t$.when.apply(this, comps.map(function (comp) {\n' +
-            '\t\t\treturn $.Deferred(compEntries[comp]);\n' +
-            '\t\t})).done(callback);\n' +
-            '\t}\n' +
-            '};';
-
-        fs.writeFileSync(indexPath, indexString, {
-            encoding: 'utf8'
-        });
 
         webpack({
             entry: indexPath,

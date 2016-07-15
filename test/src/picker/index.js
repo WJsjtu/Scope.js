@@ -1,4 +1,8 @@
-getComponents(["picker"], function (Picker) {
+const Scope = require("Scope");
+const {NAMESPACE} = require("./../../../src/project");
+const storeName = NAMESPACE.toUpperCase().replace(/-$/g, "");
+
+window[storeName].getComponents(["picker"], function (Picker) {
 
     $(function () {
 
