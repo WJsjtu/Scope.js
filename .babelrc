@@ -3,7 +3,7 @@
   "plugins": [
     "transform-es5-property-mutators",
     ["transform-react-jsx", {
-      "pragma": "Scope.createElement"
+      "pragma": "__Scope_createElement__"
     }],
     "transform-es3-member-expression-literals",
     "transform-es3-property-literals"

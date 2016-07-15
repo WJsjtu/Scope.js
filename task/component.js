@@ -1,6 +1,6 @@
 var path = require('path'),
     fs = require("fs"),
-    uglifyJS = require('uglify-js'),
+    optimize = require("./optimize"),
     logger = require('./command/log'),
     webpack = require('webpack');
 
@@ -44,7 +44,7 @@ module.exports = function () {
             output: {
                 path: distDir,
                 filename: "component.js",
-                chunkFilename: "[hash]-[chunkhash].js",
+                chunkFilename: "[chunkhash].js",
                 publicPath: "./../../../dist/component/"
             },
             externals: {
@@ -80,30 +80,6 @@ module.exports = function () {
                 removeTempEntries();
                 taskLogger.error(messages.join('\n'));
             } else {
-                var optimize = function (_distFile) {
-                    var content = fs.readFileSync(_distFile, 'utf-8');
-                    const replaceWord = 'ScopeCreateElement';
-                    content = content.replace(/(Scope\.createElement)(\s*\()/g, replaceWord + '$2');
-                    content = `(function(){\n\tvar ScopeCreateElement = Scope.createElement;\n\n` + content + `\n\n})();`;
-                    var compressedContent = uglifyJS.minify(content, {
-                        fromString: true,
-                        compress: {
-                            dead_code: true,
-                            drop_debugger: true,
-                            unused: true,
-                            if_return: true,
-                            warnings: false,
-                            join_vars: true
-                        },
-                        mangle: {
-                            eval: true
-                        }
-                    }).code;
-                    fs.writeFileSync(_distFile, compressedContent, {
-                        encoding: 'utf8'
-                    });
-                };
-
                 var optimizeLogger = logger('component: optimize');
                 optimizeLogger.start();
                 fs.readdir(distDir, function (err, _files) {

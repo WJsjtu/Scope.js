@@ -68,14 +68,10 @@ module.exports = function (Pagination, Table) {
                 $body = getScope($table).refs.body;
             if (!ignoreLoading) {
                 $loading.css({
-                    width: "100%",
                     height: $body.outerHeight(),
                     position: "relative"
                 }).html(
-                    $(`<div>
-                    <i class="fa fa-spinner fa-pulse fa-fw"></i>
-                    <span>&nbsp;正在加载数据...</span>
-                </div>`)
+                    $(`<div><i class="fa fa-spinner fa-pulse fa-fw"></i><span>&nbsp;正在加载数据...</span></div>`)
                 ).show();
                 $error.text("").hide();
                 $table.hide();
@@ -168,7 +164,6 @@ module.exports = function (Pagination, Table) {
                     bindHistory();
                 }, function () {
                     me.refs.error.css({
-                        width: "100%",
                         left: 0,
                         top: 0
                     }).show();

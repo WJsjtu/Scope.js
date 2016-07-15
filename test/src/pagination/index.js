@@ -12,7 +12,7 @@ window[storeName].getComponents(["pagination"], function (Pagination) {
         ).context;
 
         $("#change").click(function () {
-            paginationScope.updateTotal(90);
+            paginationScope.updateTotal(90, true);
         });
     });
 });
