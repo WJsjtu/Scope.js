@@ -60,17 +60,25 @@ module.exports = function (Pagination, Table) {
         },
 
         request: function (query, ignoreLoading, ignoreError) {
-            const me = this, requestState = me.requestState, $body = getScope(me.refs.table).refs.body;
+            const me = this, requestState = me.requestState, refs = me.refs,
+                $error = me.refs.error,
+                $pagination = refs.pagination,
+                $loading = refs.loading,
+                $table = refs.table,
+                $body = getScope($table).refs.body;
             if (!ignoreLoading) {
-                me.refs.loading.css({
-                    width: $body.outerWidth(),
-                    height: $body.outerHeight()
+                $loading.css({
+                    width: "100%",
+                    height: $body.outerHeight(),
+                    position: "relative"
                 }).html(
                     $(`<div>
                     <i class="fa fa-spinner fa-pulse fa-fw"></i>
                     <span>&nbsp;正在加载数据...</span>
                 </div>`)
                 ).show();
+                $error.text("").hide();
+                $table.hide();
             }
 
             if (!requestState.finished && requestState.xhr) {
@@ -89,35 +97,29 @@ module.exports = function (Pagination, Table) {
                 }
                 me.data = data;
                 me.query = query;
-                const pagination = me.refs.pagination;
 
                 if (me.pagination.total != data.total) {
                     me.pagination.total = data.total;
-                    getScope(pagination).updateTotal(data.total);
+                    getScope($pagination).updateTotal(data.total);
                 }
                 if (me.pagination.page != query.page) {
                     me.pagination.page = query.page;
-                    getScope(pagination).updatePage(query.page);
+                    getScope($pagination).updatePage(query.page);
                 }
-                pagination.show();
-                me.refs.table.show();
-                me.refs.loading.show();
-                me.refs.error.text("").hide();
-                getScope(me.refs.table).updateTable();
+                getScope($table).updateTable();
+                $table.show();
             }, function (_xhr) {
                 if (_xhr.statusText != "abort" && !ignoreError) {
-                    me.refs.loading.hide();
-                    me.refs.error.css({
-                        width: $body.outerWidth(),
+                    $error.css({
+                        width: "100%",
                         height: $body.outerHeight(),
                         position: "relative",
                         left: 0
                     }).text("数据加载失败!").show();
-                    me.refs.table.hide();
                 }
             }).always(function () {
                 requestState.finished = true;
-                me.refs.loading.hide();
+                $loading.hide();
             });
         },
 
@@ -136,13 +138,15 @@ module.exports = function (Pagination, Table) {
         afterMount: function () {
             const me = this, hashObject = parseHash(), $content = me.refs.content;
 
+            me.refs.error.hide();
             me.refs.loading.css({
                 width: $content.outerWidth(),
                 height: $content.outerHeight(),
                 left: 0,
                 top: 0
-            });
+            }).show();
 
+            $content.css("visibility", "visible").hide();
 
             const bindHistory = function () {
                 History.Adapter.bind(window, 'statechange', function () {
@@ -159,13 +163,12 @@ module.exports = function (Pagination, Table) {
                     query: _query
                 }, null, null);
                 me.request(_query, true, true).then(function () {
-                    $content.css("visibility", "visible");
+                    $content.show();
                     me.refs.input.val(_query.word);
                     bindHistory();
                 }, function () {
                     me.refs.error.css({
-                        width: $content.outerWidth(),
-                        height: $content.outerHeight(),
+                        width: "100%",
                         left: 0,
                         top: 0
                     }).show();
@@ -299,9 +302,9 @@ module.exports = function (Pagination, Table) {
                         </div>
                         <div class="table">
                             <Table.Table ref="table"
-                                   labels={me.table.labels}
-                                   onSort={me.onSort.bind(me)}
-                                   height={me.table.height}>
+                                         labels={me.table.labels}
+                                         onSort={me.onSort.bind(me)}
+                                         height={me.table.height}>
                                 {function () {
                                     return isFunction(me.props.dataRender) ? me.props.dataRender(me.data) : [];
                                 }}
@@ -315,7 +318,9 @@ module.exports = function (Pagination, Table) {
                         </div>
                     </div>
                     <div ref="error" class="error">
-                        列表初始化失败, 请<a class="refresh" onClick={me.onRefresh.bind(me, me.afterMount)}>刷新</a>重试。
+                        列表初始化失败, 请<a class="refresh" onClick={me.onRefresh.bind(me, function(){
+                            me.afterMount();
+                        })}>刷新</a>重试。
                     </div>
                 </div>
             );
