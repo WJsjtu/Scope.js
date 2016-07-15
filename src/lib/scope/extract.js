@@ -4,7 +4,7 @@ const {SE, SC, JE, JC} = require("./class");
 const extractComponent = function (parentSComponent, sComponent) {
     sComponent.parent = parentSComponent;
     if (parentSComponent instanceof SC) {
-        if (!Array.isArray(parentSComponent.children)) {
+        if (!$.isArray(parentSComponent.children)) {
             parentSComponent.children = [];
         }
         parentSComponent.children.push(sComponent);
@@ -41,7 +41,7 @@ const extractElement = function (sElement) {
             }
 
             //If is array call the function itself recursively
-            if (Array.isArray(childJElement)) {
+            if ($.isArray(childJElement)) {
                 Array.prototype.push.apply(_children, childJElement);
                 return true;
             }

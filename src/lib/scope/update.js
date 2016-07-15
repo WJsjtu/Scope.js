@@ -4,7 +4,7 @@ const $ = require("jquery");
 
 const destroy = function (sElement, shouldRemove) {
 
-    Array.isArray(sElement.children) && sElement.children.forEach(function (childSElement) {
+    $.isArray(sElement.children) && sElement.children.forEach(function (childSElement) {
         if (childSElement instanceof SE) {
 
             destroy(childSElement, true);
@@ -38,7 +38,7 @@ const destroy = function (sElement, shouldRemove) {
 
     if (shouldRemove && sElement.$ele instanceof $) {
 
-        Array.isArray(sElement.event) && sElement.event.forEach(function (eventInfoArray) {
+        $.isArray(sElement.event) && sElement.event.forEach(function (eventInfoArray) {
             const eventName = eventInfoArray[0], selector = eventInfoArray[1], eventFunc = eventInfoArray[2];
             if (selector == null) {
                 sElement.$ele.off(eventName, eventFunc);

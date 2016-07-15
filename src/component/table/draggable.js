@@ -11,12 +11,12 @@ function Draggable($this, options) {
     me.options = $.extend({}, options);
 
     me.proxy = {
-        onDragStart: $.proxy(me.onDragStart, me),
-        onDragMove: $.proxy(me.onDragMove, me),
-        onDragEnd: $.proxy(me.onDragEnd, me)
+        onDragStart: me.onDragStart.bind(me),
+        onDragMove: me.onDragMove.bind(me),
+        onDragEnd: me.onDragEnd.bind(me)
     };
 
-    $this.on("mousedown", $.proxy(me.onMouseDown, me));
+    $this.on("mousedown", me.onMouseDown.bind(me));
 }
 
 
