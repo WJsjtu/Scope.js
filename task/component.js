@@ -1,85 +1,160 @@
 var path = require('path'),
     fs = require("fs"),
-    logger = require('./logger'),
     uglifyJS = require('uglify-js'),
-    babelTask = require('./babel'),
-    webpackTask = require('./webpack');
+    logger = require('./command/log'),
+    webpack = require('webpack');
 
 const srcDir = path.join(__dirname, '../src', 'component');
 const distDir = path.join(__dirname, '../dist', 'component');
-const testDir = path.join(__dirname, '../test', 'component');
 
-module.exports = function (compName, mode, externals) {
-    externals = externals || {};
-    mode = mode || 'webpack';
+module.exports = function () {
 
-    var taskLogger = logger('component:' + compName, 'src/component/' + compName + '/index.js');
-
-    var srcFile = path.join(srcDir, compName, 'index.js');
-    var distFile = path.join(distDir, compName + '.js');
-
-    var optimize = function (_distFile) {
-        var content = fs.readFileSync(_distFile, 'utf-8');
-        const replaceWord = 'ScopeCreateElement';
-        content = content.replace(/(Scope\.createElement)(\s*\()/g, replaceWord + '$2');
-        content = `(function(){\n\tvar ScopeCreateElement = Scope.createElement;\n\n` + content + `\n\n})();`;
-        var compressedContent = uglifyJS.minify(content, {
-            fromString: true,
-            compress: {
-                dead_code: true,
-                drop_debugger: true,
-                unused: true,
-                if_return: true,
-                warnings: false,
-                join_vars: true
-            },
-            mangle: {
-                eval: true
+    var buildComponents = function (files, taskLogger) {
+        var comps = [];
+        files.forEach(function (file) {
+            var fullPath = path.join(srcDir, file);
+            var stats = fs.statSync(fullPath);
+            if (stats.isDirectory()) {
+                var tempEntry = path.join(fullPath, "entry.js");
+                comps.push({
+                    name: file,
+                    path: tempEntry
+                });
+                fs.createReadStream(path.join(__dirname, 'tmpl', 'entry.js')).pipe(fs.createWriteStream(tempEntry));
             }
-        }).code;
-        fs.writeFileSync(_distFile, compressedContent, {
+        });
+
+        var indexPath = path.join(srcDir, "index.js");
+
+        var removeTempEntries = function () {
+            comps.forEach(function (comp) {
+                if (fs.existsSync(comp.path)) {
+                    fs.unlinkSync(comp.path);
+                }
+            });
+            if (fs.existsSync(indexPath)) {
+                fs.unlinkSync(indexPath);
+            }
+        };
+
+
+        var indexString = 'window.getComponents = function (comps, callback) {\n' +
+            '\tvar compEntries = {};\n' +
+            comps.map(function (comp) {
+                return '\tcompEntries["' + comp.name + '"] = require(`' + comp.path + '`);'
+            }).join("\n") +
+            '\tif (Array.isArray(comps)) {\n' +
+            '\t\t$.when.apply(this, comps.map(function (comp) {\n' +
+            '\t\t\treturn $.Deferred(compEntries[comp]);\n' +
+            '\t\t})).done(callback);\n' +
+            '\t}\n' +
+            '};';
+
+        fs.writeFileSync(indexPath, indexString, {
             encoding: 'utf8'
         });
+
+        webpack({
+            entry: indexPath,
+            output: {
+                path: distDir,
+                filename: "component.js",
+                chunkFilename: "[hash]-[chunkhash].js",
+                publicPath: "./../../../dist/component/"
+            },
+            externals: {
+                'jquery': 'jQuery',
+                'Scope': 'Scope'
+            },
+            module: {
+                loaders: [{
+                    test: /\.js$/,
+                    loader: 'babel'
+                }, {
+                    test: /\.(less|css)$/, loader: 'style-loader!css-loader!less-loader'
+                }, {
+                    test: /\.(tmpl|txt)$/, loader: 'raw-loader'
+                }]
+            },
+            plugins: [
+                new webpack.DefinePlugin({
+                    "process.env": {
+                        NODE_ENV: JSON.stringify('production')
+                    }
+                })
+            ]
+        }, function (err, stats) {
+            if (err) {
+                removeTempEntries();
+                taskLogger.error(err);
+            } else if (stats.compilation.errors.length) {
+                var messages = [];
+                stats.compilation.errors.forEach(function (e) {
+                    messages.push(e.message);
+                });
+                removeTempEntries();
+                taskLogger.error(messages.join('\n'));
+            } else {
+                var optimize = function (_distFile) {
+                    var content = fs.readFileSync(_distFile, 'utf-8');
+                    const replaceWord = 'ScopeCreateElement';
+                    content = content.replace(/(Scope\.createElement)(\s*\()/g, replaceWord + '$2');
+                    content = `(function(){\n\tvar ScopeCreateElement = Scope.createElement;\n\n` + content + `\n\n})();`;
+                    var compressedContent = uglifyJS.minify(content, {
+                        fromString: true,
+                        compress: {
+                            dead_code: true,
+                            drop_debugger: true,
+                            unused: true,
+                            if_return: true,
+                            warnings: false,
+                            join_vars: true
+                        },
+                        mangle: {
+                            eval: true
+                        }
+                    }).code;
+                    fs.writeFileSync(_distFile, compressedContent, {
+                        encoding: 'utf8'
+                    });
+                };
+
+                var optimizeLogger = logger('component: optimize');
+                optimizeLogger.start();
+                fs.readdir(distDir, function (err, _files) {
+                    if (err) {
+                        optimizeLogger.error(err);
+                    } else {
+                        _files.forEach(function (_file) {
+                            var _fullPath = path.join(distDir, _file);
+                            var _stats = fs.statSync(_fullPath);
+                            if (_stats.isFile()) {
+                                optimize(_fullPath);
+                            }
+                        });
+                    }
+                    removeTempEntries();
+                    optimizeLogger.finish();
+                });
+                taskLogger.finish();
+            }
+        });
     };
 
-    var test = function () {
-        var testFile = path.join(testDir, compName, 'index.js');
-        if (fs.existsSync(testFile)) {
-            var testTaskLogger = logger('test:' + compName, 'test/component/' + compName + '/index.js');
-            testTaskLogger.start();
-            webpackTask(testFile, testFile.replace(/index\.js$/g, 'test.js'), false, externals).then(function () {
-                testTaskLogger.finish();
-                optimize(testFile.replace(/index\.js$/g, 'test.js'));
-            }, function (errMsg) {
-                testTaskLogger.error(errMsg);
-            });
-        }
-    };
+    var cleanLogger = logger('component: clean');
+    cleanLogger.start();
+    require("./command/rmdir")(distDir).then(function () {
+        fs.mkdirSync(distDir);
+        cleanLogger.finish();
 
-    taskLogger.start();
-    if (!fs.existsSync(srcFile)) {
-        taskLogger.error('Component:' + compName + ' not found!');
-        return false;
-    }
-
-    if (mode == 'webpack') {
-        webpackTask(srcFile, distFile, false, externals).then(function () {
-            optimize(distFile);
-            taskLogger.finish();
-            test();
-        }, function (errMsg) {
-            taskLogger.error(errMsg);
+        var taskLogger = logger('component: build');
+        taskLogger.start();
+        fs.readdir(srcDir, function (err, files) {
+            if (err) {
+                taskLogger.error(err);
+            } else {
+                buildComponents(files, taskLogger);
+            }
         });
-    } else if (mode == 'babel') {
-        babelTask(srcFile, distFile, false).then(function () {
-            optimize(distFile);
-            taskLogger.finish();
-            test();
-        }, function (errMsg) {
-            taskLogger.error(errMsg);
-        });
-    } else {
-        taskLogger.error('Component:' + compName + ' has unknown mode:' + mode + '!');
-        return false;
-    }
+    });
 };

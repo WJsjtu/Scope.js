@@ -1,8 +1,8 @@
 var path = require('path'),
     fs = require("fs"),
-    logger = require('./logger'),
-    babelTask = require('./babel'),
-    webpackTask = require('./webpack');
+    logger = require('./command/log'),
+    babelTask = require('./command/babel'),
+    webpackTask = require('./command/webpack');
 
 const srcDir = path.join(__dirname, '../src', 'lib');
 const distDir = path.join(__dirname, '../dist', 'lib');

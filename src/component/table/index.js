@@ -139,29 +139,25 @@ const Table = Scope.createClass({
                             ScopeUtils.stopPropagation(event);
                             if (onSort != null && !me.isMoving) {
 
-                                const target = ScopeUtils.getTarget(event);
+                                const sortOrder = $this.data("order");
+                                onSort(index, sortOrder, (function () {
+                                    $this.data("order", sortOrder > 0 ? -1 : 1);
+                                    me.refs.head.find("div.arrow").empty().hide();
+                                    $this.closest("div.label").find(">div.arrow").css({
+                                        display: "block"
+                                    }).html(`<div class="${sortOrder > 0 ? "up" : "down"}"></div>`);
+                                }));
 
-                                if (target === $this[0] || target === $this.find(">span.text")[0]) {
-
-                                    const sortOrder = $this.data("order");
-                                    onSort(index, sortOrder, (function () {
-                                        $this.data("order", sortOrder > 0 ? -1 : 1);
-                                        me.refs.head.find("div.arrow").empty().hide();
-                                        $this.find(">div.arrow").css({
-                                            display: "block"
-                                        }).html(`<div class="${sortOrder > 0 ? "up" : "down"}"></div>`);
-                                    }));
-                                }
                             }
                         };
 
                         return (
-                            <div class="label"
-                                 style={`width: ${width}; cursor: ${onSort ? "pointer" : "default"}`}
-                                 onClick={toggleSort}
-                                 data-order="1"
-                            >
-                                <span class="text">{text}</span>
+                            <div class="label" style={`width: ${width};`}>
+                                <span class="text"
+                                      style={`cursor: ${onSort ? "pointer" : "default"};`}
+                                      onClick={toggleSort}
+                                      data-order="1"
+                                >{text}</span>
                                 <span class="separator">|</span>
                                 <div class="arrow"></div>
                             </div>
