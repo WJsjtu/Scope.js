@@ -75,6 +75,7 @@ window[storeName].getComponents(["page", "table"], function (Page, Table) {
  public function test()
  {
  sleep(1);
+ header('Access-Control-Allow-Origin: *');
 
  $word = isset($_POST["word"]) ? $_POST["word"] : "";
  $page = isset($_POST["page"]) ? $_POST["page"] : 1;
