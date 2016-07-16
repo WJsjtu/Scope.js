@@ -34,10 +34,13 @@ const Scope = {
         if (rootJElement.tagName instanceof JC) {
             const sComponent = new SC(new SE(null, rootJElement));
             require("./extract").c(null, sComponent);
-            require("./render").c(sComponent);
-            element.empty().append(sComponent.sElementTree.$ele);
-            require("./traverse")(sComponent, afterMount);
-            return sComponent;
+            if (require("./render").c(sComponent)) {
+                element.empty().append(sComponent.sElementTree.$ele);
+                require("./traverse")(sComponent, afterMount);
+                return sComponent;
+            } else {
+                return null;
+            }
         } else {
             const fakeSComponent = new SC(new SE(null, (function () {
                 const _component = Scope.createClass({
@@ -50,14 +53,17 @@ const Scope = {
                 return <_component />;
             })()));
             require("./extract").c(null, fakeSComponent);
-            require("./render").c(fakeSComponent);
-            element.empty().append(fakeSComponent.sElementTree.$ele);
-            require("./traverse")(fakeSComponent, afterMount);
-            return fakeSComponent;
+            if (require("./render").c(fakeSComponent)) {
+                element.empty().append(fakeSComponent.sElementTree.$ele);
+                require("./traverse")(fakeSComponent, afterMount);
+                return fakeSComponent;
+            } else {
+                return null;
+            }
         }
     },
     utils: require("./utils"),
-    version: "4.0.4"
+    version: "4.0.5"
 };
 
 window.Scope = module.exports = Scope;

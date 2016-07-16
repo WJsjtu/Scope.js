@@ -57,19 +57,16 @@ const destroy = function (sElement, shouldRemove) {
 const update = function (sElement) {
 
     if (!(sElement instanceof SE)) {
-        return;
-    }
-
-    if (!(sElement.sComponent instanceof SC)) {
-        return;
+        console.log("Scope: invalid ScopeElement arg for update", sElement);
+        return false;
     }
 
     const $oldEle = sElement.$ele;
 
     if (!($oldEle instanceof $)) {
-        return;
+        console.log("Scope: invalid jQuery instance of a ScopeElement", sElement);
+        return false;
     }
-
 
     const extract = require("./extract"), render = require("./render");
 
@@ -107,11 +104,9 @@ const update = function (sElement) {
 
         require("./traverse")(sComponent, beforeUpdate);
 
-        render.c(sComponent, true);
-
-        //$oldEle.hide().after(sElement.$ele).remove();
-
-        require("./traverse")(sComponent, afterUpdate);
+        if (render.c(sComponent, true)) {
+            require("./traverse")(sComponent, afterUpdate);
+        }
 
     } else {
         extract.e(sElement);
@@ -120,13 +115,11 @@ const update = function (sElement) {
             require("./traverse")(childComponent, beforeUpdate);
         });
 
-        render.e(sElement, true);
-
-        //$oldEle.hide().after(sElement.$ele).remove();
-
-        sElement.sComponent.children.forEach(function (childComponent) {
-            require("./traverse")(childComponent, afterUpdate);
-        });
+        if (render.e(sElement, true)) {
+            sElement.sComponent.children.forEach(function (childComponent) {
+                require("./traverse")(childComponent, afterUpdate);
+            });
+        }
     }
 
 };
