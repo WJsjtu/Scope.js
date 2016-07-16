@@ -3,17 +3,6 @@ const videoRegex = /\.(mp4|mkv|rmvb|rm|flv|avi|mpe?g|3gp|wmv|f4v|mov|swf|vob)$/i
 const soundRegex = /\.(mp3|wav|ape|aac|wma)$/i;
 
 module.exports = {
-    isFunction: (function () {
-        return "object" === typeof document.getElementById ? function (fn) {
-            try {
-                return /^\s*\bfunction\b/.test("" + fn);
-            } catch (x) {
-                return false
-            }
-        } : function (fn) {
-            return "[object Function]" === Object.prototype.toString.call(fn);
-        };
-    })(),
     uid: function () {
         let s = [];
         let hexDigits = "0123456789abcdef";
