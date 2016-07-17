@@ -18,7 +18,7 @@ module.exports = function (Pagination, Table) {
     const parseHash = function () {
         //?cid_{cid}=json(query)
         const hashObject = {};
-        const matches = /(\/)?(\?|#)([^\/]+)(\/)?$/ig.exec(History.getPageUrl());
+        const matches = /(\/)?(\?|#)([^\/]+)(\/)?$/ig.exec(window.location.href);
         if (matches && matches.length >= 4) {
             const hashString = matches[3];
             hashString.split("&").forEach(function (pair) {
@@ -132,7 +132,7 @@ module.exports = function (Pagination, Table) {
         },
 
         afterMount: function () {
-            const me = this, hashObject = parseHash(), $content = me.refs.content;
+            const me = this, hashObject = parseHash(), $content = me.refs.content, disableHistory = !!me.props.disableHistory && isObject(History);
 
             me.refs.error.hide();
             me.refs.loading.css({
@@ -154,14 +154,14 @@ module.exports = function (Pagination, Table) {
             };
 
             const initData = function (_query) {
-                History.replaceState({
+                !disableHistory && History.replaceState({
                     cid: me.cid,
                     query: _query
                 }, null, null);
                 me.request(_query, true, true).then(function () {
                     $content.show();
                     me.refs.input.val(_query.word);
-                    bindHistory();
+                    !disableHistory && bindHistory();
                 }, function () {
                     me.refs.error.css({
                         left: 0,
@@ -188,8 +188,9 @@ module.exports = function (Pagination, Table) {
         },
 
         afterUpdate: function () {
-            History.pushState({}, null, null);
-            this.afterMount();
+            const me = this, disableHistory = !!me.props.disableHistory || !isObject(History);
+            !disableHistory && History.pushState({}, null, null);
+            me.afterMount();
         },
 
         onSort: function (index, order, callback) {
@@ -207,15 +208,19 @@ module.exports = function (Pagination, Table) {
                 word: me.query.word || "",
                 page: Math.abs(parseNumber(page) || 1),
                 size: defaultQuerySize
-            };
+            }, disableHistory = !!me.props.disableHistory || !isObject(History);
 
             hashObject["cid_" + me.cid] = encodeURI(JSON.stringify(query));
 
             try {
-                History.pushState({
-                    cid: me.cid,
-                    query: query
-                }, null, "?" + $.param(hashObject));
+                if (disableHistory) {
+                    me.request(query);
+                } else {
+                    History.pushState({
+                        cid: me.cid,
+                        query: query
+                    }, null, "?" + $.param(hashObject));
+                }
             } catch (e) {
                 console.log(e);
                 getScope(me.refs.pagination).updatePage(me.query.page);
@@ -229,15 +234,19 @@ module.exports = function (Pagination, Table) {
                 word: me.refs.input.val() || "",
                 page: 1,
                 size: defaultQuerySize
-            };
+            }, disableHistory = !!me.props.disableHistory || !isObject(History);
 
             hashObject["cid_" + me.cid] = encodeURI(JSON.stringify(query));
 
             try {
-                History.pushState({
-                    cid: me.cid,
-                    query: query
-                }, null, "?" + $.param(hashObject));
+                if (disableHistory) {
+                    me.request(query);
+                } else {
+                    History.pushState({
+                        cid: me.cid,
+                        query: query
+                    }, null, "?" + $.param(hashObject));
+                }
             } catch (e) {
                 console.log(e);
                 getScope(me.refs.pagination).updatePage(me.query.page);

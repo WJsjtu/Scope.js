@@ -65,6 +65,7 @@ window[storeName].getComponents(["page", "table"], function (Page, Table) {
                   pagination={{page: 1, total: 1, size: 15}}
                   table={{labels: labels, height: 400, onSort: onSort}}
                   dataRender={dataRender}
+                  disableHistory={false}
             />,
             document.getElementById("container")
         );
