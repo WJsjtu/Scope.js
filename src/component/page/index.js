@@ -4,6 +4,8 @@ const {getScope, isObject,isFunction} = ScopeUtils;
 const {NAMESPACE} = require("./../../project");
 require("./style.less");
 
+const hasHistory = History && History.options;
+
 module.exports = function (Pagination, Table) {
     const parseNumber = function (number) {
         number = parseInt(number);
@@ -132,7 +134,7 @@ module.exports = function (Pagination, Table) {
         },
 
         afterMount: function () {
-            const me = this, hashObject = parseHash(), $content = me.refs.content, disableHistory = !!me.props.disableHistory && isObject(History);
+            const me = this, hashObject = parseHash(), $content = me.refs.content, disableHistory = !!me.props.disableHistory || !hasHistory;
 
             me.refs.error.hide();
             me.refs.loading.css({
@@ -170,7 +172,6 @@ module.exports = function (Pagination, Table) {
                 });
             };
 
-
             if (hashObject["cid_" + me.cid]) {
                 try {
                     const query = JSON.parse(decodeURI(hashObject["cid_" + me.cid]));
@@ -188,7 +189,7 @@ module.exports = function (Pagination, Table) {
         },
 
         afterUpdate: function () {
-            const me = this, disableHistory = !!me.props.disableHistory || !isObject(History);
+            const me = this, disableHistory = !!me.props.disableHistory || !hasHistory;
             !disableHistory && History.pushState({}, null, null);
             me.afterMount();
         },
@@ -208,7 +209,7 @@ module.exports = function (Pagination, Table) {
                 word: me.query.word || "",
                 page: Math.abs(parseNumber(page) || 1),
                 size: defaultQuerySize
-            }, disableHistory = !!me.props.disableHistory || !isObject(History);
+            }, disableHistory = !!me.props.disableHistory || !hasHistory;
 
             hashObject["cid_" + me.cid] = encodeURI(JSON.stringify(query));
 
@@ -234,7 +235,7 @@ module.exports = function (Pagination, Table) {
                 word: me.refs.input.val() || "",
                 page: 1,
                 size: defaultQuerySize
-            }, disableHistory = !!me.props.disableHistory || !isObject(History);
+            }, disableHistory = !!me.props.disableHistory || !hasHistory;
 
             hashObject["cid_" + me.cid] = encodeURI(JSON.stringify(query));
 
@@ -261,6 +262,12 @@ module.exports = function (Pagination, Table) {
         onBlur: function (event, $this) {
             ScopeUtils.stopPropagation(event);
             $this.removeClass("focused");
+        },
+
+        onKeyDown: function (event) {
+            if (event.which == 13) {
+                this.onSubmit(event);
+            }
         },
 
         onRefresh: function (callback, event) {
@@ -300,7 +307,9 @@ module.exports = function (Pagination, Table) {
                                        ref="input"
                                        placeholder="输入搜索关键字"
                                        onFocus={me.onFocus}
-                                       onBlur={me.onBlur}/>
+                                       onBlur={me.onBlur}
+                                       onKeydown={me.onKeyDown}
+                                />
                             </div>
                             <div style="clear: both;"></div>
                         </div>
