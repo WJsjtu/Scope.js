@@ -1,6 +1,6 @@
 const Scope = require("Scope");
 const ScopeUtils = Scope.utils;
-const {getScope, isObject, isFunction} = ScopeUtils;
+const {getScope, isObject, isFunction, stopPropagation, preventDefault} = ScopeUtils;
 const {NAMESPACE} = require("./../../project");
 require("./style.less");
 
@@ -233,7 +233,7 @@ module.exports = function (Pagination, Table) {
         },
 
         onSubmit: function (event) {
-            ScopeUtils.stopPropagation(event);
+            stopPropagation(event);
 
             const me = this;
             me.sendQuery({
@@ -243,12 +243,12 @@ module.exports = function (Pagination, Table) {
         },
 
         onFocus: function (event, $this) {
-            ScopeUtils.stopPropagation(event);
+            stopPropagation(event);
             $this.addClass("focused");
         },
 
         onBlur: function (event, $this) {
-            ScopeUtils.stopPropagation(event);
+            stopPropagation(event);
             $this.removeClass("focused");
         },
 
@@ -258,15 +258,18 @@ module.exports = function (Pagination, Table) {
             }
         },
 
-        onRefresh: function (callback, event) {
-            ScopeUtils.stopPropagation(event);
-            ScopeUtils.preventDefault(event);
-            callback.call(this);
+        onRefresh: function (event) {
+            stopPropagation(event);
+            preventDefault(event);
+            const me = this;
+            me.request(me.query).then(function () {
+                getScope(me.refs.table).refs.table.scrollTop(0);
+            });
         },
 
         onTop: function () {
-            ScopeUtils.stopPropagation(event);
-            ScopeUtils.preventDefault(event);
+            stopPropagation(event);
+            preventDefault(event);
             getScope(this.refs.table).refs.table.scrollTop(0);
         },
 
@@ -284,10 +287,7 @@ module.exports = function (Pagination, Table) {
                         </div>
                         <div class="search">
                             <span class="tool" onClick={me.onTop}>返回列表顶部</span>
-                            <span class="tool" onClick={me.onRefresh.bind(me, function(){
-                                me.request(me.query);
-                                getScope(me.refs.table).refs.table.scrollTop(0);
-                            })}>刷&nbsp;新</span>
+                            <span class="tool" onClick={me.onRefresh}>刷&nbsp;新</span>
 
                             <span class="submit" ref="submit" onClick={me.onSubmit}>搜&nbsp;索</span>
                             <div class="input">
