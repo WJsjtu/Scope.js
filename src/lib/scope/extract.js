@@ -1,7 +1,7 @@
 const {isFunction, isString, isObject} = require("./utils");
 const {SE, SC, JE, JC} = require("./class");
 
-const extractComponent = function (parentSComponent, sComponent) {
+const extractComponent = function (parentSComponent, sComponent, isUpdate) {
     sComponent.parent = parentSComponent;
     if (parentSComponent instanceof SC) {
         if (!$.isArray(parentSComponent.children)) {
@@ -11,10 +11,10 @@ const extractComponent = function (parentSComponent, sComponent) {
     }
     const rootSElement = new SE(sComponent, sComponent.jElementTree);
     sComponent.sElementTree = rootSElement;
-    extractElement(rootSElement);
+    extractElement(rootSElement, isUpdate);
 };
 
-const extractElement = function (sElement) {
+const extractElement = function (sElement, isUpdate) {
     const sComponent = sElement.sComponent;
     const jElement = sElement.class;
 
@@ -102,7 +102,7 @@ const extractElement = function (sElement) {
                 _jElementChildren = _sElementChildren.class;
             if (isObject(_jElementChildren)) {
                 if (_jElementChildren.tagName instanceof JC) {
-                    const _sComponent = new SC(_sElementChildren);
+                    const _sComponent = new SC(_sElementChildren, isUpdate);
                     sElement.children[j] = _sComponent;
                     extractComponent(sComponent, _sComponent);
                 } else if (isString(_jElementChildren.tagName)) {

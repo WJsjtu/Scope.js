@@ -25,7 +25,7 @@ function ScopeJSXElement(tagName, props, children, event, ref) {
  * @property(sElement) ScopeElement Note: this is the component element like <component />
  *
  * */
-function ScopeComponent(sElement) {
+function ScopeComponent(sElement, isUpdate) {
     const me = this, jComponent = sElement.class.tagName;
     me.class = jComponent;
     //copy the context for a new instance of the component
@@ -33,8 +33,14 @@ function ScopeComponent(sElement) {
     context.props = $.extend(false, {}, sElement.class.props);
     context.props.children = sElement.class.children;
 
-    if (isFunction(context.beforeMount)) {
-        context.beforeMount.call(context);
+    if (isUpdate) {
+        if (isFunction(context.beforeUpdate)) {
+            context.beforeMount.call(context);
+        }
+    } else {
+        if (isFunction(context.beforeMount)) {
+            context.beforeMount.call(context);
+        }
     }
 
     if (isFunction(context.render)) {

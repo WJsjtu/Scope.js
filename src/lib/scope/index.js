@@ -31,12 +31,15 @@ const Scope = {
             }
         };
 
+
+        const extractModule = require("./extract"), renderModule = require("./render"), traverseModule = require("./traverse");
+
         if (rootJElement.tagName instanceof JC) {
             const sComponent = new SC(new SE(null, rootJElement));
-            require("./extract").c(null, sComponent);
-            if (require("./render").c(sComponent)) {
+            extractModule.c(null, sComponent, false);
+            if (renderModule.c(sComponent)) {
                 element.empty().append(sComponent.sElementTree.$ele);
-                require("./traverse")(sComponent, afterMount);
+                traverseModule(sComponent, afterMount);
                 return sComponent;
             } else {
                 return null;
@@ -52,10 +55,10 @@ const Scope = {
                 });
                 return <_component />;
             })()));
-            require("./extract").c(null, fakeSComponent);
-            if (require("./render").c(fakeSComponent)) {
+            extractModule.c(null, fakeSComponent, false);
+            if (renderModule.c(fakeSComponent)) {
                 element.empty().append(fakeSComponent.sElementTree.$ele);
-                require("./traverse")(fakeSComponent, afterMount);
+                traverseModule(fakeSComponent, afterMount);
                 return fakeSComponent;
             } else {
                 return null;
@@ -63,7 +66,7 @@ const Scope = {
         }
     },
     utils: require("./utils"),
-    version: "4.0.5"
+    version: "4.0.7"
 };
 
 window.Scope = module.exports = Scope;

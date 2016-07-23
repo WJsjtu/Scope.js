@@ -1,7 +1,7 @@
 const {SC, SE, JE} = require("./class");
 const {isString, isObject, isFunction, SCOPE_CLOSE_TAG, SCOPE_DATA_KEY} = require("./utils");
 
-const renderComponent = function (sComponent, useOldElement) {
+const renderComponent = function (sComponent, useOldElement, recorder) {
 
     if (!(sComponent instanceof SC)) {
         console.log("Scope: invalid ScopeComponent arg for render", sComponent);
@@ -15,7 +15,11 @@ const renderComponent = function (sComponent, useOldElement) {
     const sElement = sComponent.sElement;
     const rootSElement = sComponent.sElementTree;
 
-    if (renderElement(rootSElement, useOldElement)) {
+    if (recorder) {
+        recorder.check(sComponent);
+    }
+
+    if (renderElement(rootSElement, useOldElement, recorder)) {
 
         if (isString(sElement.class.ref) && (sComponent.parent instanceof SC)) {
             sComponent.parent.refs[sElement.class.ref] = rootSElement.$ele;
@@ -29,7 +33,7 @@ const renderComponent = function (sComponent, useOldElement) {
 
 };
 
-const renderElement = function (sElement, useOldElement) {
+const renderElement = function (sElement, useOldElement, recorder) {
 
     if (!(sElement instanceof SE)) {
         console.log("Scope: invalid ScopeElement arg for render", sElement);
@@ -104,10 +108,10 @@ const renderElement = function (sElement, useOldElement) {
         if (SCOPE_CLOSE_TAG.indexOf(tagName) === -1) {
             sElement.children.forEach(function (childSElement) {
                 if (childSElement instanceof SE) {
-                    renderElement(childSElement);
+                    renderElement(childSElement, false, recorder);
                     $ele.append(childSElement.$ele);
                 } else if (childSElement instanceof SC) {
-                    if (renderComponent(childSElement)) {
+                    if (renderComponent(childSElement, false, recorder)) {
                         $ele.append(childSElement.sElementTree.$ele);
                     } else {
                         return false;

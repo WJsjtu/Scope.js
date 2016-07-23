@@ -68,21 +68,10 @@ const update = function (sElement) {
         return false;
     }
 
-    const extract = require("./extract"), render = require("./render");
+    const extractModule = require("./extract"), renderModule = require("./render"), traverseModule = require("./traverse");
 
 
     destroy(sElement, false);
-
-    const beforeUpdate = function (_sComponent) {
-        if (_sComponent instanceof SC) {
-            const _context = _sComponent.context;
-            if (isObject(_context)) {
-                if (isFunction(_context.beforeUpdate)) {
-                    _context.beforeUpdate.call(_context);
-                }
-            }
-        }
-    };
 
     const afterUpdate = function (_sComponent) {
         if (_sComponent instanceof SC) {
@@ -95,29 +84,36 @@ const update = function (sElement) {
         }
     };
 
+
     //if the node is the rootNode of a component
     if (sElement.sComponent.sElementTree === sElement) {
 
         const sComponent = sElement.sComponent;
 
-        extract.e(sComponent.sElementTree);
+        extractModule.e(sComponent.sElementTree, true);
 
-        require("./traverse")(sComponent, beforeUpdate);
 
-        if (render.c(sComponent, true)) {
-            require("./traverse")(sComponent, afterUpdate);
+        if (renderModule.c(sComponent, true)) {
+            traverseModule(sComponent, afterUpdate);
         }
 
     } else {
-        extract.e(sElement);
+        extractModule.e(sElement, true);
 
-        sElement.sComponent.children.forEach(function (childComponent) {
-            require("./traverse")(childComponent, beforeUpdate);
-        });
+        function ScopeRecorder(sComponent) {
+            this.children = [];
+            this.check = function (_sComponent) {
+                if (_sComponent.parent === sComponent) {
+                    this.children.push(_sComponent);
+                }
+            };
+        }
 
-        if (render.e(sElement, true)) {
-            sElement.sComponent.children.forEach(function (childComponent) {
-                require("./traverse")(childComponent, afterUpdate);
+        const recorder = new ScopeRecorder(sElement.sComponent);
+
+        if (renderModule.e(sElement, true, recorder)) {
+            recorder.children.forEach(function (childComponent) {
+                traverseModule(childComponent, afterUpdate);
             });
         }
     }

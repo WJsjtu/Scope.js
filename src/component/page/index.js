@@ -1,6 +1,6 @@
 const Scope = require("Scope");
 const ScopeUtils = Scope.utils;
-const {getScope, isObject,isFunction} = ScopeUtils;
+const {getScope, isObject, isFunction} = ScopeUtils;
 const {NAMESPACE} = require("./../../project");
 require("./style.less");
 
@@ -67,7 +67,7 @@ module.exports = function (Pagination, Table) {
                 $pagination = refs.pagination,
                 $loading = refs.loading,
                 $table = refs.table,
-                $body = getScope($table).refs.body;
+                $body = getScope($table).refs.table;
             if (!ignoreLoading) {
                 $loading.css({
                     height: $body.outerHeight(),
@@ -175,7 +175,7 @@ module.exports = function (Pagination, Table) {
             if (hashObject["cid_" + me.cid]) {
                 try {
                     const query = JSON.parse(decodeURI(hashObject["cid_" + me.cid]));
-                    initData(query);
+                    initData($.extend({}, me.query, query));
                 } catch (e) {
                     initData(me.query);
                 }
@@ -203,13 +203,11 @@ module.exports = function (Pagination, Table) {
             }
         },
 
-        onPageSelect: function (page) {
 
-            const me = this, hashObject = parseHash(), query = {
-                word: me.query.word || "",
-                page: Math.abs(parseNumber(page) || 1),
-                size: defaultQuerySize
-            }, disableHistory = !!me.props.disableHistory || !hasHistory;
+        sendQuery: function (query) {
+            const me = this, hashObject = parseHash(), disableHistory = !!me.props.disableHistory || !hasHistory;
+
+            query = $.extend({}, me.query, query);
 
             hashObject["cid_" + me.cid] = encodeURI(JSON.stringify(query));
 
@@ -224,8 +222,14 @@ module.exports = function (Pagination, Table) {
                 }
             } catch (e) {
                 console.log(e);
-                getScope(me.refs.pagination).updatePage(me.query.page);
             }
+        },
+
+        onPageSelect: function (page) {
+            const me = this;
+            me.sendQuery({
+                page: Math.abs(parseNumber(page) || 1)
+            });
         },
 
         onSubmit: function (event) {
