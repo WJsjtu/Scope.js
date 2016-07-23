@@ -235,27 +235,11 @@ module.exports = function (Pagination, Table) {
         onSubmit: function (event) {
             ScopeUtils.stopPropagation(event);
 
-            const me = this, hashObject = parseHash(), query = {
+            const me = this;
+            me.sendQuery({
                 word: me.refs.input.val() || "",
-                page: 1,
-                size: defaultQuerySize
-            }, disableHistory = !!me.props.disableHistory || !hasHistory;
-
-            hashObject["cid_" + me.cid] = encodeURI(JSON.stringify(query));
-
-            try {
-                if (disableHistory) {
-                    me.request(query);
-                } else {
-                    History.pushState({
-                        cid: me.cid,
-                        query: query
-                    }, null, "?" + $.param(hashObject));
-                }
-            } catch (e) {
-                console.log(e);
-                getScope(me.refs.pagination).updatePage(me.query.page);
-            }
+                page: 1
+            });
         },
 
         onFocus: function (event, $this) {
