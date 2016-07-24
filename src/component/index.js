@@ -8,6 +8,7 @@ const storeName = NAMESPACE.toUpperCase().replace(/-$/g, "");
     }
     window[storeName].getComponents = function (comps, callback) {
         const compEntries = {
+            finder: require("./finder/entry"),
             page: require("./page/entry"),
             pagination: require("./pagination/entry"),
             picker: require("./picker/entry"),

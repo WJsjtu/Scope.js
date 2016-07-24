@@ -114,6 +114,9 @@ module.exports = function (Pagination, Table) {
                         position: "relative",
                         left: 0
                     }).text("数据加载失败!").show();
+                    if (isFunction(me.props.onRequestError)) {
+                        me.props.onRequestError(_xhr, me.request.bind(me, query, ignoreLoading, ignoreError));
+                    }
                 }
             }).always(function () {
                 requestState.finished = true;
@@ -319,9 +322,7 @@ module.exports = function (Pagination, Table) {
                         </div>
                     </div>
                     <div ref="error" class="error">
-                        列表初始化失败, 请<a class="refresh" onClick={me.onRefresh.bind(me, function(){
-                            me.afterMount();
-                        })}>刷新</a>重试。
+                        列表初始化失败, 请<a class="refresh" onClick={me.afterMount}>刷新</a>重试。
                     </div>
                 </div>
             );

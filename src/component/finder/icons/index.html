@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ICON</title>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+</body>
+<script src="./../../../../test/vendor/jquery-1.12.3.min.js"></script>
+<script>
+    var scale = 128;
+    $(function () {
+        $("#canvas").attr({
+            width: scale * 4,
+            height: scale * 5
+        });
+        var context = $("#canvas")[0].getContext('2d');
+
+        var circle = function (x, y, borderColor, fillColor) {
+            context.beginPath();
+            context.strokeStyle = borderColor;
+            context.lineWidth = scale / 10;
+            context.arc(x + scale / 2, y + scale / 2, scale / 2 - context.lineWidth - 1, 0, Math.PI * 2, false);
+            context.stroke();
+            context.fillStyle = fillColor;
+            context.fill();
+            context.closePath();
+        };
+
+        var rightArrow = function (x, y, color, ratio, extendRatio, widthRatio) {
+
+            var arrowWidth = scale * (widthRatio || 0.1);
+            var innerArrowWidth = arrowWidth * 0.8;
+            var angle = 40 * Math.PI / 180;
+            var length = scale * (ratio || 0.48);
+            context.beginPath();
+            context.strokeStyle = color;
+            context.lineWidth = 1;
+            context.moveTo(x + scale / 2 - length / 2, y + scale / 2 - arrowWidth / 2);
+
+
+            var toX = x + scale / 2 + length / 2 - (innerArrowWidth * (1 + Math.cos(angle) / 2) / Math.sin(angle));
+            var toY = y + scale / 2 - arrowWidth / 2;
+
+            context.lineTo(toX, toY);
+
+            var extendLength = (extendRatio || 0.7) * length - innerArrowWidth / Math.tan(angle) - innerArrowWidth / 2 / Math.sin(angle);
+
+            toX = toX - extendLength * Math.cos(angle);
+            toY = toY - extendLength * Math.sin(angle);
+            context.lineTo(toX, toY);
+
+            toX = toX + innerArrowWidth / Math.sin(angle);
+            context.lineTo(toX, toY);
+
+            context.lineTo(x + scale / 2 + length / 2, y + scale / 2);
+
+            toY = 2 * y + scale - toY;
+            context.lineTo(toX, toY);
+
+
+            toX = toX - innerArrowWidth / Math.sin(angle);
+            context.lineTo(toX, toY);
+
+            toX = toX + extendLength * Math.cos(angle);
+            toY = toY - extendLength * Math.sin(angle);
+            context.lineTo(toX, toY);
+
+            context.lineTo(x + scale / 2 - length / 2, y + scale / 2 + arrowWidth / 2);
+            context.lineTo(x + scale / 2 - length / 2, y + scale / 2 - arrowWidth / 2);
+
+            context.stroke();
+
+            context.fillStyle = color;
+            context.fill();
+            context.closePath();
+        };
+
+        var leftArrow = function (x, y, color, ratio) {
+            context.save();
+            context.translate(x + scale, y + scale);
+            context.rotate(Math.PI);
+            rightArrow(0, 0, color, ratio);
+            context.restore();
+        };
+
+
+        var upArrow = function (x, y, color, ratio, widthRatio) {
+            context.save();
+            context.translate(x, y + scale);
+            context.rotate(-Math.PI / 2);
+            rightArrow(0, 0, color, ratio, 0.64, widthRatio);
+            context.restore();
+        };
+
+        var childrenButton = function (x, y, color) {
+
+            context.save();
+            context.translate(x, y + scale);
+            context.rotate(Math.PI / 2);
+
+            var arrowWidth = scale / 10;
+            var innerArrowWidth = arrowWidth * 0.75;
+            var angle = 40 * Math.PI / 180;
+            var length = scale * 0.48;
+
+            x = -scale - arrowWidth;
+            y = -scale;
+
+            context.beginPath();
+            context.strokeStyle = color;
+            context.lineWidth = 1;
+
+
+            var toX = x + scale / 2 + length / 2 - (innerArrowWidth / Math.sin(angle));
+            var toY = y + scale / 2;
+
+            context.moveTo(toX, toY);
+
+            var extendLength = 0.7 * length - innerArrowWidth / Math.tan(angle);
+
+            toX = toX - extendLength * Math.cos(angle);
+            toY = toY - extendLength * Math.sin(angle);
+            context.lineTo(toX, toY);
+
+            toX = toX + innerArrowWidth / Math.sin(angle);
+            context.lineTo(toX, toY);
+
+            context.lineTo(x + scale / 2 + length / 2, y + scale / 2);
+
+            toY = 2 * y + scale - toY;
+            context.lineTo(toX, toY);
+
+
+            toX = toX - innerArrowWidth / Math.sin(angle);
+            context.lineTo(toX, toY);
+
+            toX = toX + extendLength * Math.cos(angle);
+            toY = toY - extendLength * Math.sin(angle);
+            context.lineTo(toX, toY);
+
+            context.stroke();
+
+            context.fillStyle = color;
+            context.fill();
+
+            context.closePath();
+            context.restore();
+        };
+
+        var refreshButton = function (x, y, color) {
+            var arrowWidth = scale / 8;
+            var innerArrowWidth = arrowWidth * 0.75;
+
+            context.beginPath();
+            context.strokeStyle = color;
+            context.lineWidth = innerArrowWidth;
+
+            var ratio = 0.56;
+
+            context.arc(x + scale / 2, y + scale / 2, scale / 2 * ratio - context.lineWidth - 1, 0, Math.PI * 8 / 5, false);
+            context.stroke();
+            context.closePath();
+
+            context.save();
+            context.beginPath();
+            context.strokeStyle = color;
+            context.lineWidth = 1;
+
+
+            y = y - (scale / 2 * ratio - innerArrowWidth - 1);
+
+            var angle = 45 * Math.PI / 180;
+            var length = scale * 0.25;
+
+            innerArrowWidth = innerArrowWidth * 0.6;
+
+            context.beginPath();
+
+            var toX = x + scale / 2 + length / 2 - (innerArrowWidth / Math.sin(angle));
+            var toY = y + scale / 2;
+
+            context.moveTo(toX, toY);
+
+            var extendLength = 0.7 * length - innerArrowWidth / Math.tan(angle);
+
+            toX = toX - extendLength * Math.cos(angle);
+            toY = toY - extendLength * Math.sin(angle);
+            context.lineTo(toX, toY);
+
+            toX = toX + innerArrowWidth / Math.sin(angle);
+            context.lineTo(toX, toY);
+
+            context.lineTo(x + scale / 2 + length / 2, y + scale / 2);
+
+            toY = 2 * y + scale - toY;
+            context.lineTo(toX, toY);
+
+
+            toX = toX - innerArrowWidth / Math.sin(angle);
+            context.lineTo(toX, toY);
+
+            toX = toX + extendLength * Math.cos(angle);
+            toY = toY - extendLength * Math.sin(angle);
+            context.lineTo(toX, toY);
+
+            context.stroke();
+
+            context.fillStyle = color;
+            context.fill();
+
+            context.closePath();
+            context.restore();
+        };
+
+
+        var searchButton = function (x, y, color) {
+            var arrowWidth = scale / 9;
+            var innerArrowWidth = arrowWidth * 0.75;
+
+            var length = 0.64 * scale;
+            var toX = x + scale / 2 - length / 2 * Math.sqrt(2) / 2;
+            var toY = y + scale - length / 2 * Math.sqrt(2) / 2;
+
+            context.beginPath();
+            context.strokeStyle = color;
+            context.lineWidth = innerArrowWidth;
+            context.moveTo(toX, toY);
+            toX += length * 0.5 * Math.sqrt(2) / 2;
+            toY -= length * 0.5 * Math.sqrt(2) / 2;
+
+            context.lineTo(toX, toY);
+            context.stroke();
+
+            context.closePath();
+            context.beginPath();
+            context.strokeStyle = color;
+            context.lineWidth = innerArrowWidth;
+
+            context.arc(toX + length * 0.25 * Math.sqrt(2) / 2, toY - length * 0.25 * Math.sqrt(2) / 2, length * 0.25, 0, Math.PI * 2, false);
+
+            context.stroke();
+
+            context.closePath();
+
+        };
+
+        var folderArrowExpand = function (x, y, color, fillColor, ratio) {
+            ratio = ratio || 0.2 / 2;
+            context.beginPath();
+            context.strokeStyle = color;
+            context.lineWidth = 8;
+            var toX = x + scale / 2 + ratio * scale, toY = y + scale / 2 + ratio * scale + context.lineWidth / 2;
+            context.moveTo(toX, toY);
+            toY -= 2 * ratio * scale + context.lineWidth / 2;
+            context.lineTo(toX, toY);
+            toX -= 2 * ratio * scale;
+            toY += 2 * ratio * scale;
+            context.lineTo(toX, toY);
+            context.lineTo(x + scale / 2 + ratio * scale, y + scale / 2 + ratio * scale);
+            context.stroke();
+            context.fillStyle = fillColor;
+            context.fill();
+            context.closePath();
+
+        };
+
+        var folderArrowContract = function (x, y, color, fillColor, ratio) {
+            context.save();
+            context.translate(x + scale / 2, y + scale / 2);
+            context.rotate(-Math.PI / 4);
+            folderArrowExpand(-scale / 2, -scale / 2, color, fillColor, ratio || 0.12);
+            context.restore();
+        };
+
+        var caretDown = function (x, y, color, fillColor) {
+            context.save();
+            context.translate(x + scale / 2, y + scale / 2);
+            context.rotate(Math.PI / 4);
+            folderArrowExpand(-scale / 2, -scale / 2, color, fillColor, 0.1);
+            context.restore();
+        };
+
+        //normal
+        circle(0, 0, "#7D7D7D", "#FFFFFF");
+        rightArrow(0, 0, "#7D7D7D");
+
+        //hover
+        circle(scale, 0, "#5A94FE", "#5A94FE");
+        rightArrow(scale, 0, "#FFFFFF");
+
+        //active
+        circle(2 * scale, 0, "#4379D5", "#4379D5");
+        rightArrow(2 * scale, 0, "#FFFFFF");
+
+        //disable
+        circle(3 * scale, 0, "#CECECE", "#FFFFFF");
+        rightArrow(3 * scale, 0, "#CECECE");
+
+        //normal
+        circle(0, scale, "#7D7D7D", "#FFFFFF");
+        leftArrow(0, scale, "#7D7D7D");
+
+        //hover
+        circle(scale, scale, "#5A94FE", "#5A94FE");
+        leftArrow(scale, scale, "#FFFFFF");
+
+        //active
+        circle(2 * scale, scale, "#4379D5", "#4379D5");
+        leftArrow(2 * scale, scale, "#FFFFFF");
+
+        //disable
+        circle(3 * scale, scale, "#CECECE", "#FFFFFF");
+        leftArrow(3 * scale, scale, "#CECECE");
+
+        upArrow(0, 2 * scale, "#7D7D7D", 0.6, 0.08);
+
+        childrenButton(scale, 2 * scale, "#7D7D7D");
+
+        refreshButton(2 * scale, 2 * scale, "#7D7D7D");
+
+        searchButton(3 * scale, 2 * scale, "#7D7D7D");
+
+        folderArrowExpand(0, 3 * scale, "#000000", "#000000");
+
+        folderArrowExpand(scale, 3 * scale, "#6CC0F4", "#A0DEFB");
+
+        folderArrowContract(2 * scale, 3 * scale, "#A5A5A5", "transparent");
+
+        folderArrowContract(3 * scale, 3 * scale, "#70C5F7", "#CCE8F9");
+
+        caretDown(0, 4 * scale, "#7D7D7D", "#7D7D7D");
+
+        caretDown(scale, 4 * scale, "#6CC0F4", "#A0DEFB");
+
+        caretDown(2 * scale, 4 * scale, "#CECECE", "#CECECE");
+
+        folderArrowContract(3 * scale - scale / 16, 4 * scale, "#7D7D7D", "#7D7D7D", 0.1);
+    });
+</script>
+</html>

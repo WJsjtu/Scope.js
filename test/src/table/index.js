@@ -51,6 +51,11 @@ window[storeName].getComponents(["page", "table"], function (Page, Table) {
             };
         };
 
+        const onRequestError = function (xhr, retry) {
+            console.log(xhr);
+            //retry();
+        };
+
         Scope.render(
             <Page cid="1"
                   request={{
@@ -66,6 +71,7 @@ window[storeName].getComponents(["page", "table"], function (Page, Table) {
                   table={{labels: labels, height: 400, onSort: onSort}}
                   dataRender={dataRender}
                   disableHistory={false}
+                  onRequestError={onRequestError}
             />,
             document.getElementById("container")
         );
