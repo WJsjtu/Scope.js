@@ -1,5 +1,6 @@
 const Scope = require("Scope");
 const ScopeUtils = Scope.utils;
+const {isFunction} = ScopeUtils;
 const Draggable = require("./draggable");
 const {NAMESPACE} = require("./../../project");
 require("./style.less");
@@ -20,8 +21,10 @@ const Table = Scope.createClass({
         });
 
         const totalWidth = window.eval(widthArray.join("+"));
+        const minWidth = (isFunction(me.props.minWidth) ? me.props.minWidth() : me.props.minWidth) || totalWidth;
+        me.$ele.innerWidth(Math.max(minWidth, totalWidth));
+        me.refs.table.innerWidth(Math.max(minWidth, totalWidth));
         me.refs.head.innerWidth(totalWidth);
-        me.refs.table.innerWidth(totalWidth);
         me.refs.body.innerWidth(totalWidth);
         me.refs.body.children("div." + NAMESPACE + "row").each(function () {
             $(this).children("div." + NAMESPACE + "cell").each(function (index) {

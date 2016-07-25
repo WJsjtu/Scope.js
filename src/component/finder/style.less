@@ -6,11 +6,6 @@
 div.@{COMP_NAMESPACE} {
   background: #FFFFFF;
   border: 1px #D8D8D8 solid;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  -khtml-user-select: none;
-  user-select: none;
 
   .@{COMP_NAMESPACE}-table {
 
@@ -30,7 +25,7 @@ div.@{COMP_NAMESPACE} {
         .inline-block();
         .ellipsis();
         .text {
-          margin: 0 8px;
+          margin: 0 15px;
           &:hover {
             text-decoration: underline;
           }
@@ -68,27 +63,6 @@ div.@{COMP_NAMESPACE} {
               border-top-width: 4px;
               border-top-color: #536079;
             }
-          }
-        }
-      }
-    }
-
-    div.wrapper {
-      width: 100%;
-      overflow: auto;
-      overflow-x: hidden;
-      div.body {
-        width: 100%;
-        div.finder-row {
-          width: 100%;
-          div.finder-cell {
-            .inline-block();
-            padding: 8px;
-            vertical-align: top;
-            border-top-width: 1px;
-            border-top-style: solid;
-            border-top-color: rgb(221, 221, 221);
-            .ellipsis();
           }
         }
       }
@@ -184,6 +158,7 @@ div.@{COMP_NAMESPACE} {
     }
   }
   .@{COMP_NAMESPACE}-error {
+    display: none;
     .@{COMP_NAMESPACE}-refresh {
       color: #4795d8;
       cursor: pointer;
@@ -192,6 +167,14 @@ div.@{COMP_NAMESPACE} {
         text-decoration: underline;
       }
     }
+  }
+  .@{COMP_NAMESPACE}-status {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
   }
 }
 

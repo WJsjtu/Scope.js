@@ -10,8 +10,13 @@ const Tree = require("./tree/index");
 const Pagination = require("./pagination/index");
 const Step = require("./step/index");
 const Path = require("./path/index");
+const File = require("./file");
+const Select = require("./button/select");
+const Tool = require("./button/tool");
 
-const scale = require("./config").iconScale;
+const Config = require("./config");
+const {fileKey, dataFilter} = Config;
+const scale = Config.iconScale;
 
 const {NAMESPACE} = require("./../../project");
 
@@ -49,12 +54,13 @@ module.exports = Scope.createClass({
     cid: 1,
     history: [],
     historyIndex: 0,
+    activeFiles: [],
     pagination: {
         page: 1,
         total: 1,
         size: 8
     },
-    labels: [],
+    labels: File.labels,
     data: {
         path: "",
         page: 1,
@@ -76,21 +82,9 @@ module.exports = Scope.createClass({
 
 
     request: function (query, ignoreLoading, ignoreError) {
-        const me = this, requestState = me.requestState, refs = me.refs,
-            $error = me.refs.error,
-            $pagination = refs.pagination,
-            $loading = refs.loading,
-            $table = refs.table,
-            $content = me.refs.content;
+        const me = this, requestState = me.requestState, $pagination = me.refs.pagination;
         if (!ignoreLoading) {
-            $loading.css({
-                width: $content.innerWidth(),
-                height: $content.innerHeight()
-            }).html(
-                $(`<div><i class="fa fa-spinner fa-pulse fa-fw"></i><span>&nbsp;正在加载数据...</span></div>`)
-            ).show();
-            $error.text("").hide();
-            $table.hide();
+            me.command("loading");
         }
 
         if (!requestState.finished && requestState.xhr) {
@@ -104,9 +98,7 @@ module.exports = Scope.createClass({
         requestState.finished = false;
 
         return xhr.then(function (data) {
-            if (isFunction(me.props.filter)) {
-                data = me.props.filter(data);
-            }
+            data = dataFilter(data);
             me.data = data;
             me.query = query;
 
@@ -118,37 +110,33 @@ module.exports = Scope.createClass({
                 me.pagination.page = query.page;
                 getScope($pagination).updatePage(query.page);
             }
-            getScope($table).updateTable();
+            me.activeFiles = [];
+            me.updateTool();
+            getScope(me.refs.table).updateTable();
             getScope(me.refs.search).setValue(query.word);
             ScopeUtils.update(me.refs.tree);
             ScopeUtils.update(me.refs.path);
-            $table.show();
+            me.command("normal");
         }, function (_xhr) {
             if (_xhr.statusText != "abort" && !ignoreError) {
-                $error.css({
-                    width: $content.innerWidth(),
-                    height: $content.innerHeight()
-                }).text("数据加载失败!").show();
+                me.command("error", "数据加载失败!");
                 if (isFunction(me.props.onRequestError)) {
                     me.props.onRequestError(_xhr, me.request.bind(me, query, ignoreLoading, ignoreError));
                 }
             }
         }).always(function () {
             requestState.finished = true;
-            $loading.hide();
         });
     },
 
     beforeMount: function () {
-        const me = this;
-        me.cid = me.props.cid;
-        if ($.isArray(me.props.labels)) {
-            me.labels = me.props.labels;
-        }
+        this.cid = this.props.cid;
     },
 
     afterMount: function () {
         const me = this, hashObject = parseHash(), disableHistory = !!me.props.disableHistory || !hasHistory;
+
+        const $loading = me.refs.loading, $table = me.refs.table, $content = me.refs.content, $error = me.refs.error;
 
         let height = +me.props.height || 200;
         if (height < 200) {
@@ -174,14 +162,23 @@ module.exports = Scope.createClass({
                 cid: me.cid,
                 query: _query
             }, null, null);
-            me.request(_query).then(function () {
+
+            $error.hide();
+            $loading.css({
+                width: $content.innerWidth(),
+                height: $content.innerHeight()
+            }).show();
+
+            me.request(_query, true, true).then(function () {
                 getScope(me.refs.search).setValue(_query.word);
                 !disableHistory && bindHistory();
             }, function () {
-                me.refs.error.css({
-                    left: 0,
-                    top: 0
+                $loading.hide();
+                $error.css({
+                    width: $content.innerWidth(),
+                    height: $content.innerHeight()
                 }).show();
+                $table.hide();
             });
         };
 
@@ -213,20 +210,8 @@ module.exports = Scope.createClass({
 
     onSort: function (index, order, callback) {
         const me = this;
-        const keys = [];
-        for (var key in me.labels) {
-            if (me.labels.hasOwnProperty(key)) {
-                keys.push(me.labels[key].text);
-            }
-        }
-        me.data.files.sort(function (a, b) {
-            if (a[keys[index]] < b[keys[index]]) {
-                return -1 * order;
-            }
-            if (a[keys[index]] > b[keys[index]]) {
-                return 1 * order;
-            }
-            return 0;
+        me.data[fileKey].sort(function (a, b) {
+            return File.compare(index, order, a, b);
         });
         getScope(me.refs.table).updateTable();
         callback();
@@ -291,6 +276,48 @@ module.exports = Scope.createClass({
         })
     },
 
+    command: function () {
+        const me = this,
+            $loading = me.refs.loading,
+            $table = me.refs.table,
+            $content = me.refs.content,
+            $error = me.refs.error;
+
+        const args = Array.prototype.slice.call(arguments, 0);
+        const command = args.splice(0, 1);
+        if (command == "refresh") {
+            me.request(me.query).then(function () {
+                getScope(me.refs.table).refs.table.scrollTop(0);
+            })
+        } else if (command == "Loading") {
+            $loading.css({
+                width: $content.innerWidth(),
+                height: $content.innerHeight()
+            }).html(
+                $(`<div><i class="fa fa-spinner fa-pulse fa-fw"></i><span>&nbsp;正在加载数据...</span></div>`)
+            ).show();
+            $error.text("").hide();
+            $table.hide();
+        } else if (command == "error") {
+            $loading.hide();
+            $error.css({
+                width: $content.innerWidth(),
+                height: $content.innerHeight()
+            }).text(args[0] || "").show();
+            $table.hide();
+        } else if (command == "normal") {
+            $loading.hide();
+            $error.text("").hide();
+            $table.show();
+        } else if (command == "setPath") {
+            me.onPathSelect.apply(me, args);
+        } else if (command == "setPage") {
+            me.onPageSelect.apply(me, args);
+        } else if (command == "setSearch") {
+            me.onSearch.apply(me, args);
+        }
+    },
+
     onBack: function () {
         const me = this, disableHistory = !!me.props.disableHistory || !hasHistory;
         if (me.historyIndex > 0) {
@@ -327,17 +354,116 @@ module.exports = Scope.createClass({
         }
     },
 
+    onFileClick: function (fileItem) {
+        const me = this;
+        if (me.activeFiles.length) {
+            me.activeFiles.forEach(function (fileContext) {
+                fileContext.setDefault.call(fileContext);
+            });
+        }
+        me.activeFiles = [fileItem];
+        me.updateTool();
+    },
+
+    onFileDoubleClick: function (fileItem) {
+        const me = this;
+        if (me.activeFiles.length) {
+            me.activeFiles.forEach(function (fileContext) {
+                fileContext.setDefault.call(fileContext);
+            });
+        }
+        me.activeFiles = [fileItem];
+        me.onFileSelect();
+        setTimeout(function () {
+            fileItem.setActive.call(fileItem);
+            me.updateTool();
+        }, 50);
+    },
+
+    onFileSelect: function () {
+        const me = this;
+        if (isFunction(me.props.onFileSelect)) {
+            me.props.onFileSelect(me.getActiveFile());
+        }
+    },
+
+    onFileDelete: function () {
+        const me = this;
+        if (isFunction(me.props.onFileDelete)) {
+            me.props.onFileDelete(me.getActiveFile());
+        }
+    },
+
+    getActiveFile: function () {
+        return this.activeFiles.map(function (file) {
+            return file.props.file;
+        });
+    },
+
+    updateTool: function () {
+        const me = this, $select = me.refs.select, $delete = me.refs.delete;
+        if (me.activeFiles.length) {
+            getScope($select).setActive();
+            getScope($delete).setActive();
+        } else {
+            getScope($select).setDisable();
+            getScope($delete).setDisable();
+        }
+        ScopeUtils.update(me.refs.status);
+    },
+
     updateHistory: function () {
         const me = this, historyRefs = getScope(me.refs.history).refs;
         getScope(historyRefs.backButton)[me.historyIndex > 0 ? "enableClick" : "disableClick"]();
         getScope(historyRefs.forwardButton)[me.historyIndex < me.history.length - 1 ? "enableClick" : "disableClick"]();
     },
 
+    renderFiles: function () {
+        const me = this, iconUrl = (me.props.staticPath || "").replace(/\/$/ig, '') + "/icons.png";
+        const files = me.data[fileKey];
+        if (!Array.isArray(files)) {
+            return [];
+        }
+
+        const result = files.map(function (file) {
+
+            let isActive = false;
+
+
+            for (let i = 0, length = me.activeFiles.length; i < length; i++) {
+                if (me.activeFiles[i].props.file === file) {
+                    isActive = true;
+                    break;
+                }
+            }
+
+            return (
+                <File iconUrl={iconUrl}
+                      file={file}
+                      recordActive={function(item){
+                          me.activeFiles.push(item);
+                      }}
+                      isActive={isActive}
+                      onClick={me.onFileClick.bind(me)}
+                      onDoubleClick={me.onFileDoubleClick.bind(me)}
+                />
+            );
+        });
+
+        me.activeFiles = [];
+
+        return result;
+    },
+
     render: function () {
         const me = this, buttonUrl = (me.props.staticPath || "").replace(/\/$/ig, '') + "/tools.png";
         return (
             <div class={`${NAMESPACE}finder`}>
-                <div style={`width: 100%;height: ${scale + 3}px;border-bottom: 1px #D8D8D8 solid;`}></div>
+                <div style={`width: 100%;height: ${scale + 3}px;border-bottom: 1px #D8D8D8 solid;`}>
+                    <Select ref="select" onClick={me.onFileSelect.bind(me)}/>
+                    <Tool ref="delete" text="删除" onClick={me.onFileDelete.bind(me)}/>
+                    <div style="clear: both;"></div>
+                </div>
                 <div style={`position: relative;margin: 6px 0 10px 0;height: ${scale + 1}px;`}>
                     <Step ref="history"
                           staticPath={me.props.staticPath}
@@ -387,10 +513,10 @@ module.exports = Scope.createClass({
                             <Table ref="table"
                                    labels={me.labels}
                                    onSort={me.onSort.bind(me)}
-                                   height={me.props.height}>
-                                {function () {
-                                    return isFunction(me.props.dataRender) ? me.props.dataRender(me.data) : [];
-                                }}
+                                   height={me.props.height}
+                                   minWidth={function(){ return me.refs.files ? me.refs.files.innerWidth() : 0; }}
+                            >
+                                {me.renderFiles.bind(me)}
                             </Table>
                         </div>
                     </div>
@@ -406,8 +532,20 @@ module.exports = Scope.createClass({
                         </div>
                     </div>
                 </div>
-                <div style="height: 24px;">
-
+                <div style={`height: ${scale + 2}px;color: #1E395B;vertical-align: middle;`} ref="status" class={`${NAMESPACE}finder-status`}>
+                    {function () {
+                        let totalSize = 0;
+                        me.activeFiles.forEach(function (fileContext) {
+                            totalSize += fileContext.props.file.size;
+                        });
+                        return [
+                            <span
+                                style={`margin-left: 15px; line-height: ${scale + 2}px;font-size: ${scale / 2 + 2}px;`}>{me.data[fileKey].length}个项目&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                选中{me.activeFiles.length}个项目</span>,
+                            <span
+                                style={`margin-left: 5px; line-height: ${scale + 2}px;font-size: ${scale / 2 + 1}px;`}>{require("./file/utils").file.size(totalSize)}</span>
+                        ];
+                    }}
                 </div>
             </div>
         );

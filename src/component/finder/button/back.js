@@ -1,6 +1,6 @@
 const Scope = require("Scope");
 const Icon = require("./toolIcon");
-const ScopeUtils = Scope.utils, {isFunction} = ScopeUtils;
+const ScopeUtils = Scope.utils, {isFunction, stopPropagation} = ScopeUtils;
 
 const scale = require("./../config").iconScale;
 
@@ -30,13 +30,13 @@ module.exports = Scope.createClass({
                 $img.css("margin-left", -me.state * scale);
             }
         }).mousedown(function (event) {
-            ScopeUtils.stopPropagation(event);
+            stopPropagation(event);
             if (me.state == 1 && +(event.button) == 0) {
                 me.state = 2;
                 $img.css("margin-left", -me.state * scale);
             }
         }).mouseup(function (event) {
-            ScopeUtils.stopPropagation(event);
+            stopPropagation(event);
             if (me.state == 2) {
                 me.state = 1;
                 $img.css("margin-left", -me.state * scale);

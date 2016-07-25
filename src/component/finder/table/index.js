@@ -1,5 +1,6 @@
 const Scope = require("Scope");
 const ScopeUtils = Scope.utils;
+const {isFunction} = ScopeUtils;
 const Draggable = require("./draggable");
 const {NAMESPACE} = require("./../../../project");
 
@@ -19,12 +20,13 @@ module.exports = Scope.createClass({
         });
 
         const totalWidth = window.eval(widthArray.join("+"));
-        me.$ele.innerWidth(totalWidth);
+        const minWidth = (isFunction(me.props.minWidth) ? me.props.minWidth() : me.props.minWidth) || totalWidth;
+        me.$ele.innerWidth(Math.max(minWidth, totalWidth));
+        me.refs.table.innerWidth(Math.max(minWidth, totalWidth));
         me.refs.head.innerWidth(totalWidth);
-        me.refs.table.innerWidth(totalWidth);
         me.refs.body.innerWidth(totalWidth);
-        me.refs.body.children("div.finder-row").each(function () {
-            $(this).children("div.finder-cell").each(function (index) {
+        me.refs.body.find("div.finder-row").each(function () {
+            $(this).find("div.finder-cell").each(function (index) {
                 $(this).outerWidth(+widthArray[index]);
             });
         });
@@ -164,8 +166,8 @@ module.exports = Scope.createClass({
                         );
                     })}
                 </div>
-                <div class="wrapper" ref="table">
-                    <div class="body" ref="body">
+                <div style="width: 100%;overflow: auto;overflow-x: hidden;" ref="table">
+                    <div style="width: 100%;" ref="body">
                         {me.props.children}
                     </div>
                 </div>
