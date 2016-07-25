@@ -20,10 +20,12 @@ window[storeName].getComponents(["finder"], function (Finder) {
                     }}
                     height="400"
                     staticPath="./icons/"
+                    activePath="server/default/photo"
                     disableHistory={true}
                     onRequestError={onRequestError}
-                    onFileSelect={function(file){ console.log("onFileSelect", file); }}
-                    onFileDelete={function(file){ console.log("onFileDelete", file); }}
+                    onFileSelect={function(files){ console.log("onFileSelect", files); }}
+                    onFileDelete={function(files){ console.log("onFileDelete", files); }}
+                    onFileUpload={function(path, files){ console.log("onFileUpload", path, files); }}
             />,
             document.getElementById("container"),
             this

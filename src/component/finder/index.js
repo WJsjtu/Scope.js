@@ -70,7 +70,7 @@ module.exports = Scope.createClass({
         dirInfo: {}
     },
     query: {
-        path: "server/default/music",
+        path: "",
         word: "",
         page: 1,
         size: defaultQuerySize
@@ -130,7 +130,9 @@ module.exports = Scope.createClass({
     },
 
     beforeMount: function () {
-        this.cid = this.props.cid;
+        const me = this;
+        me.cid = this.props.cid;
+        me.query.path = (me.props.activePath || "").replace(/(^\/|\/$)/ig, "");
     },
 
     afterMount: function () {
@@ -289,7 +291,7 @@ module.exports = Scope.createClass({
             me.request(me.query).then(function () {
                 getScope(me.refs.table).refs.table.scrollTop(0);
             })
-        } else if (command == "Loading") {
+        } else if (command == "loading") {
             $loading.css({
                 width: $content.innerWidth(),
                 height: $content.innerHeight()
@@ -394,6 +396,13 @@ module.exports = Scope.createClass({
         }
     },
 
+    onFileUpload: function () {
+        const me = this;
+        if (isFunction(me.props.onFileUpload)) {
+            me.props.onFileUpload(me.data.path, me.getActiveFile());
+        }
+    },
+
     getActiveFile: function () {
         return this.activeFiles.map(function (file) {
             return file.props.file;
@@ -462,6 +471,7 @@ module.exports = Scope.createClass({
                 <div style={`width: 100%;height: ${scale + 3}px;border-bottom: 1px #D8D8D8 solid;`}>
                     <Select ref="select" onClick={me.onFileSelect.bind(me)}/>
                     <Tool ref="delete" text="删除" onClick={me.onFileDelete.bind(me)}/>
+                    <Tool isActive={true} text="上传" onClick={me.onFileUpload.bind(me)}/>
                     <div style="clear: both;"></div>
                 </div>
                 <div style={`position: relative;margin: 6px 0 10px 0;height: ${scale + 1}px;`}>
@@ -532,7 +542,8 @@ module.exports = Scope.createClass({
                         </div>
                     </div>
                 </div>
-                <div style={`height: ${scale + 2}px;color: #1E395B;vertical-align: middle;`} ref="status" class={`${NAMESPACE}finder-status`}>
+                <div style={`height: ${scale + 2}px;color: #1E395B;vertical-align: middle;`} ref="status"
+                     class={`${NAMESPACE}finder-status`}>
                     {function () {
                         let totalSize = 0;
                         me.activeFiles.forEach(function (fileContext) {
