@@ -4,7 +4,7 @@ const scale = require("./../config").iconScale;
 const ScopeUtils = Scope.utils;
 const {stopPropagation, isFunction} = ScopeUtils;
 
-const cellStyle = `display: inline-block; *zoom: 1; *display: inline;overflow: hidden;word-wrap: normal;text-overflow: ellipsis;white-space: nowrap;line-height: ${scale + 2}px;font-size: ${scale / 2 + 1}px;`;
+const cellStyle = `float: left; display: inline-block; *zoom: 1; *display: inline;overflow: hidden;word-wrap: normal;text-overflow: ellipsis;white-space: nowrap;line-height: ${scale + 2}px;font-size: ${scale / 2 + 1}px;`;
 
 const leftMargin = scale - 5;
 
@@ -52,10 +52,10 @@ const File = Scope.createClass({
             if (me.isMulti) {
                 me.isActive = !me.isActive;
                 me.isActive ? me.setActive() : me.setDefault();
-                me.refs.check.attr("checked", !!me.isActive);
+                me.refs.check[0].checked = !!me.isActive;
             } else {
                 me.setActive();
-                me.refs.check.attr("checked", false);
+                me.refs.check[0].checked = false;
             }
             if (isFunction(me.props.onClick)) {
                 me.props.onClick(me, me.isActive, me.isMulti);
@@ -69,6 +69,10 @@ const File = Scope.createClass({
             if (isFunction(me.props.onDoubleClick)) {
                 me.props.onDoubleClick(me);
             }
+        },
+
+        cc: function (event) {
+            ScopeUtils.preventDefault(event);
         },
 
         beforeMount: function () {
@@ -85,7 +89,7 @@ const File = Scope.createClass({
             me.isActive = !!me.props.isActive;
             if (me.isActive) {
                 me.setActive();
-                me.refs.check.attr("checked", me.isMulti);
+                me.refs.check[0].checked = me.isMulti;
                 if (isFunction(me.props.recordActive)) {
                     me.props.recordActive(me);
                 }
@@ -126,17 +130,19 @@ const File = Scope.createClass({
                      onMouseUp={me.u}
                      onDblClick={me.c}
                      class="finder-row"
-                     style={`cursor: default; width: 100%; font-size: 0;line-height: 0;position: relative;height: ${scale}px;`}>
+                     style={`cursor: default; width: 100%; position: relative;height: ${scale}px;`}>
                     <div ref="border"
                          style={`position: absolute; top: 0; left: ${leftMargin}px; z-index: 998; display: inline-block; *zoom: 1; *display: inline;border: 1px transparent solid; height: ${scale}px;`}></div>
 
-                    <div style={`width: 100%; position: absolute; top: 0; left: 10px; z-index: 999;`}>
+                    <div
+                        style={`font-size: 0;line-height: 0;width: 100%; position: absolute; top: 0; left: 10px; z-index: 999;`}>
                         <div class="finder-cell" style={cellStyle}>
                             <div
                                 style={`margin-top: 2px; margin-left: ${leftMargin - 2}px; margin-right: 5px; float: left;`}>
                                 <div
                                     style={`float: left;display: ${me.isMulti ? "block" : "none"};line-height: 1;font-size: ${scale / 2 + 1}px;margin-top: ${scale / 4 - 1 / 2}px;margin-right: ${(scale + 2) / 4}px;`}>
-                                    <input ref="check" type="checkbox"/>
+                                    <input ref="check" type="checkbox"
+                                           onClick={me.cc}/>
                                 </div>
                                 <div style="float: left;">
                                     {Utils.file.icon(file.name, me.props.iconUrl, scale - 3).component}
@@ -152,6 +158,7 @@ const File = Scope.createClass({
                         <div class="finder-cell" style={cellStyle}>{Utils.file.type(file.name)}</div>
                         <div class="finder-cell" style={cellStyle}>{Utils.file.size(file.size)}</div>
                         <div class="finder-cell" style={cellStyle}>{file.description}</div>
+                        <div style="clear: both;"></div>
                     </div>
                 </div>
             );
