@@ -40,7 +40,7 @@ const Scope = {
             if (renderModule.c(sComponent)) {
                 element.empty().append(sComponent.sElementTree.$ele);
                 traverseModule(sComponent, afterMount);
-                return sComponent;
+                return sComponent.context.$ele;
             } else {
                 return null;
             }
@@ -59,14 +59,14 @@ const Scope = {
             if (renderModule.c(fakeSComponent)) {
                 element.empty().append(fakeSComponent.sElementTree.$ele);
                 traverseModule(fakeSComponent, afterMount);
-                return fakeSComponent;
+                return fakeSComponent.context.$ele;
             } else {
                 return null;
             }
         }
     },
     utils: require("./utils"),
-    version: "4.0.9"
+    version: "4.1.0"
 };
 
 window.Scope = module.exports = Scope;

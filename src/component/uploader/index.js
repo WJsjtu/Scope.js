@@ -24,6 +24,31 @@ module.exports = Scope.createClass({
         4: {},
         5: {}
     },
+    getFiles: function () {
+        const me = this, result = [];
+        for (var i in me.files) {
+            if (me.files.hasOwnProperty(i)) {
+                const info = getScope(me.files[i]);
+                result.push({
+                    status: info.status,
+                    file: $.extend({}, info.fileInfo, info.serverInfo, {rawName: info.fileInfo.name})
+                });
+            }
+        }
+        return result;
+    },
+    getUploadedFiles: function () {
+        const me = this, result = [];
+        for (var i in me.files) {
+            if (me.files.hasOwnProperty(i)) {
+                const info = getScope(me.files[i]);
+                if (info.status == 4) {
+                    result.push($.extend({}, info.fileInfo, info.serverInfo, {rawName: info.fileInfo.name}));
+                }
+            }
+        }
+        return result;
+    },
     files: {},
     afterMount: function () {
         const me = this, refs = me.refs, $input = refs.input;

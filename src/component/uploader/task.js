@@ -141,6 +141,15 @@ module.exports = Scope.createClass({
         const me = this;
         if (me.status == 1) {
             me.switchStatus(4);
+            if (!me.serverInfo.name) {
+                const matches = url.match(/[^\/]+$/ig);
+                if (matches.length) {
+                    me.serverInfo.name = matches[0];
+                }
+            }
+            if (!me.serverInfo.url) {
+                me.serverInfo.url = url;
+            }
             me.refs.progress.parent().css(visibility, "hidden");
             me.refs.upload.text(utils.file.size(me.fileInfo.size));
             me.refs.label.text("已完成");
