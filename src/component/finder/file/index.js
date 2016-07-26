@@ -21,37 +21,49 @@ const File = Scope.createClass({
             });
         },
 
+        e: function () {
+            const me = this;
+            if (!me.isActive) {
+                me.setCss("#E8F3FB", "#8ABED5");
+                me.mouseOver = true;
+            }
+        },
+
+        l: function () {
+            const me = this;
+            if (!me.isActive) {
+                me.setDefault();
+            }
+        },
+
+        d: function (event) {
+            const me = this;
+            stopPropagation(event);
+            if (+(event.button) == 0) {
+                me.setCss("#D6E7FF", "#7AA4E8");
+            }
+        },
+
+        u: function (event) {
+            const me = this;
+            stopPropagation(event);
+            me.setActive();
+            if (isFunction(me.props.onClick)) {
+                me.props.onClick(me);
+            }
+        },
+
+        c: function (event) {
+            const me = this;
+            stopPropagation(event);
+            me.setActive();
+            if (isFunction(me.props.onDoubleClick)) {
+                me.props.onDoubleClick(me);
+            }
+        },
+
         afterMount: function () {
             const me = this;
-
-            me.$ele.mouseenter(function () {
-                if (!me.isActive) {
-                    me.setCss("#E8F3FB", "#8ABED5");
-                    me.mouseOver = true;
-                }
-            }).mouseleave(function () {
-                if (!me.isActive) {
-                    me.setDefault();
-                }
-            }).mousedown(function (event) {
-                stopPropagation(event);
-                if (+(event.button) == 0) {
-                    me.setCss("#D6E7FF", "#7AA4E8");
-                }
-            }).mouseup(function (event) {
-                stopPropagation(event);
-                me.setActive();
-                if (isFunction(me.props.onClick)) {
-                    me.props.onClick(me);
-                }
-            }).on("dblclick", function (event) {
-                stopPropagation(event);
-                me.setActive();
-                if (isFunction(me.props.onDoubleClick)) {
-                    me.props.onDoubleClick(me);
-                }
-            });
-
             me.isActive = !!me.props.isActive;
             if (me.isActive) {
                 me.setActive();
@@ -89,7 +101,12 @@ const File = Scope.createClass({
         render: function () {
             const me = this, file = me.props.file || {};
             return (
-                <div class="finder-row"
+                <div onMouseEnter={me.e}
+                     onMouseLeave={me.l}
+                     onMouseDown={me.d}
+                     onMouseUp={me.u}
+                     onDblClick={me.c}
+                     class="finder-row"
                      style={`cursor: default; width: 100%; font-size: 0;line-height: 0;position: relative;height: ${scale}px;`}>
                     <div ref="border"
                          style={`position: absolute; top: 0; left: ${leftMargin}px; z-index: 998; display: inline-block; *zoom: 1; *display: inline;border: 1px transparent solid; height: ${scale}px;`}></div>

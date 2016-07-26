@@ -21,6 +21,13 @@ const destroy = function (sElement, shouldRemove) {
 
         } else if (childSElement instanceof SC) {
 
+            const _context = childSElement.context;
+            if (isObject(_context)) {
+                if (isFunction(_context.beforeUnmount)) {
+                    _context.beforeUnmount.call(_context);
+                }
+            }
+
             destroy(childSElement.sElementTree, true);
 
             const _childElementSElement = childSElement.sElement;
@@ -36,7 +43,7 @@ const destroy = function (sElement, shouldRemove) {
     sElement.children = [];
 
 
-    if (shouldRemove && sElement.$ele instanceof $) {
+    if (sElement.$ele instanceof $) {
 
         $.isArray(sElement.event) && sElement.event.forEach(function (eventInfoArray) {
             const eventName = eventInfoArray[0], selector = eventInfoArray[1], eventFunc = eventInfoArray[2];
@@ -49,8 +56,10 @@ const destroy = function (sElement, shouldRemove) {
         });
 
         sElement.event = [];
-        sElement.$ele.remove();
-        sElement.$ele = null;
+        if (shouldRemove) {
+            sElement.$ele.remove();
+            sElement.$ele = null;
+        }
     }
 };
 
@@ -70,9 +79,6 @@ const update = function (sElement) {
 
     const extractModule = require("./extract"), renderModule = require("./render"), traverseModule = require("./traverse");
 
-
-    destroy(sElement, false);
-
     const afterUpdate = function (_sComponent) {
         if (_sComponent instanceof SC) {
             const _context = _sComponent.context;
@@ -90,6 +96,15 @@ const update = function (sElement) {
 
         const sComponent = sElement.sComponent;
 
+        const _context = sComponent.context;
+        if (isObject(_context)) {
+            if (isFunction(_context.beforeUnmount)) {
+                _context.beforeUnmount.call(_context);
+            }
+        }
+
+
+        destroy(sElement, false);
         extractModule.e(sComponent.sElementTree, true);
 
 
@@ -98,6 +113,8 @@ const update = function (sElement) {
         }
 
     } else {
+
+        destroy(sElement, false);
         extractModule.e(sElement, true);
 
         function ScopeRecorder(sComponent) {

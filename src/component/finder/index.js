@@ -360,7 +360,9 @@ module.exports = Scope.createClass({
         const me = this;
         if (me.activeFiles.length) {
             me.activeFiles.forEach(function (fileContext) {
-                fileContext.setDefault.call(fileContext);
+                if (fileContext != fileItem) {
+                    fileContext.setDefault.call(fileContext);
+                }
             });
         }
         me.activeFiles = [fileItem];
@@ -371,15 +373,13 @@ module.exports = Scope.createClass({
         const me = this;
         if (me.activeFiles.length) {
             me.activeFiles.forEach(function (fileContext) {
-                fileContext.setDefault.call(fileContext);
+                if (fileContext != fileItem) {
+                    fileContext.setDefault.call(fileContext);
+                }
             });
         }
         me.activeFiles = [fileItem];
         me.onFileSelect();
-        setTimeout(function () {
-            fileItem.setActive.call(fileItem);
-            me.updateTool();
-        }, 50);
     },
 
     onFileSelect: function () {

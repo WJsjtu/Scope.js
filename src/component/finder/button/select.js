@@ -26,25 +26,40 @@ module.exports = Scope.createClass({
     },
 
     afterMount: function () {
-        const me = this, $this = me.$ele;
-        $this.hover(function () {
-            me.isActive && $this.css("background-color", "#298CE1");
-        }, function () {
-            me.isActive && $this.css("background-color", "#1979CA");
-        }).on("click", function (event) {
-            stopPropagation(event);
-            if (me.isActive && isFunction(me.props.onClick)) {
-                me.props.onClick();
-            }
-        });
+        const me = this;
         me.isActive = !!me.props.isActive;
         me.isActive ? me.setActive() : me.setDisable();
     },
 
+    afterUpdate: function () {
+        this.afterMount();
+    },
+
+    e: function () {
+        const me = this;
+        me.isActive && me.$ele.css("background-color", "#298CE1");
+    },
+
+    l: function () {
+        const me = this;
+        me.isActive && me.$ele.css("background-color", "#1979CA");
+    },
+
+    c: function (event) {
+        const me = this;
+        stopPropagation(event);
+        if (me.isActive && isFunction(me.props.onClick)) {
+            me.props.onClick();
+        }
+    },
+
     render: function () {
-        const style = `float: left; display: inline-block;*zoom: 1; *display: inline;font-size: ${scale / 2 + 1}px;line-height: ${scale + 2}px;padding: 0 16px;`;
+        const me = this, style = `float: left; display: inline-block;*zoom: 1; *display: inline;font-size: ${scale / 2 + 1}px;line-height: ${scale + 2}px;padding: 0 16px;`;
         return (
-            <span style={style}>选择</span>
+            <span onMouseEnter={me.e}
+                  onMouseLeave={me.l}
+                  onClick={me.c}
+                  style={style}>选择</span>
         );
     }
 });

@@ -17,14 +17,13 @@ const Item = Scope.createClass({
     setArrow: function (type) {
         this.refs.arrow.find("img").css("margin-left", -type * scale);
     },
-
+    
     setCss: function (backgroundColor, borderColor) {
         this.refs.wrapper.css({
             "background-color": backgroundColor,
             "border-color": borderColor
         });
     },
-
 
     beforeMount: function () {
         const me = this;
@@ -36,41 +35,7 @@ const Item = Scope.createClass({
     },
 
     afterMount: function () {
-        const me = this, $wrapper = me.refs.wrapper, $arrow = me.refs.arrow.find("img");
-
-        $wrapper.mouseenter(function () {
-            if (!me.isActive) {
-                me.setCss("#E8F3FB", "#8ABED5");
-                me.mouseOver = true;
-            }
-        }).mouseleave(function () {
-            if (!me.isActive) {
-                me.setDefault();
-            }
-        }).mousedown(function (event) {
-            stopPropagation(event);
-            if (+(event.button) == 0) {
-                me.setCss("#D6E7FF", "#7AA4E8");
-            }
-        }).mouseup(function (event) {
-            stopPropagation(event);
-            me.setActive();
-            if (isFunction(me.props.onClick)) {
-                me.props.onClick(me, true);
-            }
-        });
-
-        $arrow.mouseenter(function () {
-            me.setArrow(me.expand ? 1 : 3);
-        }).mouseleave(function () {
-            me.setArrow(me.expand ? 0 : 2);
-        }).mouseup(function (event) {
-            stopPropagation(event);
-            me.expand = !me.expand;
-            me.setArrow(me.expand ? 1 : 3);
-            me.refs.children[me.expand ? "show" : "hide"]();
-        });
-
+        const me = this;
         if (me.props.active) {
             me.setActive();
             if (isFunction(me.props.onClick)) {
@@ -81,6 +46,56 @@ const Item = Scope.createClass({
 
     afterUpdate: function () {
         this.afterMount();
+    },
+
+    ae: function () {
+        const me = this;
+        me.setArrow(me.expand ? 1 : 3);
+    },
+
+    al: function () {
+        const me = this;
+        me.setArrow(me.expand ? 0 : 2);
+    },
+
+    au: function (event) {
+        const me = this;
+        stopPropagation(event);
+        me.expand = !me.expand;
+        me.setArrow(me.expand ? 1 : 3);
+        me.refs.children[me.expand ? "show" : "hide"]();
+    },
+
+    e: function () {
+        const me = this;
+        if (!me.isActive) {
+            me.setCss("#E8F3FB", "#8ABED5");
+            me.mouseOver = true;
+        }
+    },
+
+    l: function () {
+        const me = this;
+        if (!me.isActive) {
+            me.setDefault();
+        }
+    },
+
+    d: function (event) {
+        const me = this;
+        stopPropagation(event);
+        if (+(event.button) == 0) {
+            me.setCss("#D6E7FF", "#7AA4E8");
+        }
+    },
+
+    u: function (event) {
+        const me = this;
+        stopPropagation(event);
+        me.setActive();
+        if (isFunction(me.props.onClick)) {
+            me.props.onClick(me, true);
+        }
     },
 
     setBlur: function () {
@@ -115,11 +130,19 @@ const Item = Scope.createClass({
 
         return (
             <div>
-                <div ref="wrapper" title={title}
+                <div onMouseEnter={me.e}
+                     onMouseLeave={me.l}
+                     onMouseDown={me.d}
+                     onMouseUp={me.u}
+                     ref="wrapper" title={title}
                      style={`font-size: ${(scale + 2) / 2}px;height: 21px;line-height: 21px;vertical-align: middle;border: 1px solid transparent; background-color: transparent; width: 100%; height: ${scale + 2}px;`}>
                     <div style={`${inlineBlockStyle}width: ${depth * 19}px;`}></div>
-                    <div style={`${inlineBlockStyle}margin-top: 1px;`}
-                         ref="arrow">
+                    <div onMouseEnter={me.ae}
+                         onMouseLeave={me.al}
+                         onMouseUp={me.au}
+                         ref="arrow"
+                         style={`${inlineBlockStyle}margin-top: 1px;`}
+                    >
                         {ToolIcon(buttonUrl, me.expand ? 0 : 2, 3, scale, scale, scale)}
                     </div>
                     {FolderIcon(folderUrl, type, scale - 1)}

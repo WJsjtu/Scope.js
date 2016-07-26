@@ -12,6 +12,9 @@ const List = Scope.createClass({
     afterUpdate: function () {
         console.log('afterUpdate');
     },
+    beforeUnmount: function() {
+        console.log('beforeUnmount');
+    },
     getRandom: function () {
         console.log('getRandom');
         this.data = [];
