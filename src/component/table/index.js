@@ -169,7 +169,7 @@ const Table = Scope.createClass({
                 </div>
                 <div class="wrapper" ref="table">
                     <div class="body" ref="body">
-                        {me.props.children}
+                        {me.props.children || ""}
                     </div>
                 </div>
             </div>

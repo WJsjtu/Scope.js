@@ -5,6 +5,8 @@ const scale = require("./../config").iconScale;
 
 module.exports = Scope.createClass({
 
+    isMulti: false,
+
     isActive: false,
 
     setActive: function () {
@@ -25,15 +27,30 @@ module.exports = Scope.createClass({
         });
     },
 
+    beforeMount: function () {
+        const me = this;
+        me.isMulti = !!me.props.multiple;
+        me.isActive = !!me.props.isActive;
+    },
+
+    beforeUpdate: function () {
+        this.beforeMount();
+    },
+
     afterMount: function () {
         const me = this;
-        me.isActive = !!me.props.isActive;
+        me.$ele.css({
+            "border-color": "transparent",
+            "color": "#3C3C3C",
+            "cursor": "pointer"
+        });
         me.isActive ? me.setActive() : me.setDisable();
     },
 
     afterUpdate: function () {
         this.afterMount();
     },
+
 
     e: function () {
         const me = this;
@@ -45,10 +62,15 @@ module.exports = Scope.createClass({
         me.isActive && me.$ele.css("border-color", "transparent");
     },
 
+
     d: function (event) {
         stopPropagation(event);
         const me = this;
-        me.isActive && me.$ele.css("background-color", "#F5F6F7");
+        if (me.isActive) {
+            me.$ele.css("background-color", "#F5F6F7");
+            me.isMulti = !me.isMulti;
+            me.$ele.text(me.isMulti ? "单选" : "多选");
+        }
     },
 
     u: function (event) {
@@ -57,7 +79,7 @@ module.exports = Scope.createClass({
         if (me.isActive) {
             me.$ele.css("background-color", "transparent");
             if (isFunction(me.props.onClick)) {
-                me.props.onClick();
+                me.props.onClick(me.isMulti);
             }
         }
     },
@@ -69,7 +91,7 @@ module.exports = Scope.createClass({
                   onMouseLeave={me.l}
                   onMouseDown={me.d}
                   onMouseUp={me.u}
-                  style={style}>{this.props.text || ""}</span>
+                  style={style}>{me.isMulti ? "单选" : "多选"}</span>
         );
     }
 });

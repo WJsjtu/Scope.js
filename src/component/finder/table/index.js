@@ -168,7 +168,7 @@ module.exports = Scope.createClass({
                 </div>
                 <div style="width: 100%;overflow: auto;overflow-x: hidden;" ref="table">
                     <div style="width: 100%;" ref="body">
-                        {me.props.children}
+                        {me.props.children || ""}
                     </div>
                 </div>
             </div>

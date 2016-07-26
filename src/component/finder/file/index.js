@@ -6,11 +6,13 @@ const {stopPropagation, isFunction} = ScopeUtils;
 
 const cellStyle = `display: inline-block; *zoom: 1; *display: inline;overflow: hidden;word-wrap: normal;text-overflow: ellipsis;white-space: nowrap;line-height: ${scale + 2}px;font-size: ${scale / 2 + 1}px;`;
 
-const leftMargin = 17;
+const leftMargin = scale - 5;
 
 const File = Scope.createClass({
 
         mouseOver: false,
+
+        isMulti: false,
 
         isActive: false,
 
@@ -47,9 +49,16 @@ const File = Scope.createClass({
         u: function (event) {
             const me = this;
             stopPropagation(event);
-            me.setActive();
+            if (me.isMulti) {
+                me.isActive = !me.isActive;
+                me.isActive ? me.setActive() : me.setDefault();
+                me.refs.check.attr("checked", !!me.isActive);
+            } else {
+                me.setActive();
+                me.refs.check.attr("checked", false);
+            }
             if (isFunction(me.props.onClick)) {
-                me.props.onClick(me);
+                me.props.onClick(me, me.isActive, me.isMulti);
             }
         },
 
@@ -62,11 +71,21 @@ const File = Scope.createClass({
             }
         },
 
+        beforeMount: function () {
+            const me = this;
+            me.isMulti = !!me.props.multiple;
+        },
+
+        beforeUpdate: function () {
+            this.beforeMount();
+        },
+
         afterMount: function () {
             const me = this;
             me.isActive = !!me.props.isActive;
             if (me.isActive) {
                 me.setActive();
+                me.refs.check.attr("checked", me.isMulti);
                 if (isFunction(me.props.recordActive)) {
                     me.props.recordActive(me);
                 }
@@ -115,7 +134,14 @@ const File = Scope.createClass({
                         <div class="finder-cell" style={cellStyle}>
                             <div
                                 style={`margin-top: 2px; margin-left: ${leftMargin - 2}px; margin-right: 5px; float: left;`}>
-                                {Utils.file.icon(file.name, me.props.iconUrl, scale - 3).component}
+                                <div
+                                    style={`float: left;display: ${me.isMulti ? "block" : "none"};line-height: 1;font-size: ${scale / 2 + 1}px;margin-top: ${scale / 4 - 1 / 2}px;margin-right: ${(scale + 2) / 4}px;`}>
+                                    <input ref="check" type="checkbox"/>
+                                </div>
+                                <div style="float: left;">
+                                    {Utils.file.icon(file.name, me.props.iconUrl, scale - 3).component}
+                                </div>
+                                <div style="clear: both;"></div>
                             </div>
                             <div style="float: left;">
                                 <span>{file.name || "- -"}</span>

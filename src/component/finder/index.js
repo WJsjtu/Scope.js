@@ -13,6 +13,7 @@ const Path = require("./path/index");
 const File = require("./file");
 const Select = require("./button/select");
 const Tool = require("./button/tool");
+const Multiple = require("./button/multi");
 
 const Config = require("./config");
 const {fileKey, dataFilter} = Config;
@@ -55,6 +56,7 @@ module.exports = Scope.createClass({
     history: [],
     historyIndex: 0,
     activeFiles: [],
+
     pagination: {
         page: 1,
         total: 1,
@@ -79,6 +81,7 @@ module.exports = Scope.createClass({
         finished: true,
         xhr: null
     },
+    isMulti: false,
 
 
     request: function (query, ignoreLoading, ignoreError) {
@@ -356,16 +359,27 @@ module.exports = Scope.createClass({
         }
     },
 
-    onFileClick: function (fileItem) {
+    onFileClick: function (fileItem, isActive, isMulti) {
         const me = this;
-        if (me.activeFiles.length) {
-            me.activeFiles.forEach(function (fileContext) {
-                if (fileContext != fileItem) {
-                    fileContext.setDefault.call(fileContext);
+        if (!isMulti) {
+            if (me.activeFiles.length) {
+                me.activeFiles.forEach(function (fileContext) {
+                    if (fileContext != fileItem) {
+                        fileContext.setDefault.call(fileContext);
+                    }
+                });
+            }
+            me.activeFiles = [fileItem];
+        } else {
+            if (isActive) {
+                me.activeFiles.push(fileItem);
+            } else {
+                const index = me.activeFiles.indexOf(fileItem);
+                if (index >= 0 && index < me.activeFiles.length) {
+                    me.activeFiles.splice(index, 1);
                 }
-            });
+            }
         }
-        me.activeFiles = [fileItem];
         me.updateTool();
     },
 
@@ -403,6 +417,12 @@ module.exports = Scope.createClass({
         }
     },
 
+    onMultiple: function (isMulti) {
+        const me = this;
+        me.isMulti = isMulti;
+        getScope(me.refs.table).updateTable();
+    },
+
     getActiveFile: function () {
         return this.activeFiles.map(function (file) {
             return file.props.file;
@@ -433,7 +453,6 @@ module.exports = Scope.createClass({
         if (!Array.isArray(files)) {
             return [];
         }
-
         const result = files.map(function (file) {
 
             let isActive = false;
@@ -449,6 +468,7 @@ module.exports = Scope.createClass({
             return (
                 <File iconUrl={iconUrl}
                       file={file}
+                      multiple={me.isMulti}
                       recordActive={function(item){
                           me.activeFiles.push(item);
                       }}
@@ -472,6 +492,10 @@ module.exports = Scope.createClass({
                     <Select ref="select" onClick={me.onFileSelect.bind(me)}/>
                     <Tool ref="delete" text="删除" onClick={me.onFileDelete.bind(me)}/>
                     <Tool isActive={true} text="上传" onClick={me.onFileUpload.bind(me)}/>
+                    <Multiple ref="multi"
+                              isActive={me.props.multiple}
+                              multiple={me.isMulti}
+                              onClick={me.onMultiple.bind(me)}/>
                     <div style="clear: both;"></div>
                 </div>
                 <div style={`position: relative;margin: 6px 0 10px 0;height: ${scale + 1}px;`}>
@@ -526,7 +550,9 @@ module.exports = Scope.createClass({
                                    height={me.props.height}
                                    minWidth={function(){ return me.refs.files ? me.refs.files.innerWidth() : 0; }}
                             >
-                                {me.renderFiles.bind(me)}
+                                {function () {
+                                    return me.renderFiles();
+                                }}
                             </Table>
                         </div>
                     </div>

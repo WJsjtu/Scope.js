@@ -21,6 +21,7 @@ window[storeName].getComponents(["finder"], function (Finder) {
                     height="400"
                     staticPath="./icons/"
                     activePath="server/default/photo"
+                    multiple={true}
                     disableHistory={true}
                     onRequestError={onRequestError}
                     onFileSelect={function(files){ console.log("onFileSelect", files); }}
