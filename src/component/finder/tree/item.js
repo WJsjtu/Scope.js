@@ -17,7 +17,7 @@ const Item = Scope.createClass({
     setArrow: function (type) {
         this.refs.arrow.find("img").css("margin-left", -type * scale);
     },
-    
+
     setCss: function (backgroundColor, borderColor) {
         this.refs.wrapper.css({
             "background-color": backgroundColor,
@@ -135,7 +135,7 @@ const Item = Scope.createClass({
                      onMouseDown={me.d}
                      onMouseUp={me.u}
                      ref="wrapper" title={title}
-                     style={`font-size: ${(scale + 2) / 2}px;height: 21px;line-height: 21px;vertical-align: middle;border: 1px solid transparent; background-color: transparent; width: 100%; height: ${scale + 2}px;`}>
+                     style={`font-size: ${scale / 2 + 3}px;height: 21px;line-height: 21px;vertical-align: middle;border: 1px solid transparent; background-color: transparent; width: 100%; height: ${scale + 2}px;`}>
                     <div style={`${inlineBlockStyle}width: ${depth * 19}px;`}></div>
                     <div onMouseEnter={me.ae}
                          onMouseLeave={me.al}
