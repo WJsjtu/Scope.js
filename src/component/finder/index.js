@@ -547,7 +547,7 @@ module.exports = Scope.createClass({
                                         onPageSelect={me.onPageSelect.bind(me)}/>
                         </div>
                         <div
-                            style="width: 100%;overflow-x: auto;overflow-y: hidden;font-size: 12px;line-height: 1.42857;margin-bottom: 0;background-color: transparent;position: relative;">
+                            style={`width: 100%;overflow-x: auto;overflow-y: hidden;font-size: ${scale / 2 + 1}px;line-height: 2;margin-bottom: 0;background-color: transparent;position: relative;`}>
                             <Table ref="table"
                                    labels={me.labels}
                                    onSort={me.onSort.bind(me)}

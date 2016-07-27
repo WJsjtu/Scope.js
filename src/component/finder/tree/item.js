@@ -126,7 +126,7 @@ const Item = Scope.createClass({
 
         const {node, depth} = me.props, {title, type} = node;
 
-        const commonStyle = `float: left;height: 21px;`;
+        const commonStyle = `float: left;height: ${scale - 1}px;`;
 
         return (
             <div>
@@ -135,7 +135,7 @@ const Item = Scope.createClass({
                      onMouseDown={me.d}
                      onMouseUp={me.u}
                      ref="wrapper" title={title}
-                     style={`font-size: ${scale / 2 + 3}px;height: 21px;line-height: 21px;vertical-align: middle;border: 1px solid transparent; background-color: transparent; width: 100%; height: ${scale + 2}px;`}>
+                     style="border: 1px solid transparent;width: 100%;">
                     <div style={`${commonStyle}width: ${depth * 19}px;`}></div>
                     <div onMouseEnter={me.ae}
                          onMouseLeave={me.al}

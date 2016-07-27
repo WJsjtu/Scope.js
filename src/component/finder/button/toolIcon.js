@@ -8,7 +8,7 @@ module.exports = function (url, x, y, scaleX, scaleY, scale) {
 
     return (
         <div
-            style={`padding: 0; margin: ${marginY}px ${marginX}px; border: none; width: ${scaleX}px; height: ${scaleY}px; overflow: hidden;`}>
+            style={`margin: ${marginY}px ${marginX}px; border: none; width: ${scaleX}px; height: ${scaleY}px; overflow: hidden;`}>
             <img src={url}
                  style={`width: ${scale * columnCount}px; height: ${scale * rowCount}px; margin-left: ${-x * scale + innerMarginX}px;margin-top: ${-y * scale + innerMarginY}px;`}/>
         </div>

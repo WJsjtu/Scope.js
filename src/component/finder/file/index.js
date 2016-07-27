@@ -131,7 +131,7 @@ const File = Scope.createClass({
 
         const fontSize = scale / 2 + 1;
 
-        const thisStyle = `line-height: ${fontSize * 2}px;font-size: ${fontSize}px;cursor: default; width: 100%; position: relative;height: ${scale}px;`;
+        const thisStyle = `cursor: default; width: 100%; position: relative;height: ${scale}px;`;
 
         const borderStyle = `margin-left: ${scale - 5}px; border: 1px transparent solid; height: ${scale}px;`;
 

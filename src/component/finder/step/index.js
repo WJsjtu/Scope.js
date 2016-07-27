@@ -11,7 +11,7 @@ module.exports = Scope.createClass({
     render: function () {
         const me = this, iconUrl = (me.props.staticPath || "").replace(/\/$/ig, '') + "/tools.png";
         return (
-            <div style={`position: absolute;left: 0;font-size: 0;top: 0;width: 105px;height: ${scale + 1}px;`}>
+            <div style={`position: absolute;left: 0;top: 0;width: 105px;height: ${scale + 1}px;`}>
                 <Back ref="backButton"
                       iconUrl={iconUrl}
                       onClick={me.props.onBack}

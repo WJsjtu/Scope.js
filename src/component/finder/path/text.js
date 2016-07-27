@@ -40,9 +40,9 @@ module.exports = Scope.createClass({
                      onMouseDown={me.d}
                      onMouseUp={me.u}
                      ref="wrapper"
-                     style="border: 1px transparent solid; cursor: pointer;">
+                     style={`border: 1px transparent solid; cursor: default;line-height: 1;height: ${scale - 3}px;`}>
                     <span
-                        style={`font-size: ${(scale + 2) / 2}px;line-height: ${scale - 4}px;height: ${scale - 4}px; padding: 0 5px;`}>{me.props.text || ""}</span>
+                        style={`font-size: ${(scale + 2) / 2}px; padding: 0 5px;`}>{me.props.text || ""}</span>
                 </div>
             </div>
         );

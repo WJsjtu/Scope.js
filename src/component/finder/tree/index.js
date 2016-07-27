@@ -34,7 +34,7 @@ module.exports = Scope.createClass({
     render: function () {
         const me = this;
         return (
-            <div style={`margin: ${scale / 11 * 3}px 0 0 0; padding: 0; width: 9999px;`}>
+            <div style={`margin-top: ${scale / 11 * 3}px;font-size: ${scale / 2 + 2}px;line-height: 21px;vertical-align: middle;width: 9999px;`}>
                 <div ref="wrapper">
                     {(function () {
                         const rootNode = me.props.dirInfo;

@@ -62,31 +62,20 @@ module.exports = Scope.createClass({
 
     render: function () {
         const me = this, iconUrl = (me.props.staticPath || "").replace(/\/$/ig, '') + "/tools.png", folderUrl = (me.props.staticPath || "").replace(/\/$/ig, '') + "/folders.png";
+
+        const inputStyle = `color: #6D6D6D;font-size: ${scale / 2 + 1}px;width: 100%;cursor: default;background: none;box-shadow: none;height: ${scale - 1}px;border: 0;margin: 0;padding: 0 10px 0 5px;outline: 0;display: block;-webkit-appearance: none;`;
+
         return (
             <div style={`margin-left: 105px;margin-right: 225px;height: ${scale + 1}px;`}>
-                <div ref="wrapper"
-                     style={`position: relative;height: ${scale - 1}px;border: 1px #D8D8D8 solid;-webkit-transition: all .3s ease-out;transition: all .3s ease-out;`}>
-                    <div style="line-height: 0;font-size: 0;margin-left: 2px; float: left;" onClick={me.onIconClick}>
+                <div ref="wrapper" style={`height: ${scale - 1}px;border: 1px #D8D8D8 solid;`}>
+                    <div style="margin-left: 2px; float: left;" onClick={me.onIconClick}>
                         {FolderIcon(folderUrl, "plain", scale - 4)}
                     </div>
-                    <div ref="directory"
-                         style={`padding: 0; margin: 0; border: none; height: ${scale - 1}px; overflow: hidden;float: left;`}>
+                    <div ref="directory" style={`height: ${scale - 1}px;float: left;`}>
                         <input ref="input"
                                onBlur={me.onBlur}
                                onKeydown={me.onKeyDown}
-                               style={`color: #6D6D6D;
-                                  font-size: ${scale / 2 + 1}px;
-                                  width: 100%;
-                                  cursor: default;
-                                  background: none;
-                                  box-shadow: none;
-                                  height: ${scale - 1}px;
-                                  border: 0;
-                                  margin: 0;
-                                  padding: 0 10px 0 5px;
-                                  outline: 0;
-                                  display: block;
-                                  -webkit-appearance: none;`}/>
+                               style={inputStyle}/>
                         <div ref="path" onClick={me.onClick}>
                             {function () {
                                 const dirInfo = me.props.dirInfo, targetPaths = (me.props.activePath || "").replace(/(^\/|\/$)/ig, "").split("/"), result = [],
