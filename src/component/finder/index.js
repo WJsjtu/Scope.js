@@ -135,6 +135,7 @@ module.exports = Scope.createClass({
     beforeMount: function () {
         const me = this;
         me.cid = this.props.cid;
+        me.query.size = parseNumber(me.props.querySize) || defaultQuerySize;
         me.query.path = (me.props.activePath || "").replace(/(^\/|\/$)/ig, "");
     },
 

@@ -134,6 +134,7 @@ module.exports = function (Pagination, Table) {
             if (isObject(me.props.table)) {
                 me.table = $.extend({}, me.props.table);
             }
+            me.query.size = parseNumber(me.props.querySize) || defaultQuerySize;
         },
 
         afterMount: function () {
