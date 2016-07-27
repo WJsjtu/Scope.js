@@ -59,6 +59,8 @@ const destroy = function (sElement, shouldRemove) {
         if (shouldRemove) {
             sElement.$ele.remove();
             sElement.$ele = null;
+        } else {
+            sElement.$ele.empty();
         }
     }
 };

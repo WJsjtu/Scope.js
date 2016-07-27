@@ -63,7 +63,7 @@ module.exports = Scope.createClass({
     },
 
     render: function () {
-        const me = this, style = `float: left; border: 1px solid transparent; display: inline-block;*zoom: 1; *display: inline;font-size: ${scale / 2 + 1}px;line-height: ${scale + 2}px;padding: 0 16px;`;
+        const me = this, style = `float: left; border: 1px solid transparent; font-size: ${scale / 2 + 1}px;line-height: ${scale + 2}px;padding: 0 16px;`;
         return (
             <span onMouseEnter={me.e}
                   onMouseLeave={me.l}

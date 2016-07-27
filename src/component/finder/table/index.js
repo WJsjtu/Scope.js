@@ -145,9 +145,10 @@ module.exports = Scope.createClass({
                                 onSort(index, sortOrder, (function () {
                                     $this.data("order", sortOrder > 0 ? -1 : 1);
                                     me.refs.head.find("div.arrow").empty().hide();
-                                    $this.closest("div.label").find(">div.arrow").css({
-                                        display: "block"
-                                    }).html(`<div class="${sortOrder > 0 ? "up" : "down"}"></div>`);
+                                    $this.closest("div.label")
+                                        .find(">div.arrow")
+                                        .html(`<div class="${sortOrder > 0 ? "up" : "down"}"></div>`)
+                                        .show();
                                 }));
 
                             }
@@ -165,10 +166,11 @@ module.exports = Scope.createClass({
                             </div>
                         );
                     })}
+                    <div style="clear: both;"></div>
                 </div>
                 <div style="width: 100%;overflow: auto;overflow-x: hidden;" ref="table">
                     <div style="width: 100%;" ref="body">
-                        {me.props.children || ""}
+                        {me.props.children || []}
                     </div>
                 </div>
             </div>

@@ -18,7 +18,7 @@ module.exports = Scope.createClass({
     setState: function (state) {
         const me = this;
         me.state = state;
-        me.$ele.find("img").css("margin-left", -state * scale);
+        me.$ele.find("img").css({marginLeft: -state * scale});
     },
 
     e: function () {
@@ -54,7 +54,7 @@ module.exports = Scope.createClass({
                  onMouseLeave={me.l}
                  onMouseDown={me.d}
                  onMouseUp={me.u}
-                 style="display: inline-block; *zoom: 1; *display: inline;float: left; margin-left: 6px;" title="返回">
+                 style="float: left; margin-left: 6px;" title="返回">
                 {Icon(me.props.iconUrl, me.state, 1, scale, scale, scale)}
             </div>
         );

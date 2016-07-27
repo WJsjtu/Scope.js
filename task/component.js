@@ -45,7 +45,7 @@ module.exports = function () {
                 path: distDir,
                 filename: "component.js",
                 chunkFilename: "[chunkhash].js",
-                publicPath: "./../../../dist/component/"
+                publicPath: "__webpackPublicPath__"
             },
             externals: {
                 'jquery': 'jQuery',
@@ -90,7 +90,7 @@ module.exports = function () {
                             var _fullPath = path.join(distDir, _file);
                             var _stats = fs.statSync(_fullPath);
                             if (_stats.isFile()) {
-                                optimize(_fullPath);
+                                optimize(_fullPath, _file == "component.js");
                             }
                         });
                     }

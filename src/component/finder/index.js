@@ -215,10 +215,12 @@ module.exports = Scope.createClass({
 
     onSort: function (index, order, callback) {
         const me = this;
+        me.refs.table.css("visibility", "hidden");
         me.data[fileKey].sort(function (a, b) {
             return File.compare(index, order, a, b);
         });
         getScope(me.refs.table).updateTable();
+        me.refs.table.css("visibility", "visible");
         callback();
     },
 
@@ -420,7 +422,9 @@ module.exports = Scope.createClass({
     onMultiple: function (isMulti) {
         const me = this;
         me.isMulti = isMulti;
-        getScope(me.refs.table).updateTable();
+        getScope(me.refs.table).refs.body.children().each(function () {
+            getScope($(this)).setMultiple(isMulti);
+        });
     },
 
     getActiveFile: function () {

@@ -10,18 +10,18 @@ module.exports = Scope.createClass({
     setActive: function () {
         this.isActive = true;
         this.$ele.css({
-            "background-color": "#1979CA",
-            "color": "#FFFFFF",
-            "cursor": "pointer"
+            backgroundColor: "#1979CA",
+            color: "#FFFFFF",
+            cursor: "pointer"
         });
     },
 
     setDisable: function () {
         this.isActive = false;
         this.$ele.css({
-            "background-color": "#F5F6F7",
-            "color": "#929292",
-            "cursor": "not-allowed"
+            backgroundColor: "#F5F6F7",
+            color: "#929292",
+            cursor: "not-allowed"
         });
     },
 
@@ -37,12 +37,12 @@ module.exports = Scope.createClass({
 
     e: function () {
         const me = this;
-        me.isActive && me.$ele.css("background-color", "#298CE1");
+        me.isActive && me.$ele.css({backgroundColor: "#298CE1"});
     },
 
     l: function () {
         const me = this;
-        me.isActive && me.$ele.css("background-color", "#1979CA");
+        me.isActive && me.$ele.css({backgroundColor: "#1979CA"});
     },
 
     c: function (event) {
@@ -54,7 +54,7 @@ module.exports = Scope.createClass({
     },
 
     render: function () {
-        const me = this, style = `float: left; display: inline-block;*zoom: 1; *display: inline;font-size: ${scale / 2 + 1}px;line-height: ${scale + 2}px;padding: 0 16px;`;
+        const me = this, style = `float: left;font-size: ${scale / 2 + 1}px;line-height: ${scale + 2}px;padding: 0 16px;`;
         return (
             <span onMouseEnter={me.e}
                   onMouseLeave={me.l}

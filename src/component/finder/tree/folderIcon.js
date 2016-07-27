@@ -10,7 +10,7 @@ module.exports = function (url, type, scale) {
 
     return (
         <div
-            style={`padding: 0; margin: 0; margin-right: 2px; margin-top: 1px;border: none; width: ${scale}px; height: ${scale}px; overflow: hidden;display: inline-block; *zoom: 1; *display: inline; float: left;`}>
+            style={`padding: 0; margin: 0; margin-right: 2px; margin-top: 1px;border: none; width: ${scale}px; height: ${scale}px; overflow: hidden;float: left;`}>
             <img src={url}
                  style={`width: ${scale * 10}px; height: ${scale}px; margin-left: -${typeIndex * scale}px;margin-top: 0;`}/>
         </div>

@@ -15,13 +15,13 @@ const Item = Scope.createClass({
     isActive: false,
 
     setArrow: function (type) {
-        this.refs.arrow.find("img").css("margin-left", -type * scale);
+        this.refs.arrow.find("img").css({marginLeft: -type * scale});
     },
 
     setCss: function (backgroundColor, borderColor) {
         this.refs.wrapper.css({
-            "background-color": backgroundColor,
-            "border-color": borderColor
+            backgroundColor: backgroundColor,
+            borderColor: borderColor
         });
     },
 
@@ -126,7 +126,7 @@ const Item = Scope.createClass({
 
         const {node, depth} = me.props, {title, type} = node;
 
-        const inlineBlockStyle = `display: inline-block; *zoom: 1; *display: inline;float: left;height: 21px;cursor: default;`;
+        const commonStyle = `float: left;height: 21px;`;
 
         return (
             <div>
@@ -136,17 +136,17 @@ const Item = Scope.createClass({
                      onMouseUp={me.u}
                      ref="wrapper" title={title}
                      style={`font-size: ${scale / 2 + 3}px;height: 21px;line-height: 21px;vertical-align: middle;border: 1px solid transparent; background-color: transparent; width: 100%; height: ${scale + 2}px;`}>
-                    <div style={`${inlineBlockStyle}width: ${depth * 19}px;`}></div>
+                    <div style={`${commonStyle}width: ${depth * 19}px;`}></div>
                     <div onMouseEnter={me.ae}
                          onMouseLeave={me.al}
                          onMouseUp={me.au}
                          ref="arrow"
-                         style={`${inlineBlockStyle}margin-top: 1px;`}
+                         style={`${commonStyle}margin-top: 1px;`}
                     >
                         {ToolIcon(buttonUrl, me.expand ? 0 : 2, 3, scale, scale, scale)}
                     </div>
                     {FolderIcon(folderUrl, type, scale - 1)}
-                    <div style={`${inlineBlockStyle}`}>{title}</div>
+                    <div style={`${commonStyle}`}>{title}</div>
                     <div style="clear: both;"></div>
                 </div>
                 <div ref="children" style={`display: ${me.expand ? "block" : "none"};`}>

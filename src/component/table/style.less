@@ -35,7 +35,7 @@ div.@{COMP_NAMESPACE} {
       border-bottom-width: 2px;
       border-bottom-style: solid;
       border-bottom-color: rgb(221, 221, 221);
-      .inline-block();
+      float: left;
       .ellipsis();
       .text {
         margin: 0 8px;
@@ -59,7 +59,6 @@ div.@{COMP_NAMESPACE} {
         right: 15px;
         line-height: 0;
         div {
-          .inline-block();
           width: 0;
           height: 0;
           border-width: 4px;
@@ -112,7 +111,6 @@ div.@{COMP_NAMESPACE}-line {
   display: none;
   background-color: @blueColor;
   border: none;
-  .inline-block();
   width: 1px;
   z-index: 999;
   cursor: col-resize;

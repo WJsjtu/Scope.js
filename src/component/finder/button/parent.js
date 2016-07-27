@@ -8,8 +8,8 @@ module.exports = Scope.createClass({
     state: 0,
     setCss: function (backgroundColor, borderColor) {
         this.refs.wrapper.css({
-            "background-color": backgroundColor,
-            "border-color": borderColor
+            backgroundColor: backgroundColor,
+            borderColor: borderColor
         });
     },
     disableClick: function () {
@@ -55,7 +55,7 @@ module.exports = Scope.createClass({
     render: function () {
         const me = this;
         return (
-            <div style="display: inline-block; *zoom: 1; *display: inline;float: left;">
+            <div style="float: left;">
                 <div onMouseEnter={me.e}
                      onMouseLeave={me.l}
                      onMouseDown={me.d}

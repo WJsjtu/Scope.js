@@ -7,8 +7,8 @@ const scale = require("./../config").iconScale;
 module.exports = Scope.createClass({
     setCss: function (backgroundColor, borderColor) {
         this.refs.wrapper.css({
-            "background-color": backgroundColor,
-            "border-color": borderColor
+            backgroundColor: backgroundColor,
+            borderColor: borderColor
         });
     },
     e: function () {
@@ -34,7 +34,7 @@ module.exports = Scope.createClass({
     render: function () {
         const me = this;
         return (
-            <div style="display: inline-block; *zoom: 1; *display: inline;float: left;" title={me.props.title || ""}>
+            <div style="float: left;" title={me.props.title || ""}>
                 <div onMouseEnter={me.e}
                      onMouseLeave={me.l}
                      onMouseDown={me.d}

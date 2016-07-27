@@ -9,8 +9,8 @@ module.exports = Scope.createClass({
 
     setCss: function (backgroundColor, borderColor) {
         this.refs.wrapper.css({
-            "background-color": backgroundColor,
-            "border-color": borderColor
+            backgroundColor: backgroundColor,
+            borderColor: borderColor
         });
     },
 
@@ -26,7 +26,7 @@ module.exports = Scope.createClass({
         if (me.state != 3) {
             me.state = 0;
             me.setCss("transparent", "transparent");
-            me.refs.wrapper.css("border-left-color", "#D8D8D8");
+            me.refs.wrapper.css({borderLeftColor: "#D8D8D8"});
         }
     },
     d: function (event) {
@@ -51,7 +51,7 @@ module.exports = Scope.createClass({
     render: function () {
         const me = this;
         return (
-            <div style="display: inline-block; *zoom: 1; *display: inline;float: right;" title={me.props.title || ""}>
+            <div style="float: right;" title={me.props.title || ""}>
                 <div onMouseEnter={me.e}
                      onMouseLeave={me.l}
                      onMouseDown={me.d}

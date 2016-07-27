@@ -29,7 +29,7 @@ module.exports = Scope.createClass({
         if (getTarget(event) === $this[0]) {
             me.refs.path.hide();
             me.refs.input.css("display", "block").select();
-            me.refs.wrapper.css("border-color", "#6D9AE4");
+            me.refs.wrapper.css({borderColor: "#6D9AE4"});
         }
     },
 
@@ -38,7 +38,7 @@ module.exports = Scope.createClass({
         const me = this;
         me.refs.path.hide();
         me.refs.input.css("display", "block").select();
-        me.refs.wrapper.css("border-color", "#6D9AE4");
+        me.refs.wrapper.css({borderColor: "#6D9AE4"});
     },
 
     onBlur: function (event, $this) {
@@ -47,7 +47,7 @@ module.exports = Scope.createClass({
         $this.val((me.props.activePath || "").replace(/(^\/|\/$)/ig, ""));
         $this.hide();
         me.refs.path.show();
-        me.refs.wrapper.css("border-color", "#D8D8D8");
+        me.refs.wrapper.css({borderColor: "#D8D8D8"});
     },
 
     onKeyDown: function (event) {
@@ -70,7 +70,7 @@ module.exports = Scope.createClass({
                         {FolderIcon(folderUrl, "plain", scale - 4)}
                     </div>
                     <div ref="directory"
-                        style={`padding: 0; margin: 0; border: none; height: ${scale - 1}px; overflow: hidden;float: left;`}>
+                         style={`padding: 0; margin: 0; border: none; height: ${scale - 1}px; overflow: hidden;float: left;`}>
                         <input ref="input"
                                onBlur={me.onBlur}
                                onKeydown={me.onKeyDown}

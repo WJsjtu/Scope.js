@@ -14,8 +14,8 @@ const File = Scope.createClass({
 
     setCss: function (backgroundColor, borderColor) {
         this.refs.border && this.refs.border.css({
-            "background-color": backgroundColor,
-            "border-color": borderColor
+            backgroundColor: backgroundColor,
+            borderColor: borderColor
         });
     },
 
@@ -48,10 +48,8 @@ const File = Scope.createClass({
         if (me.isMulti) {
             me.isActive = !me.isActive;
             me.isActive ? me.setActive() : me.setDefault();
-            me.refs.check[0].checked = !!me.isActive;
         } else {
             me.setActive();
-            me.refs.check[0].checked = false;
         }
         if (isFunction(me.props.onClick)) {
             me.props.onClick(me, me.isActive, me.isMulti);
@@ -65,10 +63,6 @@ const File = Scope.createClass({
         if (isFunction(me.props.onDoubleClick)) {
             me.props.onDoubleClick(me);
         }
-    },
-
-    cc: function (event) {
-        ScopeUtils.preventDefault(event);
     },
 
     beforeMount: function () {
@@ -85,11 +79,11 @@ const File = Scope.createClass({
         me.isActive = !!me.props.isActive;
         if (me.isActive) {
             me.setActive();
-            me.refs.check[0].checked = me.isMulti;
             if (isFunction(me.props.recordActive)) {
                 me.props.recordActive(me);
             }
         }
+        me.setMultiple(me.isMulti);
     },
 
     afterUpdate: function () {
@@ -108,6 +102,10 @@ const File = Scope.createClass({
         me.setCss("#D2E7F6", "#5C9DD9");
         me.isActive = true;
         me.mouseOver = false;
+        me.refs.checkbox.css({
+            borderColor: "#5F9DD9",
+            backgroundColor: "#5F9DD9"
+        });
     },
 
     setDefault: function () {
@@ -115,21 +113,34 @@ const File = Scope.createClass({
         me.setCss("transparent", "transparent");
         me.isActive = false;
         me.mouseOver = false;
+        me.refs.checkbox.css({
+            borderColor: "#D8D8D8",
+            backgroundColor: "transparent"
+        });
+    },
+
+    setMultiple: function (isMulti) {
+        const me = this;
+        me.isMulti = isMulti;
+        me.refs.title.css({marginLeft: 2 * scale + 4 + (isMulti ? (scale - 3) : 0)});
+        me.refs.checkbox[isMulti ? "show" : "hide"]();
     },
 
     render: function () {
         const me = this, file = me.props.file || {};
 
-        const thisStyle = `line-height: ${scale + 2}px;font-size: ${scale / 2 + 1}px;cursor: default; width: 100%; position: relative;height: ${scale}px;`;
+        const fontSize = scale / 2 + 1;
+
+        const thisStyle = `line-height: ${fontSize * 2}px;font-size: ${fontSize}px;cursor: default; width: 100%; position: relative;height: ${scale}px;`;
 
         const borderStyle = `margin-left: ${scale - 5}px; border: 1px transparent solid; height: ${scale}px;`;
 
-        const toolStyle = `position: absolute; top: 0; left: ${scale / 2}px; margin: 2px 5px 0 ${scale - 7}px;`;
+        const toolStyle = `position: absolute; top: 0; left: ${fontSize - 1}px; margin: 0 5px 0 ${scale - 7}px;`;
 
-        const iconStyle = `float: left; display: ${me.isMulti ? "block" : "none"};line-height: ${scale}px;margin-right: ${(scale + 2) / 4}px;`;
+        const checkboxStyle = `float: left;margin-top: ${(scale - fontSize) / 2 + 1}px;margin-right: ${fontSize / 2}px;height: ${fontSize - 4}px;width: ${fontSize - 4}px; border:1px solid #D8D8D8;`;
 
         const cellStyle = `float: left;overflow: hidden;word-wrap: normal;text-overflow: ellipsis;white-space: nowrap;`;
-        const spanStyle = `padding-left: ${scale / 4}px;`;
+        const spanStyle = `padding-left: ${fontSize / 2}px;`;
 
         return (
             <div onMouseEnter={me.e}
@@ -143,16 +154,13 @@ const File = Scope.createClass({
                 <div style={`width: 100%; position: absolute; top: 0; left: 0; z-index: 999;`}>
                     <div class="finder-cell" style={cellStyle + "position: relative;"}>
                         <div style={toolStyle}>
-                            <div style={iconStyle}>
-                                <input ref="check" type="checkbox" onClick={me.cc}/>
-                            </div>
-                            <div style="float: left; ">
+                            <div ref="checkbox" style={checkboxStyle}></div>
+                            <div style="float: left; margin-top: 2px;">
                                 {Utils.file.icon(file.name, me.props.iconUrl, scale - 3).component}
                             </div>
                             <div style="clear: both;"></div>
                         </div>
-                            <span
-                                style={`margin-left: ${2 * scale + 4 + (me.isMulti ? (scale - 3) : 0)}px`}>{file.name || "- -"}</span>
+                        <span ref="title">{file.name || "- -"}</span>
                     </div>
                     <div class="finder-cell" style={cellStyle}>
                         <span style={spanStyle}>{Utils.date(file.timestamp)}</span>

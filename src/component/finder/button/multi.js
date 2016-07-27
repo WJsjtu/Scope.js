@@ -12,18 +12,18 @@ module.exports = Scope.createClass({
     setActive: function () {
         this.isActive = true;
         this.$ele.css({
-            "border-color": "transparent",
-            "color": "#3C3C3C",
-            "cursor": "pointer"
+            borderColor: "transparent",
+            color: "#3C3C3C",
+            cursor: "pointer"
         });
     },
 
     setDisable: function () {
         this.isActive = false;
         this.$ele.css({
-            "border-color": "#F5F6F7",
-            "color": "#929292",
-            "cursor": "not-allowed"
+            borderColor: "#F5F6F7",
+            color: "#929292",
+            cursor: "not-allowed"
         });
     },
 
@@ -40,9 +40,9 @@ module.exports = Scope.createClass({
     afterMount: function () {
         const me = this;
         me.$ele.css({
-            "border-color": "transparent",
-            "color": "#3C3C3C",
-            "cursor": "pointer"
+            borderColor: "transparent",
+            color: "#3C3C3C",
+            cursor: "pointer"
         });
         me.isActive ? me.setActive() : me.setDisable();
     },
@@ -54,12 +54,12 @@ module.exports = Scope.createClass({
 
     e: function () {
         const me = this;
-        me.isActive && me.$ele.css("border-color", "#D8D8D8");
+        me.isActive && me.$ele.css({borderColor: "#D8D8D8"});
     },
 
     l: function () {
         const me = this;
-        me.isActive && me.$ele.css("border-color", "transparent");
+        me.isActive && me.$ele.css({borderColor: "transparent"});
     },
 
 
@@ -67,7 +67,7 @@ module.exports = Scope.createClass({
         stopPropagation(event);
         const me = this;
         if (me.isActive) {
-            me.$ele.css("background-color", "#F5F6F7");
+            me.$ele.css({backgroundColor: "#F5F6F7"});
             me.isMulti = !me.isMulti;
             me.$ele.text(me.isMulti ? "单选" : "多选");
         }
@@ -77,7 +77,7 @@ module.exports = Scope.createClass({
         stopPropagation(event);
         const me = this;
         if (me.isActive) {
-            me.$ele.css("background-color", "transparent");
+            me.$ele.css({backgroundColor: "transparent"});
             if (isFunction(me.props.onClick)) {
                 me.props.onClick(me.isMulti);
             }
@@ -85,7 +85,7 @@ module.exports = Scope.createClass({
     },
 
     render: function () {
-        const me = this, style = `float: left; border: 1px solid transparent; display: inline-block;*zoom: 1; *display: inline;font-size: ${scale / 2 + 1}px;line-height: ${scale + 2}px;padding: 0 16px;`;
+        const me = this, style = `float: left; border: 1px solid transparent; font-size: ${scale / 2 + 1}px;line-height: ${scale + 2}px;padding: 0 16px;`;
         return (
             <span onMouseEnter={me.e}
                   onMouseLeave={me.l}
